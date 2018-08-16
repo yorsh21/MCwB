@@ -1,22 +1,23 @@
 #include <iostream>
 #include "Instances.cpp"
+#include "Solution.cpp"
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
 	cout << "===========================" << endl;
 
 	Instances instances = Instances();
-	instances.read_instances("instances.txt");
+	instances.read_instances("instances/a36.txt");
 
-	Map map = Map();
+	//instances.print_plant_cuotes();
+	//instances.print_truck_capacities();
+	//instances.print_milk_values();
+	//instances.print_farms_locates();
 
-	Solver solve = Solver();
+	Solution sol = Solution();
+	sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates);
+	sol.build();
 
-
-	instances.print_cuotes();
-	instances.print_milk_values();
-	instances.print_milk_types();
-	instances.print_locates();
 	return 0;
 }
