@@ -11,9 +11,16 @@ class Solution {
 
 		void init(vector<int> capacities, vector<float> values, vector<vector<int>> locates);
 		void build();
-		float evaluate();
+		float evaluate(vector<int> solution);
+		void detail_evaluate(vector<int> solution);
 		void myopic();
 		void move(int index1, int index2);
+
+
+		//Búsqueda Local
+		void hill_climbing(int restarts);
+		vector<int> neighbour(vector<int> solution, int identity);
+		vector<int> random_solution();
 
 
 		//Find Nodes

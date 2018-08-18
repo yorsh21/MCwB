@@ -1,5 +1,6 @@
 #include <cmath>
 #include <algorithm>
+#include <cstdlib>
 #include "Solution.h"
 
 void Solution::init(vector<int> capacities, vector<float> values, vector<vector<int>> locates) {
@@ -56,27 +57,28 @@ void Solution::build() {
 	//Agregando la planta como punto de término
 	representation.push_back(0);
 
-	print_int_vector(representation);
-	cout << representation.size() << endl;
-	cout << evaluate() << endl;
+	//print_int_vector(representation);
+	//cout << representation.size() << endl;
+	//cout << evaluate(representation) << endl;
 }
 
-float Solution::evaluate() {
+float Solution::evaluate(vector<int> solution) {
 	vector<int> milk_truck;
 	vector<int> distance_truck;
 	int current_truck = 0;
 	int local_milk = 0;
 	float distance = 0;
-	for (int i = 1; i < (int)representation.size(); ++i)
+
+	for (int i = 1; i < (int)solution.size(); ++i)
 	{
-		local_milk += farms_locates[representation[i]][3];
+		local_milk += farms_locates[solution[i]][3];
 		distance += sqrt(
-			pow(farms_locates[representation[i]][0] - farms_locates[representation[i]][1], 2)
+			pow(farms_locates[solution[i]][0] - farms_locates[solution[i]][1], 2)
 				+ 
-			pow(farms_locates[representation[i-1]][0] - farms_locates[representation[i-1]][1], 2)
+			pow(farms_locates[solution[i-1]][0] - farms_locates[solution[i-1]][1], 2)
 		);
 
-		if(representation[i] == 0) {
+		if(solution[i] == 0) {
 			milk_truck.push_back(local_milk);
 			distance_truck.push_back(distance);
 			local_milk = 0;
@@ -89,9 +91,51 @@ float Solution::evaluate() {
 	for (int i = 0; i < (int)distance_truck.size(); ++i)
 	{
 		total_route += distance_truck[i];
+		if(milk_truck[i] > truck_capacities[i]) 
+			total_route += (milk_truck[i] - truck_capacities[i])*10;
 	}
 
 	return total_route;
+}
+
+void Solution::detail_evaluate(vector<int> solution) {
+	vector<int> milk_truck;
+	vector<int> capacity_extra;
+	vector<int> distance_truck;
+	int current_truck = 0;
+	int local_milk = 0;
+	int sum_distances = 0;
+	float distance = 0;
+
+	for (int i = 1; i < (int)solution.size(); ++i)
+	{
+		local_milk += farms_locates[solution[i]][3];
+		distance += sqrt(
+			pow(farms_locates[solution[i]][0] - farms_locates[solution[i]][1], 2)
+				+ 
+			pow(farms_locates[solution[i-1]][0] - farms_locates[solution[i-1]][1], 2)
+		);
+
+		if(solution[i] == 0) {
+			milk_truck.push_back(local_milk);
+			capacity_extra.push_back(local_milk - truck_capacities[current_truck]);
+			distance_truck.push_back(distance);
+			sum_distances += distance;
+			local_milk = 0;
+			distance = 0;
+			current_truck++;
+		}
+	}
+
+	cout << "Capacidad de cada camión: ";
+	print_int_vector(truck_capacities);
+	cout << "Leche que lleva cada camión: ";
+	print_int_vector(milk_truck);
+	cout << "Sobrepeso de cada camión: ";
+	print_int_vector(capacity_extra);
+	cout << "Costo por distancias de cada camión: ";
+	print_int_vector(distance_truck);
+	cout << "Total costos: " << sum_distances << endl;
 }
 
 void Solution::myopic() {
@@ -101,6 +145,96 @@ void Solution::myopic() {
 void Solution::move(int index1, int index2) {
 
 }
+
+
+/************************************************************/
+/********************* Búsqueda Local  **********************/
+/************************************************************/
+
+void Solution::hill_climbing(int restarts) {
+	vector<int> best_solution;
+	float quality_best = 1000000;
+
+	for (int i = 0; i <= restarts; ++i) {
+		bool local = false;
+		int neighbour_index = 0;
+		vector<int> solution = random_solution();
+		float quality = evaluate(solution);
+		float neighbour_quality = 0;
+
+		while(!local) {
+			if(neighbour_index <= farm_lenght) {
+				neighbour_index++;
+
+				vector<int> new_neighbour = neighbour(solution, neighbour_index);
+				neighbour_quality = evaluate(new_neighbour);
+
+				if(neighbour_quality < quality) { //Minimize
+					solution = new_neighbour;
+					quality = neighbour_quality;
+					neighbour_index = 0;
+				}
+			}
+			else {
+				local = true;
+			}
+		}
+
+		if(quality < quality_best) {
+			best_solution = solution;
+			quality_best = quality;
+			cout << quality_best << endl;
+		}
+
+		//print_int_vector(solution);
+		//cout << "Restart: " << i << endl;
+	}
+	cout << "Finish algorithm" << endl;
+
+	print_int_vector(best_solution);
+	detail_evaluate(best_solution);
+	cout << "Calidad: " << quality_best << endl;
+
+
+}
+
+vector<int> Solution::neighbour(vector<int> solution, int identity) {
+	/*vector<int> zeros;
+	//find first zero
+	for (int i = 0; i < solution.size(); ++i)
+	{
+		if(solution[i] == 0) {
+			zeros.push_back(i);
+		}
+	}*/
+
+	if(identity > 0 && identity < (int)solution.size()-2) {
+		int temp = solution[identity];
+		solution[identity] = solution[identity+1];
+		solution[identity+1] = temp;
+	}
+
+	return solution;
+}
+
+vector<int> Solution::random_solution() {
+	vector<int> solution(farm_lenght + truck_lenght, 0);
+
+	int index = 1;
+	while(index < farm_lenght) {
+		int i = rand() % (farm_lenght+1) + 1;
+		
+		if(solution[i] == 0) {
+			solution[i] = index;
+			index++;
+		}
+		else {
+			continue;
+		}
+	}
+	return solution;
+}
+
 
 
 /************************************************************/

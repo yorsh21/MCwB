@@ -1,10 +1,15 @@
 #include <iostream>
+#include <time.h>
 #include "Instances.cpp"
 #include "Solution.cpp"
+#include "Solver.cpp"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
+	//Set random Seed
+	srand (time(NULL));
+
 	cout << "===========================" << endl;
 
 	Instances instances = Instances();
@@ -18,6 +23,11 @@ int main(int argc, char *argv[]) {
 	Solution sol = Solution();
 	sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates);
 	sol.build();
+	sol.hill_climbing(10000);
+
+	//Solver hill_climbing = Solver();
+	//hill_climbing.init(sol);
+	//hill_climbing.run();
 
 	return 0;
 }
