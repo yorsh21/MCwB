@@ -2,7 +2,6 @@
 #include <time.h>
 #include "Instances.cpp"
 #include "Solution.cpp"
-#include "Solver.cpp"
 
 using namespace std;
 
@@ -21,13 +20,9 @@ int main(int argc, char *argv[]) {
 	//instances.print_farms_locates();
 
 	Solution sol = Solution();
-	sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates);
-	sol.build();
-	sol.hill_climbing(10000);
+	sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
+	sol.hill_climbing(1000);
 
-	//Solver hill_climbing = Solver();
-	//hill_climbing.init(sol);
-	//hill_climbing.run();
 
 	return 0;
 }
