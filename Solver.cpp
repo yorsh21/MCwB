@@ -15,13 +15,12 @@ void Solver::init(vector<int> capacities, vector<float> values, vector<vector<in
 }
 
 float Solver::evaluate(vector<int> solution, bool show) {
-	int route_cost = 0;
-	int income_milk = 0;
-	int current_truck = 0;
+	float route_cost = 0.0;
+	float income_milk = 0.0;
 	int local_quality = 100;
-	int collect_milk = 0;
+	int collect_milk = 0.0;
 	vector<int> milk_trunk(truck_lenght, 0);
-	vector<int> distance_truck;
+	vector<float> distance_truck;
 
 	for (int i = 1; i < (int)solution.size(); ++i) {
 		route_cost += sqrt(
@@ -41,7 +40,6 @@ float Solver::evaluate(vector<int> solution, bool show) {
 			route_cost = 0;
 			local_quality = 100;
 			collect_milk = 0;
-			current_truck++;
 		}
 	}
 
@@ -72,7 +70,7 @@ float Solver::evaluate(vector<int> solution, bool show) {
 
 	if(show) {
 		cout << endl << "Costo por distancias de cada camión: ";
-		print_int_vector(distance_truck);
+		print_float_vector(distance_truck);
 		cout << "Total costos: " << route_cost << endl;
 
 		cout << endl << "Cuotas de la Planta: ";
@@ -205,13 +203,12 @@ void Solver::export_result(vector<int> solution, string filename) {
 	myfile.open (file);
 
 	if (myfile.is_open()) {
-		int route_cost = 0;
-		int income_milk = 0;
-		int current_truck = 0;
+		float route_cost = 0.0;
+		float income_milk = 0.0;
 		int local_quality = 100;
-		int collect_milk = 0;
+		int collect_milk = 0.0;
 		vector<int> milk_trunk(truck_lenght, 0);
-		vector<int> distance_truck;
+		vector<float> distance_truck;
 		vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 		vector<string> output;
 		string local_output = "0-";
@@ -222,7 +219,10 @@ void Solver::export_result(vector<int> solution, string filename) {
 				pow(farms_locates[solution[i-1]][0] - farms_locates[solution[i-1]][1], 2)
 			);
 
-			local_output += to_string(solution[i]) + "-";
+			if(solution[i] == 0)
+				local_output += to_string(solution[i]);
+			else
+				local_output += to_string(solution[i]) + "-";
 
 			collect_milk += farms_locates[solution[i]][3];
 			if(solution[i] != 0 && local_quality > milk_values[farms_locates[solution[i]][2]]) {
@@ -230,17 +230,16 @@ void Solver::export_result(vector<int> solution, string filename) {
 			}
 
 			if(solution[i] == 0) {
-				local_output += to_string(solution[i]) + "0 " + to_string(route_cost) + " " + to_string(collect_milk) + letters[local_quality];
+				local_output += "\t" + to_string(route_cost) + "\t" + to_string(collect_milk) + letters[local_quality];
 				output.push_back(local_output);
 				local_output = "0-";
 
 				distance_truck.push_back(route_cost);
 				milk_trunk[local_quality] = collect_milk;
 
-				route_cost = 0;
+				route_cost = 0.0;
 				local_quality = 100;
 				collect_milk = 0;
-				current_truck++;
 			}
 		}
 
@@ -261,7 +260,7 @@ void Solver::export_result(vector<int> solution, string filename) {
 			}
 		}
 
-		string head_output = to_string(income_milk - route_cost) + " " + to_string(route_cost) + " " + to_string(income_milk);
+		string head_output = to_string(income_milk - route_cost) + "\t" + to_string(route_cost) + "\t\t" + to_string(income_milk);
 		myfile << head_output << endl;
 		for (int i = 0; i < (int)output.size(); ++i) {
 			myfile << output[i] << endl;

@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
 	
 	//Ejecutando algoritmo de búsqueda local
-	vector<int> solution = sol.hill_climbing(10000);
+	vector<int> solution = sol.hill_climbing(1000);
 
 	//Exportando solución
 	sol.export_result(solution, argv[1]);
