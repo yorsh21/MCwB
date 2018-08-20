@@ -1,6 +1,6 @@
 using namespace std;
 
-class Solution {
+class Solver {
 	public:
 		int truck_lenght;
 		int farm_lenght;
@@ -14,7 +14,7 @@ class Solution {
 
 
 		//Búsqueda Local
-		void hill_climbing(int restarts);
+		vector<int> hill_climbing(int restarts);
 		vector<int> neighbour(vector<int> solution, int identity);
 		vector<int> random_solution();
 
@@ -23,4 +23,5 @@ class Solution {
 		void print_int_vector(vector<int> array);
 		void print_float_vector(vector<float> array);
 		void print_farms_locates();
+		void export_result(vector<int> solution, string filename);
 };

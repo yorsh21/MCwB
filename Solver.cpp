@@ -1,9 +1,9 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>
-#include "Solution.h"
+#include "Solver.h"
 
-void Solution::init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
+void Solver::init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
 	truck_lenght = capacities.size();
 	farm_lenght = locates.size();
 	plant_cuotes = cuotes;
@@ -14,7 +14,7 @@ void Solution::init(vector<int> capacities, vector<float> values, vector<vector<
 	//print_farms_locates();
 }
 
-float Solution::evaluate(vector<int> solution, bool show) {
+float Solver::evaluate(vector<int> solution, bool show) {
 	int route_cost = 0;
 	int income_milk = 0;
 	int current_truck = 0;
@@ -94,7 +94,7 @@ float Solution::evaluate(vector<int> solution, bool show) {
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-void Solution::hill_climbing(int restarts) {
+vector<int> Solver::hill_climbing(int restarts) {
 	vector<int> best_solution;
 	float quality_best = -1000000;
 
@@ -129,19 +129,16 @@ void Solution::hill_climbing(int restarts) {
 			cout << quality_best << endl;
 		}
 
-		//print_int_vector(solution);
-		//cout << "Restart: " << i << endl;
 	}
-	cout << "Finish algorithm" << endl;
+	cout << "Finish local search" << endl;
 
-	print_int_vector(best_solution);
-	evaluate(best_solution, true);
-	cout << "Calidad: " << quality_best << endl;
+	//print_int_vector(best_solution);
+	//evaluate(best_solution, true);
 
-
+	return best_solution;
 }
 
-vector<int> Solution::neighbour(vector<int> solution, int identity) {
+vector<int> Solver::neighbour(vector<int> solution, int identity) {
 	if(identity > 0 && identity < (int)solution.size()-2) {
 		int temp = solution[identity];
 		solution[identity] = solution[identity+1];
@@ -151,7 +148,7 @@ vector<int> Solution::neighbour(vector<int> solution, int identity) {
 	return solution;
 }
 
-vector<int> Solution::random_solution() {
+vector<int> Solver::random_solution() {
 	vector<int> solution(farm_lenght + truck_lenght, 0);
 
 	int index = 1;
@@ -174,7 +171,7 @@ vector<int> Solution::random_solution() {
 /************************ Utilities *************************/
 /************************************************************/
 
-void Solution::print_int_vector(vector<int> array) {
+void Solver::print_int_vector(vector<int> array) {
 	cout << "[";
 	for (int i = 0; i < (int)array.size() - 1; ++i)
 	{
@@ -183,7 +180,7 @@ void Solution::print_int_vector(vector<int> array) {
 	cout << array[(int)array.size()-1] <<  "]" << endl;
 }
 
-void Solution::print_float_vector(vector<float> array) {
+void Solver::print_float_vector(vector<float> array) {
 	cout << "[";
 	for (int i = 0; i < (int)array.size() - 1; ++i)
 	{
@@ -192,11 +189,90 @@ void Solution::print_float_vector(vector<float> array) {
 	cout << array[(int)array.size()-1] <<  "]" << endl;
 }
 
-void Solution::print_farms_locates() {
+void Solver::print_farms_locates() {
 	for (int i = 0; i < (int)farms_locates.size(); ++i)
 	{
 		cout << farms_locates[i][0] << " - " <<  farms_locates[i][1] << " - "  <<  farms_locates[i][2] << " - " <<  farms_locates[i][3]  <<  endl;
 	}
 	cout << "Total elementos: " << farms_locates.size() << endl << endl;
+}
+
+void Solver::export_result(vector<int> solution, string filename) {
+	string file = "outputs/" + filename.replace(filename.end()-3, filename.end(), "out");
+	cout << "Writing output to: " << file << endl;
+
+	ofstream myfile;
+	myfile.open (file);
+
+	if (myfile.is_open()) {
+		int route_cost = 0;
+		int income_milk = 0;
+		int current_truck = 0;
+		int local_quality = 100;
+		int collect_milk = 0;
+		vector<int> milk_trunk(truck_lenght, 0);
+		vector<int> distance_truck;
+		vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
+		vector<string> output;
+		string local_output = "0-";
+
+		for (int i = 1; i < (int)solution.size(); ++i) {
+			route_cost += sqrt(
+				pow(farms_locates[solution[i]][0] - farms_locates[solution[i]][1], 2) + 
+				pow(farms_locates[solution[i-1]][0] - farms_locates[solution[i-1]][1], 2)
+			);
+
+			local_output += to_string(solution[i]) + "-";
+
+			collect_milk += farms_locates[solution[i]][3];
+			if(solution[i] != 0 && local_quality > milk_values[farms_locates[solution[i]][2]]) {
+				local_quality = farms_locates[solution[i]][2];
+			}
+
+			if(solution[i] == 0) {
+				local_output += to_string(solution[i]) + "0 " + to_string(route_cost) + " " + to_string(collect_milk) + letters[local_quality];
+				output.push_back(local_output);
+				local_output = "0-";
+
+				distance_truck.push_back(route_cost);
+				milk_trunk[local_quality] = collect_milk;
+
+				route_cost = 0;
+				local_quality = 100;
+				collect_milk = 0;
+				current_truck++;
+			}
+		}
+
+		route_cost = 0;
+		for (int i = 0; i < (int)distance_truck.size(); ++i) {
+			route_cost += distance_truck[i];
+			if (milk_trunk[i] > truck_capacities[i])
+				route_cost += (milk_trunk[i] - truck_capacities[i])*10;
+		}
+
+		for (int i = 0; i < (int)milk_trunk.size(); ++i) {
+			if(plant_cuotes[i] - milk_trunk[i] >= 0) {
+				income_milk += milk_trunk[i]*milk_values[i];
+				income_milk -= (plant_cuotes[i] - milk_trunk[i])*milk_values[i]*10;
+			}
+			else {
+				income_milk += plant_cuotes[i]*milk_values[i];
+			}
+		}
+
+		string head_output = to_string(income_milk - route_cost) + " " + to_string(route_cost) + " " + to_string(income_milk);
+		myfile << head_output << endl;
+		for (int i = 0; i < (int)output.size(); ++i) {
+			myfile << output[i] << endl;
+		}
+
+		cout << "Successful file writing" << endl;
+	}
+	else {
+		cout << "Error when writing the file:" << file << endl;
+	}
+	myfile.close();
+	
 }
 

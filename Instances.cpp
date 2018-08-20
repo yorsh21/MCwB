@@ -4,9 +4,11 @@
 #include "Instances.h"
 
 void Instances::read_instances(string filename) {
+	string file = "inputs/" + filename;
+	cout << "Reading instances for: " << file << endl;
 	
 	ifstream myfile;
-	myfile.open (filename);
+	myfile.open (file);
 
 	if (myfile.is_open()) {
 		string string_truck_lenght;
@@ -63,6 +65,10 @@ void Instances::read_instances(string filename) {
 			vector<int> coordenates = {stoi(locate[1]), stoi(locate[2]), type, stoi(locate[4])};
 			farms_locates.push_back(coordenates);
 		}
+		cout << "Successfully read file" << endl;
+	}
+	else {
+		cout << "Error when reading the file:" << file << endl;
 	}
 	myfile.close();
 }

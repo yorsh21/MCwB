@@ -9,11 +9,17 @@ WALL = -Wall
 SRCS = main.cpp
 OBJS = $(subst .cc,.o,$(SRCS))
 
+ifdef instance
+	X = :
+else
+	X = \;
+endif
+
 all: clean main
 
 main: $(OBJS) 
 	$(CXX) $(WALL) $(SRCS) -o main
-	./main
+	./main ${instance}
 
 clean: 
 	$(RM) main
