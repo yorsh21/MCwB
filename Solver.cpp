@@ -127,14 +127,14 @@ vector<int> Solver::hill_climbing(int restarts) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			cout << quality_best << endl;
+			cout << quality_best << " | " << (clock() - startTime) / CLOCKS_PER_SEC << endl;
 		}
 
 	}
 	cout << "Finish local search" << endl;
 
-	print_int_vector(best_solution);
-	evaluate(best_solution, true);
+	//print_int_vector(best_solution);
+	//evaluate(best_solution, true);
 
 	return best_solution;
 }
