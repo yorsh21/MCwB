@@ -93,6 +93,9 @@ float Solver::evaluate(vector<int> solution, bool show) {
 /************************************************************/
 
 vector<int> Solver::hill_climbing(int restarts) {
+	//Start Timer
+	clock_t startTime = clock();
+
 	vector<int> best_solution;
 	float quality_best = -1000000;
 
@@ -130,8 +133,8 @@ vector<int> Solver::hill_climbing(int restarts) {
 	}
 	cout << "Finish local search" << endl;
 
-	//print_int_vector(best_solution);
-	//evaluate(best_solution, true);
+	print_int_vector(best_solution);
+	evaluate(best_solution, true);
 
 	return best_solution;
 }
