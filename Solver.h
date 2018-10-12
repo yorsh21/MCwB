@@ -9,6 +9,10 @@ class Solver {
 		vector<float> milk_values;
 		vector<vector<int>> farms_locates;
 
+		float result_times;
+		float result_qualities;
+
+
 		void init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes);
 		float evaluate(vector<int> solution, bool show);
 
@@ -24,4 +28,5 @@ class Solver {
 		void print_float_vector(vector<float> array);
 		void print_farms_locates();
 		void export_result(vector<int> solution, string filename);
+		void save_row_result(vector<int> solution, string filename);
 };

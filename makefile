@@ -5,6 +5,7 @@ CPPFLAGS = -g $(shell root-config --cflags)
 LDFLAGS = -g -Wall $(shell root-config --ldflags)
 LDLIBS = $(shell root-config --libs)
 WALL = -Wall
+EXTRA = -lstdc++fs
 
 SRCS = main.cpp
 OBJS = $(subst .cc,.o,$(SRCS))
@@ -18,7 +19,7 @@ endif
 all: clean main
 
 main: $(OBJS) 
-	$(CXX) $(WALL) $(SRCS) -o main
+	$(CXX) $(WALL) $(SRCS) $(EXTRA) -o main
 	./main ${instance}
 
 clean: 

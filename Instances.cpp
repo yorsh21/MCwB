@@ -1,6 +1,3 @@
-#include <string>
-#include <iterator>
-#include <sstream>
 #include "Instances.h"
 
 void Instances::read_instances(string filename) {

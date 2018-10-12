@@ -1,6 +1,3 @@
-#include <cmath>
-#include <algorithm>
-#include <cstdlib>
 #include "Solver.h"
 
 void Solver::init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
@@ -93,6 +90,8 @@ float Solver::evaluate(vector<int> solution, bool show) {
 /************************************************************/
 
 vector<int> Solver::hill_climbing(int restarts) {
+	clock_t begin = clock();
+
 	vector<int> best_solution;
 	float quality_best = -1000000;
 
@@ -124,14 +123,19 @@ vector<int> Solver::hill_climbing(int restarts) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			cout << quality_best << endl;
+			//cout << quality_best << endl;
 		}
 
 	}
-	cout << "Finish local search" << endl;
+	//cout << "Finish local search" << endl;
 
 	//print_int_vector(best_solution);
 	//evaluate(best_solution, true);
+
+	clock_t end = clock();
+
+	result_times = float(end - begin) / CLOCKS_PER_SEC;
+	result_qualities = quality_best;
 
 	return best_solution;
 }
@@ -273,5 +277,21 @@ void Solver::export_result(vector<int> solution, string filename) {
 	}
 	myfile.close();
 	
+}
+
+void Solver::save_row_result(vector<int> solution, string filename) {
+	string file = "outputs/results.out";
+	ofstream myfile;
+	myfile.open (file, std::fstream::app);
+
+	if (myfile.is_open()) {
+		string output = to_string(result_times) + "\t\t" + to_string(result_qualities);
+		myfile << output << endl;
+	}
+	else {
+		cout << "Error when writing the file:" << file << endl;
+	}
+	
+	myfile.close();
 }
 
