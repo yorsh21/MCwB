@@ -30,7 +30,7 @@ float Solver::evaluate(vector<int> solution, bool show) {
 			local_quality = farms_locates[solution[i]][2];
 		}
 
-		if(solution[i] == 0) {
+		if(solution[i] == 0 && local_quality != 100) {
 			distance_truck.push_back(route_cost);
 			milk_trunk[local_quality] = collect_milk;
 
@@ -127,15 +127,11 @@ vector<int> Solver::hill_climbing(int restarts) {
 		}
 
 	}
-	//cout << "Finish local search" << endl;
-
-	//print_int_vector(best_solution);
-	//evaluate(best_solution, true);
 
 	clock_t end = clock();
 
-	result_times = float(end - begin) / CLOCKS_PER_SEC;
-	result_qualities = quality_best;
+	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
+	result_qualities.push_back(quality_best);
 
 	return best_solution;
 }
@@ -284,8 +280,20 @@ void Solver::save_row_result(vector<int> solution, string filename) {
 	ofstream myfile;
 	myfile.open (file, std::fstream::app);
 
+	float best = 0;
+	float sum = 0;
+	float times = 0;
+	int len = (int)result_qualities.size();
+	for (int i = 0; i < len; ++i)
+	{
+		sum += result_qualities[i];
+		times += result_times[i];
+		if(result_qualities[i] > best)
+			best = result_qualities[i];
+	}
+
 	if (myfile.is_open()) {
-		string output = to_string(result_times) + "\t\t" + to_string(result_qualities);
+		string output = filename + "," + to_string(sum/len) + "," + to_string(best) + "," + to_string(times);
 		myfile << output << endl;
 	}
 	else {

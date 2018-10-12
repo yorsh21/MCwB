@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
 		vector<int> solution = sol.hill_climbing(100);
 		
 		//Exportando solución
-		cout << "mmmmmmmmmmmmmmmmm:"  << endl;
 		sol.save_row_result(solution, *input);
 		//sol.export_result(solution, *input);
 	}

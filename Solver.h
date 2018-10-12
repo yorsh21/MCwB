@@ -9,8 +9,8 @@ class Solver {
 		vector<float> milk_values;
 		vector<vector<int>> farms_locates;
 
-		float result_times;
-		float result_qualities;
+		vector<float> result_times;
+		vector<float> result_qualities;
 
 
 		void init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes);
