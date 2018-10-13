@@ -93,7 +93,7 @@ vector<int> Solver::hill_climbing(int restarts) {
 	clock_t begin = clock();
 
 	vector<int> best_solution;
-	float quality_best = -1000000;
+	float quality_best = -9999999;
 
 	for (int i = 0; i <= restarts; ++i) {
 		bool local = false;
@@ -275,12 +275,12 @@ void Solver::export_result(vector<int> solution, string filename) {
 	
 }
 
-void Solver::save_row_result(vector<int> solution, string filename) {
+void Solver::save_row_result(string filename) {
 	string file = "outputs/results.out";
 	ofstream myfile;
 	myfile.open (file, std::fstream::app);
 
-	float best = 0;
+	float best = -9999999;
 	float sum = 0;
 	float times = 0;
 	int len = (int)result_qualities.size();
@@ -293,7 +293,7 @@ void Solver::save_row_result(vector<int> solution, string filename) {
 	}
 
 	if (myfile.is_open()) {
-		string output = filename + "," + to_string(sum/len) + "," + to_string(best) + "," + to_string(times);
+		string output = filename + " " + to_string((int)sum/len) + " " + to_string((int)best) + " " + to_string((int)times);
 		myfile << output << endl;
 	}
 	else {

@@ -1,11 +1,9 @@
 CC = gcc
 CXX = g++
 RM = rm -f
-CPPFLAGS = -g $(shell root-config --cflags)
-LDFLAGS = -g -Wall $(shell root-config --ldflags)
-LDLIBS = $(shell root-config --libs)
+CPPFLAGS = -g -std=c++11 
 WALL = -Wall
-EXTRA = -lstdc++fs
+FSFLAGS = -lstdc++fs
 
 SRCS = main.cpp
 OBJS = $(subst .cc,.o,$(SRCS))
@@ -19,7 +17,7 @@ endif
 all: clean main
 
 main: $(OBJS) 
-	$(CXX) $(WALL) $(SRCS) $(EXTRA) -o main
+	$(CXX) $(WALL) $(SRCS) $(CPPFLAGS) $(FSFLAGS) -o main
 	./main ${instance}
 
 clean: 

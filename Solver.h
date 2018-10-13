@@ -28,5 +28,5 @@ class Solver {
 		void print_float_vector(vector<float> array);
 		void print_farms_locates();
 		void export_result(vector<int> solution, string filename);
-		void save_row_result(vector<int> solution, string filename);
+		void save_row_result(string filename);
 };
