@@ -6,3 +6,8 @@ El archivo de salida de ubicará en el directorio outputs/ con el nombre: nombre
 Ejemplos:
 	make instance=a36.txt
 	make instance=eil22.txt
+
+
+Para ejecutar las pruebas en todas las instancias que se encuentran en el directorio inputs/ se debe ejecutar: make
+
+Con esto se generará un archivo con las calidades y tiempos de cada una de las instancias. El archivo se ubica en el directorio outputs/ y se llama results.out.

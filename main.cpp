@@ -59,10 +59,13 @@ int main(int argc, char *argv[]) {
 	}
 	else {
 		int seed = time(NULL);
+		//BORRAR!!!!
+		seed = 1539354881;
 		srand (seed);
 		string input = argv[1];
 
-		cout << "Random Seed: " << seed  << endl << endl;
+		cout << "Random Seed: " << seed << endl << endl;
+
 
 		//Leyendo instancias
 		Instances instances = Instances();
@@ -73,7 +76,7 @@ int main(int argc, char *argv[]) {
 		sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
 		
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(100);
+		vector<int> solution = sol.hill_climbing(0);
 		
 		//Exportando solución
 		sol.export_result(solution, input);

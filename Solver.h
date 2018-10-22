@@ -15,6 +15,7 @@ class Solver {
 
 		void init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes);
 		float evaluate(vector<int> solution, bool show);
+		float fast_evaluate(vector<int> solution, float before_eval, int index);
 
 
 		//Búsqueda Local
