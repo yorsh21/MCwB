@@ -26,7 +26,6 @@ float Solver::evaluate(vector<int> solution, bool show) {
 			pow(farms_locates[solution[i]][0] - farms_locates[solution[i-1]][0], 2) + 
 			pow(farms_locates[solution[i]][1] - farms_locates[solution[i-1]][1], 2)
 		);
-		cout << route_cost << endl;
 
 		collect_milk += farms_locates[solution[i]][3];
 		if(solution[i] != 0 && local_quality > milk_values[farms_locates[solution[i]][2]]) {
@@ -34,9 +33,6 @@ float Solver::evaluate(vector<int> solution, bool show) {
 		}
 
 		if(solution[i] == 0 && local_quality != 100) {
-			//if (collect_milk > truck_capacities[local_quality])
-			//	route_cost += (collect_milk - truck_capacities[local_quality])*10;
-
 			distance_truck.push_back(route_cost);
 			milk_trunk[local_quality] = collect_milk;
 
@@ -47,7 +43,7 @@ float Solver::evaluate(vector<int> solution, bool show) {
 		}
 	}
 
-	/*//Revisión de Costos
+	//Revisión de Costos
 	route_cost = 0;
 	int len_trun = (int)distance_truck.size();
 	for (int i = 0; i < len_trun; ++i) {
@@ -56,7 +52,7 @@ float Solver::evaluate(vector<int> solution, bool show) {
 		//Penalización por sobrepeso en camiones
 		if (milk_trunk[i] > truck_capacities[i])
 			route_cost += (milk_trunk[i] - truck_capacities[i])*10;
-	}*/
+	}
 
 	//Revisión de Beneficios
 	int len_milk = (int)milk_trunk.size();
@@ -77,7 +73,7 @@ float Solver::evaluate(vector<int> solution, bool show) {
 	if(show) {
 		cout << endl << "Costo por distancias de cada camión: ";
 		print_float_vector(distance_truck);
-		cout << "Total costos: " << route_cost << endl;
+		cout << "Total costos: " << total_cost << endl;
 
 		cout << endl << "Cuotas de la Planta: ";
 		print_int_vector(plant_cuotes);
@@ -144,16 +140,19 @@ vector<int> Solver::hill_climbing(int restarts) {
 		bool local = false;
 		int neighbour_index = 0;
 		vector<int> solution = random_solution();
-		float quality = evaluate(solution, false);
+		float quality = evaluate(solution, true);
 		float neighbour_quality = 0;
 
+		print_int_vector(solution);
+		break;
+		
 		while(!local) {
 			if(neighbour_index <= farm_lenght) {
 				neighbour_index++;
 
 				vector<int> new_neighbour = neighbour(solution, neighbour_index);
 				//neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
-				neighbour_quality = evaluate(new_neighbour, true);
+				neighbour_quality = evaluate(new_neighbour, false);
 
 				if(neighbour_quality > quality) {
 					solution = new_neighbour;
@@ -164,8 +163,6 @@ vector<int> Solver::hill_climbing(int restarts) {
 			else {
 				local = true;
 			}
-			print_int_vector(solution);
-			break;
 		}
 
 		if(quality > quality_best) {
