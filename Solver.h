@@ -2,8 +2,9 @@ using namespace std;
 
 class Solver {
 	public:
-		int truck_lenght;
-		int farm_lenght;
+		int trucks_lenght;
+		int milks_lenght;
+		int farms_lenght;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
 		vector<float> milk_values;
@@ -14,7 +15,7 @@ class Solver {
 
 
 		void init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes);
-		float evaluate(vector<int> solution, bool show);
+		float evaluate(vector<int> solution);
 		float fast_evaluate(vector<int> solution, float before_eval, int index);
 
 

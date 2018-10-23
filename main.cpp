@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
 	if(argc == 1) {
 		vector<string> inputs;
-		vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539352067};
+		vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
 
 	    for (auto & p : fs::directory_iterator("inputs")) {
 	        inputs.push_back(p.path().filename());
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	else {
 		int seed = time(NULL);
 		//BORRAR!!!!
-		seed = 1539354881;
+		seed = 1123436735;
 		srand (seed);
 		string input = argv[1];
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 		sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
 		
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(0);
+		vector<int> solution = sol.hill_climbing(10000);
 		
 		//Exportando solución
 		sol.export_result(solution, input);

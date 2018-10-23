@@ -1,98 +1,81 @@
 #include "Solver.h"
 
 void Solver::init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
-	truck_lenght = capacities.size();
-	farm_lenght = locates.size();
+	trucks_lenght = capacities.size();
+	milks_lenght = values.size();
+	farms_lenght = locates.size();
 	plant_cuotes = cuotes;
 	truck_capacities = capacities;
 	milk_values = values;
 	farms_locates = locates;
-
-	//print_farms_locates();
 }
 
-float Solver::evaluate(vector<int> solution, bool show) {
+float Solver::evaluate(vector<int> solution) {
 	float route_cost = 0.0;
 	float total_cost = 0.0;
-	float income_milk = 0.0;
-	int local_quality = 100;
-	int collect_milk = 0.0;
-	vector<int> milk_trunk(truck_lenght, 0);
-	vector<float> distance_truck;
+	int milk_income = 0.0;
+	int collect_milk = 0;
+	int truck_index = 0;
+	vector<int> satisfied_cuotes = plant_cuotes;
+	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
 
 	int len_sol = (int)solution.size();
 	for (int i = 1; i < len_sol; ++i) {
+		vector<int> before_farm = farms_locates[solution[i-1]];
+		vector<int> current_farm = farms_locates[solution[i]];
+
 		route_cost += sqrt(
-			pow(farms_locates[solution[i]][0] - farms_locates[solution[i-1]][0], 2) + 
-			pow(farms_locates[solution[i]][1] - farms_locates[solution[i-1]][1], 2)
+			pow(current_farm[0] - before_farm[0], 2) + pow(current_farm[1] - before_farm[1], 2)
 		);
 
-		collect_milk += farms_locates[solution[i]][3];
-		if(solution[i] != 0 && local_quality > milk_values[farms_locates[solution[i]][2]]) {
-			local_quality = farms_locates[solution[i]][2];
-		}
-
-		if(solution[i] == 0 && local_quality != 100) {
-			distance_truck.push_back(route_cost);
-			milk_trunk[local_quality] = collect_milk;
-
+		//El nodo actual es la planta
+		if(solution[i] == 0) {
 			total_cost += route_cost;
-			route_cost = 0;
-			local_quality = 100;
-			collect_milk = 0;
+			satisfied_cuotes[local_quality] -= collect_milk;
+
+			//Exceso en la capacidad de los camiones
+			if (collect_milk > truck_capacities[truck_index]) {
+				total_cost += (collect_milk - truck_capacities[truck_index])*10;
+			}
+
+			if(i+1 < len_sol) {
+				route_cost = 0;
+				collect_milk = 0;
+				truck_index++;
+				local_quality = farms_locates[solution[i+1]][2];
+			}
+		}
+		else {
+			collect_milk += current_farm[3];
+
+			if(milk_values[local_quality] > milk_values[current_farm[2]]) {
+				local_quality = current_farm[2];
+			}
 		}
 	}
 
-	//Revisión de Costos
-	route_cost = 0;
-	int len_trun = (int)distance_truck.size();
-	for (int i = 0; i < len_trun; ++i) {
-		route_cost += distance_truck[i];
-
-		//Penalización por sobrepeso en camiones
-		if (milk_trunk[i] > truck_capacities[i])
-			route_cost += (milk_trunk[i] - truck_capacities[i])*10;
-	}
-
-	//Revisión de Beneficios
-	int len_milk = (int)milk_trunk.size();
-	for (int i = 0; i < len_milk; ++i) {
+	for (int i = 0; i < milks_lenght; ++i) {
 		//No se ha cumplido la cuota
-		if(plant_cuotes[i] - milk_trunk[i] >= 0) {
+		if(satisfied_cuotes[i] >= 0) {
 			//Beneficios por cuota parcial cumplida
-			income_milk += milk_trunk[i]*milk_values[i];
+			milk_income += (plant_cuotes[i] - satisfied_cuotes[i])*milk_values[i];
 
 			//Penalización por cuota faltante
-			income_milk -= (plant_cuotes[i] - milk_trunk[i])*milk_values[i]*10;
+			milk_income -= satisfied_cuotes[i]*milk_values[i]*10;
 		}
 		else { //Se ha sobrepasado la cuota
-			income_milk += plant_cuotes[i]*milk_values[i];
+			milk_income += plant_cuotes[i]*milk_values[i];
 		}
 	}
 
-	if(show) {
-		cout << endl << "Costo por distancias de cada camión: ";
-		print_float_vector(distance_truck);
-		cout << "Total costos: " << total_cost << endl;
-
-		cout << endl << "Cuotas de la Planta: ";
-		print_int_vector(plant_cuotes);
-		cout << "Leche llevada por los camiones: ";
-		print_int_vector(milk_trunk);
-		cout << "Capacidad de cada camión: ";
-		print_int_vector(truck_capacities);
-
-		cout << "Total beneficios: " << income_milk << endl;
-	}
-
-	return income_milk - route_cost;
+	return milk_income - total_cost;
 }
 
 float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) {
 	float new_eval = 0.0;
 
 	if(solution[index] == 0 || solution[index+1] == 0) {
-		new_eval = evaluate(solution, false);
+		new_eval = evaluate(solution);
 	}
 	else {
 		float adds = sqrt(
@@ -114,11 +97,6 @@ float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) 
 		);
 
 		new_eval = before_eval - (adds - dels);
-
-		int old_eval = (int)evaluate(solution, false);
-		int renew_eval = (int)new_eval;
-		if(old_eval != renew_eval)
-			cout << renew_eval << " | " << old_eval << endl;
 	}
 
 	return new_eval;
@@ -140,19 +118,16 @@ vector<int> Solver::hill_climbing(int restarts) {
 		bool local = false;
 		int neighbour_index = 0;
 		vector<int> solution = random_solution();
-		float quality = evaluate(solution, true);
+		float quality = evaluate(solution);
 		float neighbour_quality = 0;
 
-		print_int_vector(solution);
-		break;
-		
 		while(!local) {
-			if(neighbour_index <= farm_lenght) {
+			if(neighbour_index <= farms_lenght) {
 				neighbour_index++;
 
 				vector<int> new_neighbour = neighbour(solution, neighbour_index);
-				//neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
-				neighbour_quality = evaluate(new_neighbour, false);
+				neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
+				//neighbour_quality = evaluate(new_neighbour);
 
 				if(neighbour_quality > quality) {
 					solution = new_neighbour;
@@ -168,7 +143,8 @@ vector<int> Solver::hill_climbing(int restarts) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			//cout << quality_best << endl;
+			cout << quality_best << endl;
+			//print_int_vector(solution);
 		}
 
 	}
@@ -192,11 +168,11 @@ vector<int> Solver::neighbour(vector<int> solution, int identity) {
 }
 
 vector<int> Solver::random_solution() {
-	vector<int> solution(farm_lenght + truck_lenght, 0);
+	vector<int> solution(farms_lenght + trucks_lenght, 0);
 
 	int index = 1;
-	while(index < farm_lenght) {
-		int i = rand() % (farm_lenght+1) + 1;
+	while(index < farms_lenght) {
+		int i = rand() % (farms_lenght+1) + 1;
 		
 		if(solution[i] == 0) {
 			solution[i] = index;
@@ -249,10 +225,10 @@ void Solver::export_result(vector<int> solution, string filename) {
 
 	if (myfile.is_open()) {
 		float route_cost = 0.0;
-		float income_milk = 0.0;
+		float milk_income = 0.0;
 		int local_quality = 100;
 		int collect_milk = 0.0;
-		vector<int> milk_trunk(truck_lenght, 0);
+		vector<int> milk_trunk(trucks_lenght, 0);
 		vector<float> distance_truck;
 		vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 		vector<string> output;
@@ -297,15 +273,15 @@ void Solver::export_result(vector<int> solution, string filename) {
 
 		for (int i = 0; i < (int)milk_trunk.size(); ++i) {
 			if(plant_cuotes[i] - milk_trunk[i] >= 0) {
-				income_milk += milk_trunk[i]*milk_values[i];
-				income_milk -= (plant_cuotes[i] - milk_trunk[i])*milk_values[i]*10;
+				milk_income += milk_trunk[i]*milk_values[i];
+				milk_income -= (plant_cuotes[i] - milk_trunk[i])*milk_values[i]*10;
 			}
 			else {
-				income_milk += plant_cuotes[i]*milk_values[i];
+				milk_income += plant_cuotes[i]*milk_values[i];
 			}
 		}
 
-		string head_output = to_string(income_milk - route_cost) + "\t" + to_string(route_cost) + "\t\t" + to_string(income_milk);
+		string head_output = to_string(milk_income - route_cost) + "\t" + to_string(route_cost) + "\t\t" + to_string(milk_income);
 		myfile << head_output << endl;
 		for (int i = 0; i < (int)output.size(); ++i) {
 			myfile << output[i] << endl;
