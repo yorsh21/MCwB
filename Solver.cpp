@@ -18,6 +18,7 @@ float Solver::evaluate(vector<int> solution) {
 	int truck_index = 0;
 	vector<int> satisfied_cuotes = plant_cuotes;
 	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
+	bool factible = true;
 
 	int len_sol = (int)solution.size();
 	for (int i = 1; i < len_sol; ++i) {
@@ -36,6 +37,7 @@ float Solver::evaluate(vector<int> solution) {
 			//Exceso en la capacidad de los camiones
 			if (collect_milk > truck_capacities[truck_index]) {
 				total_cost += (collect_milk - truck_capacities[truck_index])*10;
+				factible = false;
 			}
 
 			if(i+1 < len_sol) {
@@ -55,17 +57,30 @@ float Solver::evaluate(vector<int> solution) {
 	}
 
 	for (int i = 0; i < milks_lenght; ++i) {
-		//No se ha cumplido la cuota
+		milk_income += (plant_cuotes[i] - satisfied_cuotes[i])*milk_values[i];
+		
+		//Penalización por cuota faltante
 		if(satisfied_cuotes[i] >= 0) {
-			//Beneficios por cuota parcial cumplida
-			milk_income += (plant_cuotes[i] - satisfied_cuotes[i])*milk_values[i];
-
-			//Penalización por cuota faltante
 			milk_income -= satisfied_cuotes[i]*milk_values[i]*10;
+			//cout << "Leche " << i+1 << ": " << satisfied_cuotes[i]*milk_values[i]*10 << endl;
+			factible = false;
 		}
-		else { //Se ha sobrepasado la cuota
-			milk_income += plant_cuotes[i]*milk_values[i];
-		}
+	}
+
+	/*cout << "Solucion:" << endl;
+	print_int_vector(solution);
+
+	cout << endl << "Total:" << milk_income << " - " << total_cost << " = " << milk_income - total_cost << endl << endl;
+
+	cout << "Cuotas Planta:" << endl;
+	print_int_vector(plant_cuotes);
+	cout << endl << "Cuotas Satisfechas:" << endl;
+	print_int_vector(satisfied_cuotes);
+	cout << endl;*/
+
+	if (factible)
+	{
+		return 0;
 	}
 
 	return milk_income - total_cost;
@@ -121,13 +136,21 @@ vector<int> Solver::hill_climbing(int restarts) {
 		float quality = evaluate(solution);
 		float neighbour_quality = 0;
 
+		bool factible = false;
 		while(!local) {
 			if(neighbour_index <= farms_lenght) {
 				neighbour_index++;
 
 				vector<int> new_neighbour = neighbour(solution, neighbour_index);
-				neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
-				//neighbour_quality = evaluate(new_neighbour);
+				//neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
+				neighbour_quality = evaluate(new_neighbour);
+
+				if(neighbour_quality == 0) {
+					cout << "Solucion Factible" << endl;
+					factible = true;
+					print_int_vector(solution);
+					break;
+				}
 
 				if(neighbour_quality > quality) {
 					solution = new_neighbour;
@@ -138,6 +161,11 @@ vector<int> Solver::hill_climbing(int restarts) {
 			else {
 				local = true;
 			}
+		}
+
+		if (factible)
+		{
+			break;
 		}
 
 		if(quality > quality_best) {
@@ -167,8 +195,32 @@ vector<int> Solver::neighbour(vector<int> solution, int identity) {
 	return solution;
 }
 
+vector<int> Solver::random_feasible_solution() {
+	vector<int> solution(farms_lenght + trucks_lenght, 0);
+
+	int index = 1;
+	while(index < farms_lenght) {
+		int i = rand() % (farms_lenght+1) + 1;
+		
+		if(solution[i] == 0) {
+			solution[i] = index;
+			index++;
+		}
+		else {
+			continue;
+		}
+	}
+	return solution;
+}
+
+
 vector<int> Solver::random_solution() {
 	vector<int> solution(farms_lenght + trucks_lenght, 0);
+
+	for (int i = 0; i < farms_lenght; ++i)
+	{
+		int r = rand() % (farms_lenght+1) + 1;
+	}
 
 	int index = 1;
 	while(index < farms_lenght) {

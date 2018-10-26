@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	else {
 		int seed = time(NULL);
 		//BORRAR!!!!
-		seed = 1123436735;
+		seed = 1183436735;
 		srand (seed);
 		string input = argv[1];
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 		sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
 		
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(10000);
+		vector<int> solution = sol.hill_climbing(1000000000);
 		
 		//Exportando solución
 		sol.export_result(solution, input);

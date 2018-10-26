@@ -22,6 +22,7 @@ class Solver {
 		//Búsqueda Local
 		vector<int> hill_climbing(int restarts);
 		vector<int> neighbour(vector<int> solution, int identity);
+		vector<int> random_feasible_solution();
 		vector<int> random_solution();
 
 
