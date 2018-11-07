@@ -78,11 +78,6 @@ float Solver::evaluate(vector<int> solution) {
 	print_int_vector(satisfied_cuotes);
 	cout << endl;*/
 
-	if (factible)
-	{
-		return 0;
-	}
-
 	return milk_income - total_cost;
 }
 
@@ -132,11 +127,10 @@ vector<int> Solver::hill_climbing(int restarts) {
 	for (int i = 0; i <= restarts; ++i) {
 		bool local = false;
 		int neighbour_index = 0;
-		vector<int> solution = random_solution();
+		vector<int> solution = random_feasible_solution();//random_solution();
 		float quality = evaluate(solution);
 		float neighbour_quality = 0;
 
-		bool factible = false;
 		while(!local) {
 			if(neighbour_index <= farms_lenght) {
 				neighbour_index++;
@@ -144,13 +138,6 @@ vector<int> Solver::hill_climbing(int restarts) {
 				vector<int> new_neighbour = neighbour(solution, neighbour_index);
 				//neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
 				neighbour_quality = evaluate(new_neighbour);
-
-				if(neighbour_quality == 0) {
-					cout << "Solucion Factible" << endl;
-					factible = true;
-					print_int_vector(solution);
-					break;
-				}
 
 				if(neighbour_quality > quality) {
 					solution = new_neighbour;
@@ -161,11 +148,6 @@ vector<int> Solver::hill_climbing(int restarts) {
 			else {
 				local = true;
 			}
-		}
-
-		if (factible)
-		{
-			break;
 		}
 
 		if(quality > quality_best) {
@@ -196,20 +178,32 @@ vector<int> Solver::neighbour(vector<int> solution, int identity) {
 }
 
 vector<int> Solver::random_feasible_solution() {
+	vector<int> milks;
+	for (int i = 0; i < milks_lenght; i++) milks.push_back(i);
+	
+	int itetator = 1;
 	vector<int> solution(farms_lenght + trucks_lenght, 0);
-
-	int index = 1;
-	while(index < farms_lenght) {
-		int i = rand() % (farms_lenght+1) + 1;
+	for (int i = 0; i < trucks_lenght; ++i)
+	{
+		int init = rand() % farms_lenght;
+		while (farms_locates[init][2] == -1 || find (milks.begin(), milks.end(), farms_locates[init][2]) == milks.end()) {
+			init = rand() % farms_lenght;
+		}
+		milks[farms_locates[init][2]] = -1;
 		
-		if(solution[i] == 0) {
-			solution[i] = index;
-			index++;
+		int counter = 0;
+		vector<int> r = random_int_vector(farms_lenght);
+		for (int j = 0; j < farms_lenght; ++j)
+		{
+			if (farms_locates[init][2] == farms_locates[r[j]][2])
+			{
+				solution[itetator + counter] = r[j];
+				counter++;
+			}
 		}
-		else {
-			continue;
-		}
+		itetator += counter + 1;
 	}
+
 	return solution;
 }
 
@@ -217,11 +211,6 @@ vector<int> Solver::random_feasible_solution() {
 vector<int> Solver::random_solution() {
 	vector<int> solution(farms_lenght + trucks_lenght, 0);
 
-	for (int i = 0; i < farms_lenght; ++i)
-	{
-		int r = rand() % (farms_lenght+1) + 1;
-	}
-
 	int index = 1;
 	while(index < farms_lenght) {
 		int i = rand() % (farms_lenght+1) + 1;
@@ -237,6 +226,21 @@ vector<int> Solver::random_solution() {
 	return solution;
 }
 
+
+vector<int> Solver::random_int_vector(int lenght) {
+	vector<int> int_vector(lenght, 0);
+
+	int index = 1;
+	while(index < lenght) {
+		int i = rand() % lenght;
+		
+		if(int_vector[i] == 0) {
+			int_vector[i] = index;
+			index++;
+		}
+	}
+	return int_vector;
+}
 
 /************************************************************/
 /************************ Utilities *************************/

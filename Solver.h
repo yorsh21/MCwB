@@ -24,7 +24,7 @@ class Solver {
 		vector<int> neighbour(vector<int> solution, int identity);
 		vector<int> random_feasible_solution();
 		vector<int> random_solution();
-
+		vector<int> random_int_vector(int lenght);
 
 		//Utilities
 		void print_int_vector(vector<int> array);
