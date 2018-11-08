@@ -118,7 +118,7 @@ float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) 
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-vector<int> Solver::hill_climbing(int restarts) {
+vector<int> Solver::hill_climbing(int restarts, int times) {
 	clock_t begin = clock();
 
 	vector<int> best_solution;
@@ -155,6 +155,10 @@ vector<int> Solver::hill_climbing(int restarts) {
 			quality_best = quality;
 			cout << quality_best << endl;
 			//print_int_vector(solution);
+		}
+
+		if(float(clock() - begin) / CLOCKS_PER_SEC >= times) {
+			break;
 		}
 
 	}

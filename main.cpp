@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
 
 	if(argc == 1) {
 		vector<string> inputs;
-		vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
+		vector<int> seeds = {1539354881};//, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
+		vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 4806};
 
 	    for (auto & p : fs::directory_iterator("inputs")) {
 	        inputs.push_back(p.path().filename());
@@ -37,6 +38,7 @@ int main(int argc, char *argv[]) {
 		sort(inputs.begin(), inputs.end());
 		clean_result();
 
+		int contador = 0;
 		for (vector<string>::iterator input = inputs.begin(); input != inputs.end(); ++input) {
 			//Leyendo instancias
 			Instances instances = Instances();
@@ -50,11 +52,13 @@ int main(int argc, char *argv[]) {
 			for (int i = 0; i < (int)seeds.size(); ++i)
 			{
 				srand (seeds[i]);
-				vector<int> solution = sol.hill_climbing(1000);
+				vector<int> solution = sol.hill_climbing(1000000, times[contador]);
 			}
 			
 			//Exportando solución
 			sol.save_row_result(*input);
+
+			contador++;
 		}
 	}
 	else {
@@ -76,7 +80,7 @@ int main(int argc, char *argv[]) {
 		sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
 		
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(1000);
+		vector<int> solution = sol.hill_climbing(1000,1);
 		
 		//Exportando solución
 		sol.export_result(solution, input);
