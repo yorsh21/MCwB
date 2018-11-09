@@ -18,7 +18,7 @@ float Solver::evaluate(vector<int> solution) {
 	int truck_index = 0;
 	vector<int> satisfied_cuotes = plant_cuotes;
 	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
-	bool factible = true;
+	//bool factible = true;
 
 	int len_sol = (int)solution.size();
 	for (int i = 1; i < len_sol; ++i) {
@@ -37,7 +37,7 @@ float Solver::evaluate(vector<int> solution) {
 			//Exceso en la capacidad de los camiones
 			if (collect_milk > truck_capacities[truck_index]) {
 				total_cost += (collect_milk - truck_capacities[truck_index])*10;
-				factible = false;
+				//factible = false;
 			}
 
 			if(i+1 < len_sol) {
@@ -62,8 +62,7 @@ float Solver::evaluate(vector<int> solution) {
 		//Penalización por cuota faltante
 		if(satisfied_cuotes[i] >= 0) {
 			milk_income -= satisfied_cuotes[i]*milk_values[i]*10;
-			//cout << "Leche " << i+1 << ": " << satisfied_cuotes[i]*milk_values[i]*10 << endl;
-			factible = false;
+			//factible = false;
 		}
 	}
 
@@ -273,7 +272,8 @@ void Solver::print_farms_locates() {
 }
 
 void Solver::export_result(vector<int> solution, string filename) {
-	string file = "outputs/" + filename.replace(filename.end()-3, filename.end(), "out");
+	string outname = filename;
+	string file = "outputs/" + outname.replace(outname.end()-3, outname.end(), "out");
 	cout << "Writing output to: " << file << endl;
 
 	ofstream myfile;
@@ -289,6 +289,7 @@ void Solver::export_result(vector<int> solution, string filename) {
 		vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 		vector<string> output;
 		string local_output = "0-";
+		string full_output = "python3 plot.py " + filename + " [0";
 
 		for (int i = 1; i < (int)solution.size(); ++i) {
 			route_cost += sqrt(
@@ -296,10 +297,13 @@ void Solver::export_result(vector<int> solution, string filename) {
 				pow(farms_locates[solution[i-1]][0] - farms_locates[solution[i-1]][1], 2)
 			);
 
-			if(solution[i] == 0)
+			if(solution[i] == 0) {
 				local_output += to_string(solution[i]);
-			else
+			}
+			else{
 				local_output += to_string(solution[i]) + "-";
+			}
+			full_output += "," + to_string(solution[i]);
 
 			collect_milk += farms_locates[solution[i]][3];
 			if(solution[i] != 0 && local_quality > milk_values[farms_locates[solution[i]][2]]) {
@@ -319,6 +323,10 @@ void Solver::export_result(vector<int> solution, string filename) {
 				collect_milk = 0;
 			}
 		}
+
+		full_output += "]";
+		cout << full_output << endl;
+		system(full_output.c_str());
 
 		route_cost = 0;
 		for (int i = 0; i < (int)distance_truck.size(); ++i) {

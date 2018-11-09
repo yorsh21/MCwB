@@ -34,3 +34,7 @@
 
 #Executable
 main
+
+
+#Directory
+outputs/*

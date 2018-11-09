@@ -66,7 +66,6 @@ int main(int argc, char *argv[]) {
 
 		cout << "Random Seed: " << seed << endl << endl;
 
-
 		//Leyendo instancias
 		Instances instances = Instances();
 		instances.read_instances(input);
@@ -76,7 +75,7 @@ int main(int argc, char *argv[]) {
 		sol.init(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
 		
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(1000);
+		vector<int> solution = sol.hill_climbing(1000000);
 		
 		//Exportando solución
 		sol.export_result(solution, input);

@@ -25,7 +25,7 @@ def read_instances(instance):
 	return farms
 
 
-def plot_map(route = None):
+def plot_map(instance, route = None):
 	colors = ['c', 'm', 'y']
 	line = '-'
 	plt.figure(num=None, figsize=(14, 10), dpi=100, facecolor='w', edgecolor='k')
@@ -54,7 +54,8 @@ def plot_map(route = None):
 				[int(farms[route[i]][2]), int(farms[route[i+1]][2])], colors[count_route]+line, linewidth = .5)
 
 	#plt.grid()
-	plt.show()
+	#plt.show()
+	plt.savefig("outputs/" + instance.replace("txt", "png"))
 
 
 
@@ -67,8 +68,7 @@ elif len(sys.argv) == 2:
 elif len(sys.argv) == 3:
 	farms = read_instances(sys.argv[1])
 	route = list(map(int, sys.argv[2][1:-1].split(",")))
-	print(route)
-	plot_map(route)
+	plot_map(sys.argv[1], route)
 
 
 #route = [0, 34, 15, 26, 24, 7, 2, 0, 8, 21, 6, 30, 33, 20, 5, 17, 31, 12, 35, 1, 16, 4, 0, 13, 32, 19, 27, 3, 22, 29, 23, 14, 11, 28, 18, 10, 25, 9, 0]
