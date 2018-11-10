@@ -29,29 +29,40 @@ def plot_map(instance, route = None):
 	colors = ['c', 'm', 'y']
 	line = '-'
 	plt.figure(num=None, figsize=(14, 10), dpi=100, facecolor='w', edgecolor='k')
-	plt.title('Draw Milk Routes')
+	plt.title('Route: ' + sys.argv[2])
 	plt.xlabel('x')
 	plt.ylabel('y')
 
 	
-	for i in range(len(farms)-1):
-	    if farms[i][3] == "-":
-	        scatter(int(farms[i][1]), int(farms[i][2]), s=80 ,marker='s', c='k')
-	    elif farms[i][3] == "A":
-	        scatter(int(farms[i][1]), int(farms[i][2]), s=30 ,marker='o', c='r')
-	    elif farms[i][3] == "B":
-	        scatter(int(farms[i][1]), int(farms[i][2]), s=30 ,marker='o', c='g')
-	    elif farms[i][3] == "C":
-	        scatter(int(farms[i][1]),int(farms[i][2]), s=30 ,marker='o', c='b')
+	for f in farms:
+	    if f[3] == "-":
+	        scatter(int(f[1]), int(f[2]), s=80 ,marker='s', c='k')
+	    elif f[3] == "A":
+	        scatter(int(f[1]), int(f[2]), s=30 ,marker='o', c='r')
+	    elif f[3] == "B":
+	        scatter(int(f[1]), int(f[2]), s=30 ,marker='o', c='g')
+	    elif f[3] == "C":
+	        scatter(int(f[1]),int(f[2]), s=30 ,marker='o', c='b')
+	    plt.text(int(f[1]), int(f[2]), int(f[0])-1, fontsize=9)
 	        
 	if route is not None:
 		count_route = -1
-		for i in range(len(route)-1):
-			if route[i] == 0:
-				count_route += 1
+		routex = [int(farms[int(route[0])][1])]
+		routey = [int(farms[int(route[0])][2])]
 
-			plot([int(farms[route[i]][1]), int(farms[route[i+1]][1])],
-				[int(farms[route[i]][2]), int(farms[route[i+1]][2])], colors[count_route]+line, linewidth = .5)
+		for i in range(1, len(route)):
+			routex.append(int(farms[int(route[i])][1]))
+			routey.append(int(farms[int(route[i])][2]))
+
+			if int(route[i]) == 0:
+				plot(routex, routey, colors[count_route]+line, linewidth = .5)
+				count_route += 1
+				routex = [int(farms[int(route[i])][1])]
+				routey = [int(farms[int(route[i])][2])]
+
+
+			#plot([int(farms[int(route[i])-1][1]), int(farms[int(route[i+1])-1][1])],
+			#	[int(farms[int(route[i])-1][2]), int(farms[int(route[i+1])-1][2])], colors[count_route]+line, linewidth = .5)
 
 	#plt.grid()
 	#plt.show()
@@ -69,6 +80,3 @@ elif len(sys.argv) == 3:
 	farms = read_instances(sys.argv[1])
 	route = list(map(int, sys.argv[2][1:-1].split(",")))
 	plot_map(sys.argv[1], route)
-
-
-#route = [0, 34, 15, 26, 24, 7, 2, 0, 8, 21, 6, 30, 33, 20, 5, 17, 31, 12, 35, 1, 16, 4, 0, 13, 32, 19, 27, 3, 22, 29, 23, 14, 11, 28, 18, 10, 25, 9, 0]
