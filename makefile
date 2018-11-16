@@ -14,11 +14,17 @@ else
 	X = \;
 endif
 
+ifdef mov
+	Y = :
+else
+	Y = \;
+endif
+
 all: clean main
 
 main: $(OBJS) 
 	$(CXX) $(WALL) $(SRCS) $(CPPFLAGS) $(FSFLAGS) -o main
-	./main ${instance}
+	#./main ${instance} ${mov}
 
 clean: 
 	$(RM) main

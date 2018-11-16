@@ -1,6 +1,6 @@
 #include "Solver.h"
 
-void Solver::init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
+Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
 	trucks_lenght = capacities.size();
 	milks_lenght = values.size();
 	farms_lenght = locates.size();
@@ -125,23 +125,27 @@ vector<int> Solver::hill_climbing(int restarts) {
 
 	for (int i = 0; i <= restarts; ++i) {
 		bool local = false;
-		int neighbour_index = 0;
+		int neighbour_move = 0;
 		vector<int> solution = random_feasible_solution();//random_solution();
 		float quality = evaluate(solution);
 		float neighbour_quality = 0;
 
+		int index = rand() % (farms_lenght - 1);
 		while(!local) {
-			if(neighbour_index <= farms_lenght) {
-				neighbour_index++;
+			if(neighbour_move <= farms_lenght) {
+				neighbour_move++;
 
-				vector<int> new_neighbour = neighbour(solution, neighbour_index);
-				//neighbour_quality = fast_evaluate(new_neighbour, quality, neighbour_index);
+				vector<int> new_neighbour = two_opt(solution, index, neighbour_move);
+				/*
+				vector<int> new_neighbour = short_swap(solution, neighbour_move);
+				vector<int> new_neighbour = long_swap(solution, index, neighbour_move);
+				*/
 				neighbour_quality = evaluate(new_neighbour);
 
 				if(neighbour_quality > quality) {
 					solution = new_neighbour;
 					quality = neighbour_quality;
-					neighbour_index = 0;
+					neighbour_move = 0;
 				}
 			}
 			else {
@@ -152,7 +156,7 @@ vector<int> Solver::hill_climbing(int restarts) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			cout << quality_best << endl;
+			cout << i << ": " << quality_best << endl;
 			//print_int_vector(solution);
 		}
 
@@ -166,11 +170,58 @@ vector<int> Solver::hill_climbing(int restarts) {
 	return best_solution;
 }
 
-vector<int> Solver::neighbour(vector<int> solution, int identity) {
+vector<int> Solver::short_swap(vector<int> solution, int identity) {
 	if(identity > 0 && identity < (int)solution.size()-2) {
 		int temp = solution[identity];
 		solution[identity] = solution[identity+1];
 		solution[identity+1] = temp;
+	}
+
+	return solution;
+}
+
+vector<int> Solver::long_swap(vector<int> solution, int index, int move) {
+	if(move > 0 && move < (int)solution.size()-2) {
+		int temp = solution[move];
+		solution[move] = solution[index];
+		solution[index] = temp;
+	}
+
+	return solution;
+}
+
+vector<int> Solver::two_opt(vector<int> solution, int index1, int index2) {
+	if (index1 < index2)
+	{
+		int diff = index2 - index1;
+		for (int i = 0; i < diff; ++i)
+		{
+			if (index1 + i == index2 - i){
+				break;
+			}
+			else  {
+				int temp = solution[index1 + i];
+				solution[index1 + i] = solution[index2 - i];
+				solution[index2 - i] = temp;
+			}
+
+		}
+	}
+	else if(index1 > index2) 
+	{
+		int diff = index1 - index2;
+		for (int i = 0; i < diff; ++i)
+		{
+			if (index2 + i == index1 - i){
+				break;
+			}
+			else  {
+				int temp = solution[index2 + i];
+				solution[index2 + i] = solution[index1 - i];
+				solution[index1 - i] = temp;
+			}
+
+		}
 	}
 
 	return solution;
@@ -360,8 +411,8 @@ void Solver::export_result(vector<int> solution, string filename) {
 	
 }
 
-void Solver::save_row_result(string filename) {
-	string file = "outputs/results.out";
+void Solver::save_row_result(string filename, string fileresult) {
+	string file = "outputs/" + fileresult + ".out";
 	ofstream myfile;
 	myfile.open (file, std::fstream::app);
 
