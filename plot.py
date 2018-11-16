@@ -28,7 +28,7 @@ def read_instances(instance):
 def plot_map(instance, route = None):
 	colors = ['c', 'm', 'y']
 	line = '-'
-	plt.figure(num=None, figsize=(14, 10), dpi=100, facecolor='w', edgecolor='k')
+	plt.figure(num=None, figsize=(25, 25), dpi=200, facecolor='w', edgecolor='k')
 	plt.title('Route: ' + sys.argv[2])
 	plt.xlabel('x')
 	plt.ylabel('y')
@@ -36,14 +36,14 @@ def plot_map(instance, route = None):
 	
 	for f in farms:
 	    if f[3] == "-":
-	        scatter(int(f[1]), int(f[2]), s=80 ,marker='s', c='k')
+	        scatter(int(f[1]), int(f[2]), s=50 ,marker='s', c='k')
 	    elif f[3] == "A":
-	        scatter(int(f[1]), int(f[2]), s=30 ,marker='o', c='r')
+	        scatter(int(f[1]), int(f[2]), s=10 ,marker='o', c='r')
 	    elif f[3] == "B":
-	        scatter(int(f[1]), int(f[2]), s=30 ,marker='o', c='g')
+	        scatter(int(f[1]), int(f[2]), s=10 ,marker='o', c='g')
 	    elif f[3] == "C":
-	        scatter(int(f[1]),int(f[2]), s=30 ,marker='o', c='b')
-	    plt.text(int(f[1]), int(f[2]), int(f[0])-1, fontsize=9)
+	        scatter(int(f[1]),int(f[2]), s=10 ,marker='o', c='b')
+	    plt.text(int(f[1]), int(f[2]), int(f[0])-1, fontsize=5)
 	        
 	if route is not None:
 		count_route = -1
@@ -59,10 +59,6 @@ def plot_map(instance, route = None):
 				count_route += 1
 				routex = [int(farms[int(route[i])][1])]
 				routey = [int(farms[int(route[i])][2])]
-
-
-			#plot([int(farms[int(route[i])-1][1]), int(farms[int(route[i+1])-1][1])],
-			#	[int(farms[int(route[i])-1][2]), int(farms[int(route[i+1])-1][2])], colors[count_route]+line, linewidth = .5)
 
 	#plt.grid()
 	#plt.show()
