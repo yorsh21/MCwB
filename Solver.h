@@ -5,6 +5,8 @@ class Solver {
 		int trucks_lenght;
 		int milks_lenght;
 		int farms_lenght;
+		int global_quality;
+		string name_instance;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
 		vector<float> milk_values;
@@ -12,10 +14,11 @@ class Solver {
 
 		vector<float> result_times;
 		vector<float> result_qualities;
+		vector<int> global_solution;
 
 
 		//void init(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes);
-		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes);
+		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
 		float evaluate(vector<int> solution);
 		float fast_evaluate(vector<int> solution, float before_eval, int index);
 
@@ -33,6 +36,9 @@ class Solver {
 		void print_int_vector(vector<int> array);
 		void print_float_vector(vector<float> array);
 		void print_farms_locates();
-		void export_result(vector<int> solution, string filename);
-		void save_row_result(string filename, string fileresult);
+		string int_vector_to_string(vector<int> array);
+
+		//Exports
+		void export_result(vector<int> solution);
+		void save_row_result();
 };

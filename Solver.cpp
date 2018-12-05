@@ -1,6 +1,6 @@
 #include "Solver.h"
 
-Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes) {
+Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance) {
 	trucks_lenght = capacities.size();
 	milks_lenght = values.size();
 	farms_lenght = locates.size();
@@ -8,6 +8,8 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 	truck_capacities = capacities;
 	milk_values = values;
 	farms_locates = locates;
+	name_instance = instance;
+	global_quality = 0;
 }
 
 float Solver::evaluate(vector<int> solution) {
@@ -117,16 +119,16 @@ float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) 
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-vector<int> Solver::hill_climbing(int restarts) {
+vector<int> Solver::hill_climbing(int times) {
 	clock_t begin = clock();
 
 	vector<int> best_solution;
 	float quality_best = -9999999;
 
-	for (int i = 0; i <= restarts; ++i) {
+	for (int i = 0; i <= /*restarts*/9999999; ++i) {
 		bool local = false;
 		int neighbour_move = 0;
-		vector<int> solution = random_feasible_solution();//random_solution();
+		vector<int> solution = random_feasible_solution();
 		float quality = evaluate(solution);
 		float neighbour_quality = 0;
 
@@ -135,11 +137,10 @@ vector<int> Solver::hill_climbing(int restarts) {
 			if(neighbour_move <= farms_lenght) {
 				neighbour_move++;
 
+				//vector<int> new_neighbour = long_swap(solution, index, neighbour_move);
+				//vector<int> new_neighbour = short_swap(solution, neighbour_move);
 				vector<int> new_neighbour = two_opt(solution, index, neighbour_move);
-				/*
-				vector<int> new_neighbour = short_swap(solution, neighbour_move);
-				vector<int> new_neighbour = long_swap(solution, index, neighbour_move);
-				*/
+				
 				neighbour_quality = evaluate(new_neighbour);
 
 				if(neighbour_quality > quality) {
@@ -156,8 +157,12 @@ vector<int> Solver::hill_climbing(int restarts) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			cout << i << ": " << quality_best << endl;
+			//cout << name_instance << ": " << quality_best << endl;
 			//print_int_vector(solution);
+		}
+
+		if(float(clock() - begin) / CLOCKS_PER_SEC >= times) {
+			break;
 		}
 
 	}
@@ -166,6 +171,11 @@ vector<int> Solver::hill_climbing(int restarts) {
 
 	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
 	result_qualities.push_back(quality_best);
+
+	if(quality_best > global_quality) {
+		global_quality = quality_best;
+		global_solution = best_solution;
+	}
 
 	return best_solution;
 }
@@ -292,6 +302,7 @@ vector<int> Solver::random_int_vector(int lenght) {
 	return int_vector;
 }
 
+
 /************************************************************/
 /************************ Utilities *************************/
 /************************************************************/
@@ -322,9 +333,25 @@ void Solver::print_farms_locates() {
 	cout << "Total elementos: " << farms_locates.size() << endl << endl;
 }
 
-void Solver::export_result(vector<int> solution, string filename) {
-	string outname = filename;
-	string file = "outputs/" + outname.replace(outname.end()-3, outname.end(), "out");
+string Solver::int_vector_to_string(vector<int> array) {
+	string output = "[";
+	int len = (int)array.size() - 1;
+	for (int i = 0; i < len; ++i)
+	{
+		output += to_string(array[i]) + ", ";
+	}
+	output += to_string(array[len]) + "]";
+
+	return output;
+}
+
+
+/************************************************************/
+/************************** Exports *************************/
+/************************************************************/
+
+void Solver::export_result(vector<int> solution) {
+	string file = "outputs/" + name_instance + ".out";
 	cout << "Writing output to: " << file << endl;
 
 	ofstream myfile;
@@ -340,7 +367,7 @@ void Solver::export_result(vector<int> solution, string filename) {
 		vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 		vector<string> output;
 		string local_output = "0-";
-		string full_output = "python3 plot.py " + filename + " [0";
+		string full_output = "python3 plot.py " + name_instance + " [0";
 
 		for (int i = 1; i < (int)solution.size(); ++i) {
 			route_cost += sqrt(
@@ -411,8 +438,8 @@ void Solver::export_result(vector<int> solution, string filename) {
 	
 }
 
-void Solver::save_row_result(string filename, string fileresult) {
-	string file = "outputs/" + fileresult + ".out";
+void Solver::save_row_result() {
+	string file = "outputs/results.out";
 	ofstream myfile;
 	myfile.open (file, std::fstream::app);
 
@@ -429,7 +456,11 @@ void Solver::save_row_result(string filename, string fileresult) {
 	}
 
 	if (myfile.is_open()) {
-		string output = filename + " " + to_string((int)sum/len) + " " + to_string((int)best) + " " + to_string((int)times);
+		string output = name_instance + "\t" + 
+			to_string((int)sum/len) + "\t" + 
+			to_string((int)best) + "\t" + 
+			to_string((int)times) + "\n" + 
+			int_vector_to_string(global_solution);
 		myfile << output << endl;
 	}
 	else {
@@ -437,5 +468,6 @@ void Solver::save_row_result(string filename, string fileresult) {
 	}
 	
 	myfile.close();
+	cout << "Successfully wrhite instance: " << name_instance << endl;
 }
 

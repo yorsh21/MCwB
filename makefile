@@ -1,7 +1,7 @@
 CC = gcc
 CXX = g++
 RM = rm -f
-CPPFLAGS = -g -std=c++11 
+CPPFLAGS = -g -std=c++11 -pthread
 WALL = -Wall
 FSFLAGS = -lstdc++fs
 
@@ -24,7 +24,7 @@ all: clean main
 
 main: $(OBJS) 
 	$(CXX) $(WALL) $(SRCS) $(CPPFLAGS) $(FSFLAGS) -o main
-	#./main ${instance} ${mov}
+	./main ${instance} ${mov}
 
 clean: 
 	$(RM) main

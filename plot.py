@@ -29,7 +29,7 @@ def plot_map(instance, route = None):
 	colors = ['c', 'm', 'y']
 	line = '-'
 	plt.figure(num=None, figsize=(25, 25), dpi=200, facecolor='w', edgecolor='k')
-	plt.title('Route: ' + sys.argv[2])
+	if route is not None: plt.title('Route: ' + sys.argv[2]) 
 	plt.xlabel('x')
 	plt.ylabel('y')
 
@@ -71,7 +71,7 @@ if len(sys.argv) == 1:
 	print("It is need pass the instance name")
 elif len(sys.argv) == 2:
 	farms = read_instances(sys.argv[1])
-	plot_map()
+	plot_map(sys.argv[1])
 elif len(sys.argv) == 3:
 	farms = read_instances(sys.argv[1])
 	route = list(map(int, sys.argv[2][1:-1].split(",")))

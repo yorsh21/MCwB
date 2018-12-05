@@ -10,6 +10,8 @@
 #include <vector>
 #include <ctime>
 #include <thread>
+#include <chrono>
+#include <thread>
 #include <experimental/filesystem>
 
 #include "Instances.cpp"
@@ -18,52 +20,59 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
-void clean_result() {
+void clean_result() 
+{
 	string file = "outputs/results.out";
 	ofstream myfile;
 	myfile.open (file);
 	myfile.close();
 }
 
-void run(int seed, int len) {
+void run(string file_name, int time_running) 
+{
 	//Leyendo instancias
 	Instances instances = Instances();
-	instances.read_instances(*input);
+	instances.read_instances(file_name + ".txt");
 
 	//Creando estructura de las soluciones
-	Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
+	Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, file_name);
 	
 	//Ejecutando algoritmo de búsqueda local
-	for (int i = 0; i < len; ++i)
+	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
+	int local_time = (int)(time_running/(int)seeds.size());
+	for (int i = 0; i < (int)seeds.size(); ++i)
 	{
-		srand (seed);
-		vector<int> solution = sol.hill_climbing(100);
+		srand (seeds[i]);
+		sol.hill_climbing(local_time);
+		cout << file_name << " " << i << ": " << sol.global_quality << endl;
 	}
 	
 	//Exportando solución
-	sol.save_row_result(*input);
+	sol.save_row_result();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
 	cout << "==========================================" << endl;
 
 	if(argc == 1) {
-		vector<string> inputs;
-		vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
+		vector<string> inputs = {"a36", "a62", "a64", "a65", "eil22", "eil51", "eil76", "tai75A"};
+		vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 48060};
 		vector<thread> threads;
 
-	    for (auto & p : fs::directory_iterator("inputs")) {
-	        inputs.push_back(p.path().filename());
-	        thread t1(run);
-	        threads.push_back(t1);
-	    }
-		sort(inputs.begin(), inputs.end());
 		clean_result();
 
-		thread t1(run);
-		for (vector<string>::iterator input = inputs.begin(); input != inputs.end(); ++input) {
-			t1.join();
+		for (int i = 0; i < (int)inputs.size(); ++i){
+			threads.push_back(thread(run, inputs[i], times[i]));
 		}
+
+		this_thread::sleep_for(chrono::seconds(15000));
+		for (int i = 0; i < (int)inputs.size(); ++i){
+			cout << "Joining Thread " << i << endl;
+			threads[i].join();
+		}
+
+		cout << "End algorithm" << endl;
 	}
 	else {
 		int seed = time(NULL);
@@ -80,16 +89,16 @@ int main(int argc, char *argv[]) {
 
 		//Leyendo instancias
 		Instances instances = Instances();
-		instances.read_instances(input);
+		instances.read_instances(input + ".txt");
 
 		//Creando estructura de las soluciones
-		Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes);
+		Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, input);
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(10000);
 		
 		//Exportando solución
-		sol.export_result(solution, input, output);
+		sol.export_result(solution);
 	}
 	
 	return 0;
