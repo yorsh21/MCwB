@@ -15,6 +15,7 @@
 #include <experimental/filesystem>
 
 #include "Instances.cpp"
+#include "Solution.cpp"
 #include "Solver.cpp"
 
 using namespace std;
@@ -54,12 +55,11 @@ void run(string file_name, int time_running)
 int main(int argc, char *argv[]) 
 {
 	cout << "==========================================" << endl;
+	vector<string> inputs = {"a36", "a62", "a64", "a65", "eil22", "eil51", "eil76", "tai75A"};
+	vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 4806};
 
 	if(argc == 1) {
-		vector<string> inputs = {"a36", "a62", "a64", "a65", "eil22", "eil51", "eil76", "tai75A"};
-		vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 48060};
 		vector<thread> threads;
-
 		clean_result();
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
@@ -71,21 +71,22 @@ int main(int argc, char *argv[])
 			cout << "Joining Thread " << i << endl;
 			threads[i].join();
 		}
-
-		cout << "End algorithm" << endl;
 	}
-	else {
+	else if(argc == 2) {
 		int seed = time(NULL);
-		seed = 1539354881; //BORRAR!!!!
 		srand (seed);
 		string input = argv[1];
 		
-		string output = "result";
-		if(argc == 3) {
-			string output = argv[2];
+		//Buscando tiempos
+		int time = 3600;
+		vector<string>::iterator it = find (inputs.begin(), inputs.end(), input);
+		if (it != inputs.end()){
+			int index = std::distance(inputs.begin(), it);
+			time = times[index];
 		}
 
-		cout << "Random Seed: " << seed << endl << endl;
+		cout << "Seed: " << seed << endl;
+		cout << "Time: " << time << " seconds / " << time/60 << " minutes" << endl << endl;
 
 		//Leyendo instancias
 		Instances instances = Instances();
@@ -95,11 +96,15 @@ int main(int argc, char *argv[])
 		Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, input);
 
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(10000);
+		vector<int> solution = sol.hill_climbing(time/4);
 		
 		//Exportando solución
-		sol.export_result(solution);
+		//sol.export_result(solution);
+	}
+	else {
+		cout << "Excess of parameters" << endl;
 	}
 	
+	cout << "End algorithm" << endl;
 	return 0;
 }

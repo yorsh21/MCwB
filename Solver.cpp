@@ -1,5 +1,6 @@
 #include "Solver.h"
 
+
 Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance) {
 	trucks_lenght = capacities.size();
 	milks_lenght = values.size();
@@ -10,6 +11,20 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 	farms_locates = locates;
 	name_instance = instance;
 	global_quality = 0;
+
+	for (int i = 0; i < farms_lenght; ++i)
+	{
+		vector<float> row(farms_lenght, 0);
+		for (int j = 0; j < farms_lenght; ++j)
+		{
+			row[j] = sqrt(
+				pow(farms_locates[i][0] - farms_locates[j][0], 2) + 
+				pow(farms_locates[i][1] - farms_locates[j][1], 2)
+			);
+		}
+		cost_matrix.push_back(row);
+	}
+	//print_cost_matrix();
 }
 
 float Solver::evaluate(vector<int> solution) {
@@ -24,12 +39,14 @@ float Solver::evaluate(vector<int> solution) {
 
 	int len_sol = (int)solution.size();
 	for (int i = 1; i < len_sol; ++i) {
-		vector<int> before_farm = farms_locates[solution[i-1]];
 		vector<int> current_farm = farms_locates[solution[i]];
 
+		/*
+		vector<int> before_farm = farms_locates[solution[i-1]];
 		route_cost += sqrt(
 			pow(current_farm[0] - before_farm[0], 2) + pow(current_farm[1] - before_farm[1], 2)
-		);
+		);*/
+		route_cost += cost_matrix[solution[i]][solution[i-1]];
 
 		//El nodo actual es la planta
 		if(solution[i] == 0) {
@@ -38,7 +55,7 @@ float Solver::evaluate(vector<int> solution) {
 
 			//Exceso en la capacidad de los camiones
 			if (collect_milk > truck_capacities[truck_index]) {
-				total_cost += (collect_milk - truck_capacities[truck_index])*10;
+				total_cost += (collect_milk - truck_capacities[truck_index])*100;
 				//factible = false;
 			}
 
@@ -63,7 +80,7 @@ float Solver::evaluate(vector<int> solution) {
 		
 		//Penalización por cuota faltante
 		if(satisfied_cuotes[i] >= 0) {
-			milk_income -= satisfied_cuotes[i]*milk_values[i]*10;
+			milk_income -= satisfied_cuotes[i]*milk_values[i]*100;
 			//factible = false;
 		}
 	}
@@ -119,52 +136,83 @@ float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) 
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-vector<int> Solver::hill_climbing(int times) {
+Solution Solver::hill_climbing_new(int end_time) {
 	clock_t begin = clock();
 
-	vector<int> best_solution;
-	float quality_best = -9999999;
+	Solution best_solution = Solution(farms_locates, milks_lenght, trucks_lenght);
+	float quality_best = best_solution.evaluate();
 
-	for (int i = 0; i <= /*restarts*/9999999; ++i) {
-		bool local = false;
-		int neighbour_move = 0;
-		vector<int> solution = random_feasible_solution();
-		float quality = evaluate(solution);
-		float neighbour_quality = 0;
+	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
+		Solution solution = Solution(farms_locates, milks_lenght, trucks_lenght);
+		float quality = solution.evaluate();
 
-		int index = rand() % (farms_lenght - 1);
-		while(!local) {
-			if(neighbour_move <= farms_lenght) {
-				neighbour_move++;
+		//Buscando en el vecindario
+		for (int i = 0; i < solution.neighbour_lenght(); ++i)
+		{
+			if(solution.get_neighbour(i) > quality) {
+				solution.set_neighbour(i);
+				quality = solution.evaluate();
 
-				//vector<int> new_neighbour = long_swap(solution, index, neighbour_move);
-				//vector<int> new_neighbour = short_swap(solution, neighbour_move);
-				vector<int> new_neighbour = two_opt(solution, index, neighbour_move);
-				
-				neighbour_quality = evaluate(new_neighbour);
-
-				if(neighbour_quality > quality) {
-					solution = new_neighbour;
-					quality = neighbour_quality;
-					neighbour_move = 0;
-				}
-			}
-			else {
-				local = true;
+				//Primera mejora
+				break;
 			}
 		}
 
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			//cout << name_instance << ": " << quality_best << endl;
+			cout << name_instance << ": " << quality_best << endl;
+			/*if (quality > 0)
+			{
+				draw_graph(solution, quality);
+			}*/
 			//print_int_vector(solution);
 		}
+	}
 
-		if(float(clock() - begin) / CLOCKS_PER_SEC >= times) {
-			break;
+	clock_t end = clock();
+	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
+	result_qualities.push_back(quality_best);
+
+	return best_solution;
+}
+
+vector<int> Solver::hill_climbing(int end_time) {
+	clock_t begin = clock();
+
+	vector<int> best_solution = random_feasible_solution();;
+	float quality_best = evaluate(best_solution);
+
+	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
+		vector<int> solution = random_feasible_solution();
+		float quality = evaluate(solution);
+		float neighbour_quality = 0;
+
+		int index = rand() % (farms_lenght - 1);
+		vector<int> neighbour = neighbour_index(solution, index);
+		for (int i = 0; i < (int)neighbour.size(); ++i)
+		{
+			//vector<int> new_neighbour = long_swap(solution, index, neighbour[i]);
+			//vector<int> new_neighbour = short_swap(solution, neighbour[i]);
+			vector<int> new_neighbour = two_opt(solution, index, neighbour[i]);
+			neighbour_quality = evaluate(new_neighbour);
+
+			if(neighbour_quality > quality) {
+				solution = new_neighbour;
+				quality = neighbour_quality;
+			}
 		}
 
+		if(quality > quality_best) {
+			best_solution = solution;
+			quality_best = quality;
+			cout << ">>>>>>>>>>>>>>>>>>>>>>>> " << name_instance << ": " << (int)quality_best << " <<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
+
+			if (quality > 0) {
+				draw_graph(solution, quality);
+				//print_int_vector(solution);
+			}
+		}
 	}
 
 	clock_t end = clock();
@@ -235,6 +283,23 @@ vector<int> Solver::two_opt(vector<int> solution, int index1, int index2) {
 	}
 
 	return solution;
+}
+
+vector<int> Solver::neighbour_index(vector<int> solution, int index) {
+	vector<int> indexes;
+	int count = 0;
+	int len = (int)solution.size();
+
+	while(index + count < len && solution[index + count] != 0) {
+		indexes.push_back(index + count);
+		count++;
+	}
+	while(index - count > 0 && solution[index - count] != 0) {
+		indexes.push_back(index - count);
+		count++;
+	}
+
+	return indexes;
 }
 
 vector<int> Solver::random_feasible_solution() {
@@ -331,6 +396,19 @@ void Solver::print_farms_locates() {
 		cout << farms_locates[i][0] << " - " <<  farms_locates[i][1] << " - "  <<  farms_locates[i][2] << " - " <<  farms_locates[i][3]  <<  endl;
 	}
 	cout << "Total elementos: " << farms_locates.size() << endl << endl;
+}
+
+void Solver::print_cost_matrix() {
+	for (int i = 0; i < (int)cost_matrix.size(); ++i)
+	{
+		string row = "-";
+		for (int j = 0; j < (int)cost_matrix.size(); ++j)
+		{
+			row += to_string((int)cost_matrix[i][j])  + "-";
+		}
+		cout << row <<  endl;
+	}
+	cout << endl;
 }
 
 string Solver::int_vector_to_string(vector<int> array) {
@@ -469,5 +547,18 @@ void Solver::save_row_result() {
 	
 	myfile.close();
 	cout << "Successfully wrhite instance: " << name_instance << endl;
+}
+
+void Solver::draw_graph(vector<int> solution, int quality) {
+	vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
+	string full_output = "python3 plot.py " + name_instance + " [0";
+
+	for (int i = 1; i < (int)solution.size(); ++i) {
+		full_output += "," + to_string(solution[i]);
+	}
+
+	full_output += "] " + to_string(quality);
+	//cout << full_output << endl;
+	system(full_output.c_str());
 }
 
