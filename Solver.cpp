@@ -14,49 +14,41 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 
 	for (int i = 0; i < farms_lenght; ++i)
 	{
-		vector<float> row(farms_lenght, 0);
+		vector<int> row(farms_lenght, 0);
 		for (int j = 0; j < farms_lenght; ++j)
 		{
 			row[j] = sqrt(
 				pow(farms_locates[i][0] - farms_locates[j][0], 2) + 
 				pow(farms_locates[i][1] - farms_locates[j][1], 2)
-			);
+			) + 0.5;
 		}
 		cost_matrix.push_back(row);
 	}
 	//print_cost_matrix();
 }
 
-float Solver::evaluate(vector<int> solution) {
-	float route_cost = 0.0;
-	float total_cost = 0.0;
-	int milk_income = 0.0;
+int Solver::evaluate(vector<int> solution, bool show = false) {
+	int route_cost = 0;
+	int total_cost = 0;
 	int collect_milk = 0;
 	int truck_index = 0;
+	vector<int> milks_trucks = truck_capacities;
 	vector<int> satisfied_cuotes = plant_cuotes;
 	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
-	//bool factible = true;
 
 	int len_sol = (int)solution.size();
 	for (int i = 1; i < len_sol; ++i) {
 		vector<int> current_farm = farms_locates[solution[i]];
-
-		/*
-		vector<int> before_farm = farms_locates[solution[i-1]];
-		route_cost += sqrt(
-			pow(current_farm[0] - before_farm[0], 2) + pow(current_farm[1] - before_farm[1], 2)
-		);*/
 		route_cost += cost_matrix[solution[i]][solution[i-1]];
 
 		//El nodo actual es la planta
 		if(solution[i] == 0) {
 			total_cost += route_cost;
-			satisfied_cuotes[local_quality] -= collect_milk;
+			milks_trucks[truck_index] -= collect_milk;
 
 			//Exceso en la capacidad de los camiones
-			if (collect_milk > truck_capacities[truck_index]) {
-				total_cost += (collect_milk - truck_capacities[truck_index])*100;
-				//factible = false;
+			if (milks_trucks[truck_index] < 0) {
+				total_cost -= milks_trucks[truck_index]*100;
 			}
 
 			if(i+1 < len_sol) {
@@ -68,6 +60,7 @@ float Solver::evaluate(vector<int> solution) {
 		}
 		else {
 			collect_milk += current_farm[3];
+			satisfied_cuotes[current_farm[2]] -= current_farm[3];
 
 			if(milk_values[local_quality] > milk_values[current_farm[2]]) {
 				local_quality = current_farm[2];
@@ -75,32 +68,40 @@ float Solver::evaluate(vector<int> solution) {
 		}
 	}
 
+	int milk_income = 0;
 	for (int i = 0; i < milks_lenght; ++i) {
-		milk_income += (plant_cuotes[i] - satisfied_cuotes[i])*milk_values[i];
+		milk_income += (plant_cuotes[i] - satisfied_cuotes[i])*milk_values[i] + 0.5;
 		
 		//Penalización por cuota faltante
 		if(satisfied_cuotes[i] >= 0) {
 			milk_income -= satisfied_cuotes[i]*milk_values[i]*100;
-			//factible = false;
 		}
 	}
 
-	/*cout << "Solucion:" << endl;
-	print_int_vector(solution);
+	if (show) {
+		cout << endl << "Total: " << milk_income << " - " << total_cost << " = " << milk_income - total_cost << endl << endl;
 
-	cout << endl << "Total:" << milk_income << " - " << total_cost << " = " << milk_income - total_cost << endl << endl;
+		cout << "Capacidad Camiones: ";
+		print_int_vector(truck_capacities);
+		cout << "Capacidad Restante: ";
+		print_int_vector(milks_trucks);
 
-	cout << "Cuotas Planta:" << endl;
-	print_int_vector(plant_cuotes);
-	cout << endl << "Cuotas Satisfechas:" << endl;
-	print_int_vector(satisfied_cuotes);
-	cout << endl;*/
+		cout << endl;
+		
+		cout << "Cuotas Planta:    ";
+		print_int_vector(plant_cuotes);
+		cout << "Cuotas Faltantes: ";
+		print_int_vector(satisfied_cuotes);
+
+		cout << endl;
+		draw_graph(solution, milk_income - total_cost);
+	}
 
 	return milk_income - total_cost;
 }
 
-float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) {
-	float new_eval = 0.0;
+int Solver::fast_evaluate(vector<int> solution, float before_eval, int index) {
+	int new_eval = 0.0;
 
 	if(solution[index] == 0 || solution[index+1] == 0) {
 		new_eval = evaluate(solution);
@@ -136,57 +137,16 @@ float Solver::fast_evaluate(vector<int> solution, float before_eval, int index) 
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-Solution Solver::hill_climbing_new(int end_time) {
-	clock_t begin = clock();
-
-	Solution best_solution = Solution(farms_locates, milks_lenght, trucks_lenght);
-	float quality_best = best_solution.evaluate();
-
-	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
-		Solution solution = Solution(farms_locates, milks_lenght, trucks_lenght);
-		float quality = solution.evaluate();
-
-		//Buscando en el vecindario
-		for (int i = 0; i < solution.neighbour_lenght(); ++i)
-		{
-			if(solution.get_neighbour(i) > quality) {
-				solution.set_neighbour(i);
-				quality = solution.evaluate();
-
-				//Primera mejora
-				break;
-			}
-		}
-
-		if(quality > quality_best) {
-			best_solution = solution;
-			quality_best = quality;
-			cout << name_instance << ": " << quality_best << endl;
-			/*if (quality > 0)
-			{
-				draw_graph(solution, quality);
-			}*/
-			//print_int_vector(solution);
-		}
-	}
-
-	clock_t end = clock();
-	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
-	result_qualities.push_back(quality_best);
-
-	return best_solution;
-}
-
 vector<int> Solver::hill_climbing(int end_time) {
 	clock_t begin = clock();
 
 	vector<int> best_solution = random_feasible_solution();;
-	float quality_best = evaluate(best_solution);
+	int quality_best = evaluate(best_solution);
 
 	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
 		vector<int> solution = random_feasible_solution();
-		float quality = evaluate(solution);
-		float neighbour_quality = 0;
+		int quality = evaluate(solution);
+		int neighbour_quality = 0;
 
 		int index = rand() % (farms_lenght - 1);
 		vector<int> neighbour = neighbour_index(solution, index);
@@ -206,10 +166,10 @@ vector<int> Solver::hill_climbing(int end_time) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			cout << ">>>>>>>>>>>>>>>>>>>>>>>> " << name_instance << ": " << (int)quality_best << " <<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
+			cout << ">>>>>>>>>>>>>>>>>>>>>>>> " << name_instance << ": " << quality_best << " <<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
 
 			if (quality > 0) {
-				draw_graph(solution, quality);
+				//draw_graph(solution, quality);
 				//print_int_vector(solution);
 			}
 		}
@@ -550,15 +510,13 @@ void Solver::save_row_result() {
 }
 
 void Solver::draw_graph(vector<int> solution, int quality) {
-	vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 	string full_output = "python3 plot.py " + name_instance + " [0";
 
 	for (int i = 1; i < (int)solution.size(); ++i) {
 		full_output += "," + to_string(solution[i]);
 	}
-
 	full_output += "] " + to_string(quality);
-	//cout << full_output << endl;
+	cout << full_output << endl;
 	system(full_output.c_str());
 }
 

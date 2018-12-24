@@ -15,7 +15,6 @@
 #include <experimental/filesystem>
 
 #include "Instances.cpp"
-#include "Solution.cpp"
 #include "Solver.cpp"
 
 using namespace std;
@@ -96,7 +95,9 @@ int main(int argc, char *argv[])
 		Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, input);
 
 		//Ejecutando algoritmo de búsqueda local
-		vector<int> solution = sol.hill_climbing(time/4);
+		vector<int> solution = sol.hill_climbing(time);
+
+		sol.evaluate(solution, true);
 		
 		//Exportando solución
 		//sol.export_result(solution);

@@ -11,7 +11,7 @@ class Solver {
 		vector<int> truck_capacities;
 		vector<float> milk_values;
 		vector<vector<int>> farms_locates;
-		vector<vector<float>> cost_matrix;
+		vector<vector<int>> cost_matrix;
 
 		vector<float> result_times;
 		vector<float> result_qualities;
@@ -19,12 +19,11 @@ class Solver {
 
 
 		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
-		float evaluate(vector<int> solution);
-		float fast_evaluate(vector<int> solution, float before_eval, int index);
+		int evaluate(vector<int> solution, bool show);
+		int fast_evaluate(vector<int> solution, float before_eval, int index);
 
 
 		//Búsqueda Local
-		Solution hill_climbing_new(int end_time);
 		vector<int> hill_climbing(int end_time);
 		vector<int> short_swap(vector<int> solution, int identity);
 		vector<int> long_swap(vector<int> solution, int index, int move);
