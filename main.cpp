@@ -28,7 +28,7 @@ void clean_result()
 	myfile.close();
 }
 
-void run(string file_name, int time_running) 
+void run(string file_name, int time_running, vector<Solver> *solvers) 
 {
 	//Leyendo instancias
 	Instances instances = Instances();
@@ -39,16 +39,16 @@ void run(string file_name, int time_running)
 	
 	//Ejecutando algoritmo de búsqueda local
 	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
-	int local_time = (int)(time_running/(int)seeds.size());
+	int local_time = (int)(time_running/(int)seeds.size() + 0.5);
 	for (int i = 0; i < (int)seeds.size(); ++i)
 	{
 		srand (seeds[i]);
 		sol.hill_climbing(local_time);
-		cout << file_name << " " << i << ": " << sol.global_quality << endl;
+		//cout << file_name << " " << i << ": " << sol.global_quality << endl;
 	}
-	
-	//Exportando solución
-	sol.save_row_result();
+
+	//Guardando instancia del Solver actual
+	solvers->push_back(sol);
 }
 
 int main(int argc, char *argv[]) 
@@ -59,17 +59,24 @@ int main(int argc, char *argv[])
 
 	if(argc == 1) {
 		vector<thread> threads;
+		vector<Solver> solvers;
 		clean_result();
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(run, inputs[i], times[i]));
+			threads.push_back(thread(run, inputs[i], times[i], &solvers));
 		}
 
-		this_thread::sleep_for(chrono::seconds(15000));
+		this_thread::sleep_for(chrono::seconds(5300));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			cout << "Joining Thread " << i << endl;
 			threads[i].join();
 		}
+
+		//Imprimiento resultados en outputs/result.out
+		for (int i = 0; i < (int)solvers.size(); ++i){
+			solvers[i].save_row_result();
+		}
+
 	}
 	else if(argc == 2) {
 		int seed = time(NULL);

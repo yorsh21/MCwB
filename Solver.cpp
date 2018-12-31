@@ -101,7 +101,7 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 }
 
 int Solver::fast_evaluate(vector<int> solution, float before_eval, int index) {
-	int new_eval = 0.0;
+	int new_eval = 0;
 
 	if(solution[index] == 0 || solution[index+1] == 0) {
 		new_eval = evaluate(solution);
@@ -166,7 +166,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
-			cout << ">>>>>>>>>>>>>>>>>>>>>>>> " << name_instance << ": " << quality_best << " <<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
+			//cout << ">>>>>>>>>>>>>>>>>>>>>>>> " << name_instance << ": " << quality_best << " <<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
 
 			if (quality > 0) {
 				//draw_graph(solution, quality);
@@ -338,7 +338,12 @@ void Solver::print_int_vector(vector<int> array) {
 	{
 		cout << array[i] << ", ";
 	}
-	cout << array[(int)array.size()-1] <<  "]" << endl;
+	if ((int)array.size() > 0) {
+		cout << array[(int)array.size()-1] <<  "]" << endl;
+	}
+	else {
+		cout << "]" << endl;
+	}
 }
 
 void Solver::print_float_vector(vector<float> array) {
@@ -372,15 +377,19 @@ void Solver::print_cost_matrix() {
 }
 
 string Solver::int_vector_to_string(vector<int> array) {
-	string output = "[";
-	int len = (int)array.size() - 1;
-	for (int i = 0; i < len; ++i)
-	{
-		output += to_string(array[i]) + ", ";
-	}
-	output += to_string(array[len]) + "]";
+	int len = (int)array.size();
+	if (len == 0) {
+		return "[]";
+	} 
+	else {
+		string output = "[";
+		for (int i = 0; i < len-1; ++i) {
+			output += to_string(array[i]) + ", ";
+		}
+		output += to_string(array[len]) + "]";
 
-	return output;
+		return output;
+	}
 }
 
 
@@ -497,7 +506,7 @@ void Solver::save_row_result() {
 		string output = name_instance + "\t" + 
 			to_string((int)sum/len) + "\t" + 
 			to_string((int)best) + "\t" + 
-			to_string((int)times) + "\n" + 
+			to_string((int)times) + "\t" + 
 			int_vector_to_string(global_solution);
 		myfile << output << endl;
 	}
