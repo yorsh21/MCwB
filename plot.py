@@ -92,7 +92,7 @@ def analysis_instances(route):
 	temp_types = []
 	truck_index = 0
 	cumulative_milk = 0;
-
+	
 	for i in range(1, len(route_list)):
 		if route_list[i] == 0:
 			temp_route.append(route_list[i])
@@ -104,13 +104,14 @@ def analysis_instances(route):
 					(int(farms[route_list[i-1]][2]) - int(farms[route_list[i]][2]))**2
 				) + 0.5
 			)
+
+			#Capacidad de los camiones:
+			if temp_milk > int(trucks_capacities[truck_index]):
+				temp_cost += (temp_milk - int(trucks_capacities[truck_index]))*100
+
 			route_cost.append(temp_cost)
 			milk_route[truck_index] = temp_milk
 			types_route.append(temp_types)
-
-			#Capacidad de los camiones:
-			if milk_route[truck_index] > int(trucks_capacities[truck_index]):
-				route_cost -= (milk_route[truck_index] - int(trucks_capacities[truck_index]))*100
 
 			print(temp_route)
 			print(temp_types)
@@ -166,9 +167,25 @@ elif len(sys.argv) == 2:
 	read_instances(sys.argv[1])
 	plot_map(sys.argv[1])
 
-elif len(sys.argv) >= 3:
+elif len(sys.argv) == 3:
+	read_instances(sys.argv[1])
+	print()
+	analysis_instances(sys.argv[2])
+	print()
+
+elif len(sys.argv) == 4:
 	read_instances(sys.argv[1])
 	plot_map(sys.argv[1], sys.argv[2], "-" + sys.argv[3])
+	
+	print()
+	analysis_instances(sys.argv[2])
+	print()
+
+elif len(sys.argv) == 5:
+	read_instances(sys.argv[1])
+	plot_map(sys.argv[1], sys.argv[2], "-" + sys.argv[3])
+
+	trucks_capacities = list(map(int, sys.argv[4][1:-1].split(",")))
 	
 	print()
 	analysis_instances(sys.argv[2])

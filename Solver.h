@@ -2,11 +2,12 @@ using namespace std;
 
 class Solver {
 	public:
+		string name_instance;
 		int trucks_lenght;
 		int milks_lenght;
 		int farms_lenght;
 		int global_quality;
-		string name_instance;
+		vector<int> global_trucks_position;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
 		vector<float> milk_values;
@@ -27,11 +28,14 @@ class Solver {
 		vector<int> hill_climbing(int end_time);
 		vector<int> short_swap(vector<int> solution, int identity);
 		vector<int> long_swap(vector<int> solution, int index, int move);
+		vector<int> move_extra_routes(vector<int> solution, int index1, int index2);
 		vector<int> two_opt(vector<int> solution, int index1, int index2);
-		vector<int> neighbour_index(vector<int> solution, int index);
+		vector<int> neighbour_2opt_index(vector<int> solution, int index);
+		vector<int> neighbour_move_index(vector<int> solution, int index);
 		vector<int> random_feasible_solution();
 		vector<int> random_solution();
 		vector<int> random_int_vector(int lenght);
+		vector<int> random_assignment(vector<int> array);
 
 		//Utilities
 		void print_int_vector(vector<int> array);
