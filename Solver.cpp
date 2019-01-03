@@ -45,6 +45,7 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 		if(solution[i] == 0) {
 			total_cost += route_cost;
 			milks_trucks[truck_index] -= collect_milk;
+			satisfied_cuotes[local_quality] -= collect_milk;
 
 			//Exceso en la capacidad de los camiones
 			if (milks_trucks[truck_index] < 0) {
@@ -60,7 +61,6 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 		}
 		else {
 			collect_milk += current_farm[3];
-			satisfied_cuotes[current_farm[2]] -= current_farm[3];
 
 			if(milk_values[local_quality] > milk_values[current_farm[2]]) {
 				local_quality = current_farm[2];
@@ -165,6 +165,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 				if(quality > quality_best) {
 					global_trucks_position = truck_capacities;
 				}
+				break;
 			}
 		}
 
@@ -181,22 +182,21 @@ vector<int> Solver::hill_climbing(int end_time) {
 				if(quality > quality_best) {
 					global_trucks_position = truck_capacities;
 				}
+				break;
 			}
 		}
 
-		truck_capacities = global_trucks_position;
-		
+		if ((int)global_trucks_position.size() == trucks_lenght)
+		{
+			truck_capacities = global_trucks_position;
+		}
+
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
 
 			cout << name_instance << ": " << quality_best << endl;
 			//print_int_vector(solution);
-			
-			/*if (quality > 0) {
-				draw_graph(solution, quality);
-				print_int_vector(solution);
-			}*/
 		}
 	}
 
@@ -615,14 +615,14 @@ void Solver::draw_graph(vector<int> solution, int quality) {
 	for (int i = 1; i < (int)solution.size(); ++i) {
 		full_output += "," + to_string(solution[i]);
 	}
-	full_output += "] " + to_string(quality) + " [" + to_string(global_trucks_position[0]);
+	full_output += "] " + to_string(quality) + " [" + to_string(truck_capacities[0]);
 
-	for (int i = 1; i < (int)global_trucks_position.size(); ++i) {
-		full_output += "," + to_string(global_trucks_position[i]);
+	for (int i = 1; i < (int)truck_capacities.size(); ++i) {
+		full_output += "," + to_string(truck_capacities[i]);
 	}
 	full_output += "]";
 
 	cout << full_output << endl;
-	//system(full_output.c_str());
+	system(full_output.c_str());
 }
 

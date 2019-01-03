@@ -101,9 +101,6 @@ int main(int argc, char *argv[])
 		//Creando estructura de las soluciones
 		Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, input);
 
-		//sol.print_int_vector(sol.random_assignment({200, 150, 250}));
-		//return 0;
-
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
 		

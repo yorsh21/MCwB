@@ -36,8 +36,8 @@ def read_instances(instance):
 	num_farms = int(file.readline())
 
 	for farm in range(num_farms):
-		line = file.readline()[:-1].replace("A", "0").replace("B", "1").replace("C", "2")
-		farms.append(line.split("\t"))
+		line = file.readline()[:-1].replace("A", "0").replace("B", "1").replace("C", "2").replace("-", "-1")
+		farms.append(list(map(int, line.split("\t"))))
 
 
 def plot_map(instance, route = None, output = ""):
@@ -47,61 +47,59 @@ def plot_map(instance, route = None, output = ""):
 	plt.ylabel('y')
 	
 	for f in farms:
-	    if f[3] == "-":
-	        scatter(int(f[1]), int(f[2]), s=50 ,marker='s', c='k')
-	    elif f[3] == "A":
-	        scatter(int(f[1]), int(f[2]), s=10 ,marker='o', c='r')
-	    elif f[3] == "B":
-	        scatter(int(f[1]), int(f[2]), s=10 ,marker='o', c='g')
-	    elif f[3] == "C":
-	        scatter(int(f[1]),int(f[2]), s=10 ,marker='o', c='b')
-	    plt.text(int(f[1]), int(f[2]), int(f[0])-1, fontsize=5)
+	    if f[3] == -1:
+	        scatter(f[1], f[2], s=50 ,marker='s', c='k')
+	    elif f[3] == 0:
+	        scatter(f[1], f[2], s=10 ,marker='o', c='r')
+	    elif f[3] == 1:
+	        scatter(f[1], f[2], s=10 ,marker='o', c='g')
+	    elif f[3] == 2:
+	        scatter(f[1],f[2], s=10 ,marker='o', c='b')
+	    plt.text(f[1], f[2], f[0]-1, fontsize=5)
 	        
 	if route is not None:
 		plt.title('Route: ' + route + ' ' + output)
 		route_list = list(map(int, route[1:-1].split(",")))
 		
-		routex = [int(farms[int(route_list[0])][1])]
-		routey = [int(farms[int(route_list[0])][2])]
+		routex = [farms[route_list[0]][1]]
+		routey = [farms[route_list[0]][2]]
 
 		count_route = -1
 		for i in range(1, len(route_list)):
-			routex.append(int(farms[int(route_list[i])][1]))
-			routey.append(int(farms[int(route_list[i])][2]))
+			routex.append(farms[route_list[i]][1])
+			routey.append(farms[route_list[i]][2])
 
-			if int(route_list[i]) == 0:
+			if route_list[i] == 0:
 				plot(routex, routey, colors[count_route]+'-', linewidth = .5)
 				count_route += 1
-				routex = [int(farms[int(route_list[i])][1])]
-				routey = [int(farms[int(route_list[i])][2])]
+				routex = [farms[route_list[i]][1]]
+				routey = [farms[route_list[i]][2]]
 
-	#plt.savefig("outputs/" + instance + output + ".png")
+	plt.savefig("outputs/" + instance + output + ".png")
 
 
 def analysis_instances(route):
 	route_list = list(map(int, route[1:-1].split(",")))
-	route_trucks = []
 	route_cost = []
-	types_route = []
-	milk_route = [0]*num_trucks
 	milk_income = [0]*num_milks
+	collected_milk = [0]*num_milks
 
 	temp_route = [0]
 	temp_cost = 0
 	temp_milk = 0
 	temp_types = []
 	truck_index = 0
-	cumulative_milk = 0;
+	cumulative_milk = 0
 	
 	for i in range(1, len(route_list)):
 		if route_list[i] == 0:
 			temp_route.append(route_list[i])
-			route_trucks.append(temp_route)
+			collected_milk[temp_types[-1]] += temp_milk
 			
 			temp_cost += int(
 				sqrt(
-					(int(farms[route_list[i-1]][1]) - int(farms[route_list[i]][1]))**2 + 
-					(int(farms[route_list[i-1]][2]) - int(farms[route_list[i]][2]))**2
+					(farms[route_list[i-1]][1] - farms[route_list[i]][1])**2 + 
+					(farms[route_list[i-1]][2] - farms[route_list[i]][2])**2
 				) + 0.5
 			)
 
@@ -110,8 +108,6 @@ def analysis_instances(route):
 				temp_cost += (temp_milk - int(trucks_capacities[truck_index]))*100
 
 			route_cost.append(temp_cost)
-			milk_route[truck_index] = temp_milk
-			types_route.append(temp_types)
 
 			print(temp_route)
 			print(temp_types)
@@ -124,19 +120,19 @@ def analysis_instances(route):
 			temp_cost = 0
 			temp_milk = 0
 			truck_index += 1
-			cumulative_milk = 0;
+			cumulative_milk = 0
 			temp_types = []
 		else:
 			temp_cost += int(
 				sqrt(
-					(int(farms[route_list[i-1]][1]) - int(farms[route_list[i]][1]))**2 + 
-					(int(farms[route_list[i-1]][2]) - int(farms[route_list[i]][2]))**2
+					(farms[route_list[i-1]][1] - farms[route_list[i]][1])**2 + 
+					(farms[route_list[i-1]][2] - farms[route_list[i]][2])**2
 				) + 0.5
 			)
 
-			milk_type = int(farms[route_list[i]][3])
-			milk_income[milk_type] += int(farms[route_list[i]][4])
-			temp_milk += int(farms[route_list[i]][4])
+			milk_type = farms[route_list[i]][3]
+			milk_income[milk_type] += farms[route_list[i]][4]
+			temp_milk += farms[route_list[i]][4]
 			temp_route.append(route_list[i])
 
 			if milk_type >= cumulative_milk:
@@ -149,11 +145,11 @@ def analysis_instances(route):
 	total_income = 0
 	total_cost = int(sum(route_cost))
 	for i in range(num_milks):
-		print("Requerimiento Planta: ", milk_request[i], "\tLeche recogida", milk_income[i])
+		print("Requerimiento Planta: ", milk_request[i], "\tLeche recogida", collected_milk[i])
 
-		total_income += int(milk_income[i]*float(milk_values[i]))
-		if int(milk_request[i]) > milk_income[i]:
-			total_income -= int((int(milk_request[i]) - milk_income[i])*float(milk_values[i]))*100
+		total_income += int(collected_milk[i]*float(milk_values[i]))
+		if int(milk_request[i]) > collected_milk[i]:
+			total_income -= int((int(milk_request[i]) - collected_milk[i])*float(milk_values[i]))*100
 
 	print("\nIngresos Total: ", total_income, "\tCosto Total: ", total_cost, "\tBeneficio: ", total_income - total_cost)
 
