@@ -44,11 +44,12 @@ void run(string file_name, int time_running, vector<Solver> *solvers)
 	{
 		srand (seeds[i]);
 		sol.hill_climbing(local_time);
-		//cout << file_name << " " << i << ": " << sol.global_quality << endl;
+		cout << file_name << " " << i << ": " << sol.global_quality << endl;
 	}
 
 	//Guardando instancia del Solver actual
 	solvers->push_back(sol);
+	cout << "--------- Finish " << file_name << endl;
 }
 
 int main(int argc, char *argv[]) 
@@ -60,19 +61,19 @@ int main(int argc, char *argv[])
 	if(argc == 1) {
 		vector<thread> threads;
 		vector<Solver> solvers;
-		clean_result();
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			threads.push_back(thread(run, inputs[i], times[i], &solvers));
 		}
 
-		this_thread::sleep_for(chrono::seconds(5300));
+		this_thread::sleep_for(chrono::seconds(1000));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			cout << "Joining Thread " << i << endl;
 			threads[i].join();
 		}
 
 		//Imprimiento resultados en outputs/result.out
+		clean_result();
 		for (int i = 0; i < (int)solvers.size(); ++i){
 			solvers[i].save_row_result();
 		}

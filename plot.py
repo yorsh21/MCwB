@@ -75,7 +75,7 @@ def plot_map(instance, route = None, output = ""):
 				routex = [farms[route_list[i]][1]]
 				routey = [farms[route_list[i]][2]]
 
-	plt.savefig("outputs/" + instance + output + ".png")
+	#plt.savefig("outputs/" + instance + output + ".png")
 
 
 def analysis_instances(route):
