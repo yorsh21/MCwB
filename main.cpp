@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
 	}
 	else if(argc == 2) {
-		int seed = time(NULL);
+		int seed = 1539354881;//time(NULL);
 		srand (seed);
 		string input = argv[1];
 		
@@ -104,8 +104,19 @@ int main(int argc, char *argv[])
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
-		
 		sol.evaluate(solution, true);
+
+		/*vector<int> vec1 = {0,4,31,19,16,28,34,13,22,1,25,7,10,0,15,8,3,21,18,30,33,12,6,9,27,24,0,5,23,17,32,29,11,26,35,20,14,2,0};
+		int val1 = sol.evaluate(vec1, true);
+		cout << val1 << endl;
+
+		int val2 = sol.extra_evaluate(vec1, val1, 3, 17);
+		cout << val2 << endl;
+
+		vector<int> vec2 = sol.move_extra_routes(vec1, 3, 17);
+		int val3 = sol.evaluate(vec2, true);
+		cout << val3 << endl;*/
+		
 		
 		//Exportando solución
 		//sol.export_result(solution);

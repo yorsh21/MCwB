@@ -17,12 +17,19 @@ class Solver {
 		vector<float> result_times;
 		vector<float> result_qualities;
 		vector<int> global_solution;
-		//vector<int> 2opt_fragment;
+		
+		vector<int> milks_trucks;
+		vector<int> satisfied_cuotes;
+		vector<int> quality_by_route;
+		vector<int> pivots;
+		vector<bool> onetype;
+		int milk_income;
 
 
 		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
 		int evaluate(vector<int> solution, bool show);
-		int fast_evaluate(vector<int> solution, int old_eval, int index1, int index2);
+		int intra_evaluate(vector<int> solution, int old_eval, int index1, int index2);
+		int extra_evaluate(vector<int> solution, int old_eval, int index1, int index2);
 		int random_index(vector<int> solution);
 
 
