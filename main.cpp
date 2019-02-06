@@ -104,22 +104,20 @@ int main(int argc, char *argv[])
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
-		sol.evaluate(solution, true);
+		//sol.evaluate(solution, true);
 
-		/*vector<int> vec1 = {0,4,31,19,16,28,34,13,22,1,25,7,10,0,15,8,3,21,18,30,33,12,6,9,27,24,0,5,23,17,32,29,11,26,35,20,14,2,0};
+		/*vector<int> vec1 = {0,11,17,29,14,2,8,35,23,32,26,20,5,0,25,19,4,7,10,34,28,31,22,1,16,13,0,27,24,12,6,21,30,33,3,15,9,18,0};
 		int val1 = sol.evaluate(vec1, true);
-		cout << val1 << endl;
 
-		int val2 = sol.extra_evaluate(vec1, val1, 3, 17);
-		cout << val2 << endl;
+		sol.extra_evaluate(vec1, val1, 37, 1);
 
-		vector<int> vec2 = sol.move_extra_routes(vec1, 3, 17);
-		int val3 = sol.evaluate(vec2, true);
-		cout << val3 << endl;*/
+		vector<int> vec2 = sol.move_extra_routes(vec1, 37, 1);
+		//sol.print_int_vector(vec2);
+		sol.evaluate(vec2, true);*/
 		
 		
 		//Exportando solución
-		//sol.export_result(solution);
+		sol.export_result(solution);
 	}
 	else {
 		cout << "Excess of parameters" << endl;
