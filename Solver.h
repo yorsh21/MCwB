@@ -27,18 +27,22 @@ class Solver {
 
 
 		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
-		int evaluate(vector<int> solution, bool show);
+		int evaluate_old(vector<int> solution, bool show);
+		int evaluate(Solution *solution, bool show);
 		int intra_evaluate(vector<int> solution, int old_eval, int index1, int index2);
-		int extra_evaluate(vector<int> solution, int old_eval, int index1, int index2);
+		int extra_evaluate(Solution sol, int index1, int index2);
 		int random_index(vector<int> solution);
 
 
 		//Búsqueda Local
+		vector<int> hill_climbing_old(int end_time);
 		vector<int> hill_climbing(int end_time);
 		vector<int> short_swap(vector<int> solution, int identity);
 		vector<int> long_swap(vector<int> solution, int index, int move);
-		vector<int> move_extra_routes(vector<int> solution, int index1, int index2);
-		vector<int> two_opt(vector<int> solution, int index1, int index2);
+		vector<int> move_extra_routes_old(vector<int> solution, int index1, int index2);
+		Solution move_extra_routes(Solution solution, int index1, int index2);
+		vector<int> two_opt_old(vector<int> solution, int index1, int index2);
+		Solution two_opt(Solution solution, int index1, int index2);
 		vector<int> neighbour_2opt_index(vector<int> solution, int index);
 		vector<int> neighbour_move_index(vector<int> solution, int index);
 		vector<int> random_feasible_solution();

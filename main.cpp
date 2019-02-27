@@ -15,6 +15,7 @@
 #include <experimental/filesystem>
 
 #include "Instances.cpp"
+#include "Solution.cpp"
 #include "Solver.cpp"
 
 using namespace std;
@@ -104,20 +105,26 @@ int main(int argc, char *argv[])
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
-		//sol.evaluate(solution, true);
+		sol.evaluate_old(solution, true);
 
 		/*vector<int> vec1 = {0,11,17,29,14,2,8,35,23,32,26,20,5,0,25,19,4,7,10,34,28,31,22,1,16,13,0,27,24,12,6,21,30,33,3,15,9,18,0};
 		int val1 = sol.evaluate(vec1, true);
 
-		sol.extra_evaluate(vec1, val1, 37, 1);
+		sol.extra_evaluate(vec1, val1, 37, 2);
 
-		vector<int> vec2 = sol.move_extra_routes(vec1, 37, 1);
+		vector<int> vec2 = sol.move_extra_routes(vec1, 37, 2);
 		//sol.print_int_vector(vec2);
-		sol.evaluate(vec2, true);*/
+		int val2 = sol.evaluate(vec2, true);*/
+
+
+		//cout << "===========================================================================" << endl;
+		//sol.draw_graph(vec1, val1);
+		//cout << "===========================================================================" << endl;
+		//sol.draw_graph(vec2, val2);
 		
 		
 		//Exportando solución
-		sol.export_result(solution);
+		//sol.export_result(solution);
 	}
 	else {
 		cout << "Excess of parameters" << endl;
