@@ -16,7 +16,7 @@
 
 #include "Instances.cpp"
 #include "Solution.cpp"
-#include "Solver.cpp"
+#include "Solver0.cpp"
 
 using namespace std;
 namespace fs = std::experimental::filesystem;
@@ -29,28 +29,38 @@ void clean_result()
 	myfile.close();
 }
 
-void run(string file_name, int time_running, vector<Solver> *solvers) 
+void runInstances(string file_name, int time_running, vector<Solver> *solvers) 
 {
 	//Leyendo instancias
-	Instances instances = Instances();
-	instances.read_instances(file_name + ".txt");
+	Instances instance = Instances();
+	instance.read_instances(file_name + ".txt");
 
 	//Creando estructura de las soluciones
-	Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, file_name);
+	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, file_name);
 	
 	//Ejecutando algoritmo de búsqueda local
 	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
-	int local_time = (int)(time_running/(int)seeds.size() + 0.5);
+	int local_time = (int)(time_running/(int)seeds.size()/10 + 0.5);
 	for (int i = 0; i < (int)seeds.size(); ++i)
 	{
 		srand (seeds[i]);
 		sol.hill_climbing(local_time);
-		cout << file_name << " " << i << ": " << sol.global_quality << endl;
+		cout << i << ": " << file_name << "  ->  " << sol.global_quality << endl;
 	}
 
-	//Guardando instancia del Solver actual
 	solvers->push_back(sol);
 	cout << "--------- Finish " << file_name << endl;
+}
+
+
+void runSeeds(Instances instance, string file_name, int time_running, vector<Solver> *solvers)
+{
+	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, file_name);
+	cout << file_name << ": Running for " << time_running << endl;
+	sol.hill_climbing(time_running);
+
+	solvers->push_back(sol);
+	cout << file_name << "  ->  " << sol.global_quality << endl;
 }
 
 int main(int argc, char *argv[]) 
@@ -64,12 +74,12 @@ int main(int argc, char *argv[])
 		vector<Solver> solvers;
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(run, inputs[i], times[i], &solvers));
+			threads.push_back(thread(runInstances, inputs[i], times[i], &solvers));
 		}
 
-		this_thread::sleep_for(chrono::seconds(1000));
+		this_thread::sleep_for(chrono::seconds(400));
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			cout << "Joining Thread " << i << endl;
+			cout << "::::::::::::::::::: Joining Thread :::::::::::::::::::" << i << endl;
 			threads[i].join();
 		}
 
@@ -81,12 +91,12 @@ int main(int argc, char *argv[])
 
 	}
 	else if(argc == 2) {
-		int seed = 1539354881;//time(NULL);
+		int seed = time(NULL);
 		srand (seed);
 		string input = argv[1];
 		
 		//Buscando tiempos
-		int time = 3600;
+		int time = 0;
 		vector<string>::iterator it = find (inputs.begin(), inputs.end(), input);
 		if (it != inputs.end()){
 			int index = std::distance(inputs.begin(), it);
@@ -97,34 +107,58 @@ int main(int argc, char *argv[])
 		cout << "Time: " << time << " seconds / " << time/60 << " minutes" << endl << endl;
 
 		//Leyendo instancias
-		Instances instances = Instances();
-		instances.read_instances(input + ".txt");
+		Instances instance = Instances();
+		instance.read_instances(input + ".txt");
 
 		//Creando estructura de las soluciones
-		Solver sol = Solver(instances.truck_capacities, instances.milk_values, instances.farms_locates, instances.plant_cuotes, input);
+		Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, input);
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
-		sol.evaluate_old(solution, true);
+		sol.evaluate(solution, true);
 
-		/*vector<int> vec1 = {0,11,17,29,14,2,8,35,23,32,26,20,5,0,25,19,4,7,10,34,28,31,22,1,16,13,0,27,24,12,6,21,30,33,3,15,9,18,0};
-		int val1 = sol.evaluate(vec1, true);
-
-		sol.extra_evaluate(vec1, val1, 37, 2);
-
-		vector<int> vec2 = sol.move_extra_routes(vec1, 37, 2);
-		//sol.print_int_vector(vec2);
-		int val2 = sol.evaluate(vec2, true);*/
-
-
-		//cout << "===========================================================================" << endl;
-		//sol.draw_graph(vec1, val1);
-		//cout << "===========================================================================" << endl;
-		//sol.draw_graph(vec2, val2);
-		
-		
 		//Exportando solución
 		//sol.export_result(solution);
+	}
+	else if(argc == 3) {
+		int seed = time(NULL);
+		srand (seed);
+		string input = argv[1];
+		int loops = stoi(argv[2]);
+
+		//Buscando tiempos
+		int time = 0;
+		vector<string>::iterator it = find (inputs.begin(), inputs.end(), input);
+		if (it != inputs.end()){
+			int index = std::distance(inputs.begin(), it);
+			time = times[index];
+		}
+
+		cout << "Seed: " << seed << endl;
+		cout << "Threads: " << loops << endl;
+		cout << "Time: " << time << " seconds / " << time/60 << " minutes" << endl << endl;
+
+		//Leyendo instancias
+		Instances instances = Instances();
+		instances.read_instances(input + ".txt");
+
+		
+		vector<thread> threads;
+		vector<Solver> solvers;
+		for (int i = 0; i < loops; ++i){
+			threads.push_back(thread(runSeeds, instances, input, time, &solvers));
+		}
+
+		this_thread::sleep_for(chrono::seconds(time));
+		for (int i = 0; i < loops; ++i){
+			cout << "::::::::::::::::::: Joining Thread :::::::::::::::::::" << i << endl;
+			threads[i].join();
+		}
+		
+		cout << endl;
+		for (int i = 0; i < (int)solvers.size(); ++i){
+			solvers[i].print_int_vector(solvers[i].global_solution);
+		}
 	}
 	else {
 		cout << "Excess of parameters" << endl;

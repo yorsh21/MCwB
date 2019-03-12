@@ -75,7 +75,7 @@ def plot_map(instance, route = None, output = ""):
 				routex = [farms[route_list[i]][1]]
 				routey = [farms[route_list[i]][2]]
 
-	#plt.savefig("outputs/" + instance + output + ".png")
+	plt.savefig("outputs/" + instance + output + ".png")
 
 
 def analysis_instances(route):
@@ -88,6 +88,7 @@ def analysis_instances(route):
 	temp_cost = 0
 	temp_milk = 0
 	temp_types = []
+	real_types = []
 	truck_index = 0
 	cumulative_milk = 0
 	
@@ -110,7 +111,8 @@ def analysis_instances(route):
 			route_cost.append(temp_cost)
 
 			print(temp_route)
-			print(temp_types)
+			#print(temp_types)
+			print(real_types)
 			print(
 				"Costo Ruta: ", int(temp_cost), 
 				"\tLeche Camion: ", temp_milk, "/", trucks_capacities[truck_index], "\n"
@@ -122,6 +124,7 @@ def analysis_instances(route):
 			truck_index += 1
 			cumulative_milk = 0
 			temp_types = []
+			real_types = []
 		else:
 			temp_cost += int(
 				sqrt(
@@ -140,6 +143,8 @@ def analysis_instances(route):
 				temp_types.append(milk_type)
 			else:
 				temp_types.append(cumulative_milk)
+			
+			real_types.append(milk_type)
 			
 
 	total_income = 0

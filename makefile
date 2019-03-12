@@ -14,7 +14,7 @@ else
 	X = \;
 endif
 
-ifdef mov
+ifdef threads
 	Y = :
 else
 	Y = \;
@@ -24,7 +24,7 @@ all: clean main
 
 main: $(OBJS) 
 	$(CXX) $(WALL) $(SRCS) $(CPPFLAGS) $(FSFLAGS) -o main
-	./main ${instance} ${mov}
+	./main ${instance} ${threads}
 
 clean: 
 	$(RM) main
