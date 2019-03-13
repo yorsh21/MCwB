@@ -12,6 +12,7 @@
 #include <thread>
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include <experimental/filesystem>
 
 #include "Instances.cpp"
@@ -21,6 +22,9 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
+vector<Solver> solvers;
+mutex mut;
+
 void clean_result() 
 {
 	string file = "outputs/results.out";
@@ -29,7 +33,19 @@ void clean_result()
 	myfile.close();
 }
 
-void runInstances(string file_name, int time_running, vector<Solver> *solvers) 
+void put_solvers(Solver sol) {
+	mut.lock();
+	::solvers.push_back(sol);
+	mut.unlock();
+}
+
+void print(string text) {
+	mut.lock();
+	cout << text << endl;
+	mut.unlock();
+}
+
+void runInstances(string file_name, int time_running) 
 {
 	//Leyendo instancias
 	Instances instance = Instances();
@@ -39,28 +55,29 @@ void runInstances(string file_name, int time_running, vector<Solver> *solvers)
 	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, file_name);
 	
 	//Ejecutando algoritmo de búsqueda local
-	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
-	int local_time = (int)(time_running/(int)seeds.size()/10 + 0.5);
-	for (int i = 0; i < (int)seeds.size(); ++i)
+	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253, 1539344818, 1539344696, 1539344634, 1539344526, 1539344434, 1539344472, 1539343457, 1539342487, 1539342076, 1539340235};
+	int loop = (int)seeds.size();
+	int local_time = (int)(time_running/loop + 0.5);
+	for (int i = 0; i < loop; ++i)
 	{
 		srand (seeds[i]);
 		sol.hill_climbing(local_time);
-		cout << i << ": " << file_name << "  ->  " << sol.global_quality << endl;
+		print(to_string(i) + ": " + file_name + "  \t-> " + to_string(sol.global_quality));
 	}
 
-	solvers->push_back(sol);
-	cout << "--------- Finish " << file_name << endl;
+	put_solvers(sol);
+	print("------------ Finish " + file_name + " ------------");
 }
 
 
-void runSeeds(Instances instance, string file_name, int time_running, vector<Solver> *solvers)
+void runSeeds(Instances instance, string file_name, int time_running)
 {
 	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, file_name);
-	cout << file_name << ": Running for " << time_running << endl;
+	print(file_name + ": Running for " + to_string(time_running) + " seconds");
 	sol.hill_climbing(time_running);
 
-	solvers->push_back(sol);
-	cout << file_name << "  ->  " << sol.global_quality << endl;
+	put_solvers(sol);
+	print(file_name + "  ->  " + to_string(sol.global_quality));
 }
 
 int main(int argc, char *argv[]) 
@@ -71,16 +88,20 @@ int main(int argc, char *argv[])
 
 	if(argc == 1) {
 		vector<thread> threads;
-		vector<Solver> solvers;
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(runInstances, inputs[i], times[i], &solvers));
+			threads.push_back(thread(runInstances, inputs[i], times[i]*4*7));
 		}
 
-		this_thread::sleep_for(chrono::seconds(400));
+		this_thread::sleep_for(chrono::seconds(5000));
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			cout << "::::::::::::::::::: Joining Thread :::::::::::::::::::" << i << endl;
-			threads[i].join();
+			if(threads[i].joinable()){
+				cout << "::::::::::::::::::: Join Thread " << i << " :::::::::::::::::::" << endl;
+				threads[i].join();
+			}
+			else {
+				cout << "Thread " << i << "not can Join!" << endl;
+			}
 		}
 
 		//Imprimiento resultados en outputs/result.out
@@ -144,19 +165,25 @@ int main(int argc, char *argv[])
 
 		
 		vector<thread> threads;
-		vector<Solver> solvers;
 		for (int i = 0; i < loops; ++i){
-			threads.push_back(thread(runSeeds, instances, input, time, &solvers));
+			threads.push_back(thread(runSeeds, instances, input, time*4));
 		}
 
 		this_thread::sleep_for(chrono::seconds(time));
 		for (int i = 0; i < loops; ++i){
-			cout << "::::::::::::::::::: Joining Thread :::::::::::::::::::" << i << endl;
-			threads[i].join();
+			if(threads[i].joinable()){
+				cout << "::::::::::::::::::: Start Join Thread " << i << " :::::::::::::::::::" << endl;
+				threads[i].join();
+				cout << "::::::::::::::::::: Finish Join Thread " << i << " :::::::::::::::::::" << endl;
+			}
+			else {
+				cout << "Thread " << i << "not can Join!" << endl;
+			}
 		}
 		
 		cout << endl;
 		for (int i = 0; i < (int)solvers.size(); ++i){
+			cout << solvers[i].global_quality << "\t";
 			solvers[i].print_int_vector(solvers[i].global_solution);
 		}
 	}

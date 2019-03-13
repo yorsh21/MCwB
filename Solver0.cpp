@@ -215,6 +215,72 @@ vector<int> Solver::hill_climbing(int end_time) {
 			}
 		}
 
+		local = false;
+		while(!local) {
+			local = true;
+
+			index = random_index(solution);
+			neighbour = neighbour_2opt_index(solution, index);
+			neighbour_size = (int)neighbour.size();
+			for (int i = 0; i < neighbour_size; ++i)
+			{
+				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
+				if(neighbour_quality > quality) {
+					solution = two_opt(solution, index, neighbour[i]);
+					quality = neighbour_quality;
+					if(quality > quality_best) {
+						global_trucks_position = truck_capacities;
+						local = false;
+					}
+					break;
+				}
+			}
+		}
+
+		local = false;
+		while(!local) {
+			local = true;
+
+			index = random_index(solution);
+			neighbour = neighbour_2opt_index(solution, index);
+			neighbour_size = (int)neighbour.size();
+			for (int i = 0; i < neighbour_size; ++i)
+			{
+				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
+				if(neighbour_quality > quality) {
+					solution = two_opt(solution, index, neighbour[i]);
+					quality = neighbour_quality;
+					if(quality > quality_best) {
+						global_trucks_position = truck_capacities;
+						local = false;
+					}
+					break;
+				}
+			}
+		}
+
+		local = false;
+		while(!local) {
+			local = true;
+
+			index = random_index(solution);
+			neighbour = neighbour_2opt_index(solution, index);
+			neighbour_size = (int)neighbour.size();
+			for (int i = 0; i < neighbour_size; ++i)
+			{
+				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
+				if(neighbour_quality > quality) {
+					solution = two_opt(solution, index, neighbour[i]);
+					quality = neighbour_quality;
+					if(quality > quality_best) {
+						global_trucks_position = truck_capacities;
+						local = false;
+					}
+					break;
+				}
+			}
+		}
+
 
 		if ((int)global_trucks_position.size() == trucks_lenght) {
 			truck_capacities = global_trucks_position;
@@ -224,7 +290,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 			best_solution = solution;
 			quality_best = quality;
 
-			cout << (int)(float(clock() - begin) / CLOCKS_PER_SEC) << " -> " << quality_best << endl;
+			//cout << (int)(float(clock() - begin) / CLOCKS_PER_SEC) << " -> " << quality_best << endl;
 			//print_int_vector(solution);
 		}
 	}
@@ -344,7 +410,7 @@ vector<int> Solver::neighbour_move_index(vector<int> solution, int index) {
 vector<int> Solver::random_feasible_solution() {
 	//Desordenando camiones
 	truck_capacities = random_assignment(truck_capacities);
-
+	
 	vector<int> milks;
 	for (int i = 0; i < milks_lenght; i++) milks.push_back(i);
 	
