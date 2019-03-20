@@ -17,7 +17,9 @@ class Solver {
 		vector<float> result_times;
 		vector<float> result_qualities;
 		vector<int> global_solution;
-		//vector<int> 2opt_fragment;
+		vector<int> quality_by_route;
+		vector<int> pivots;
+		vector<bool> onetype;
 
 
 		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
@@ -34,6 +36,7 @@ class Solver {
 		vector<int> two_opt(vector<int> solution, int index1, int index2);
 		vector<int> neighbour_2opt_index(vector<int> solution, int index);
 		vector<int> neighbour_move_index(vector<int> solution, int index);
+		vector<int> neighbour_move_intelligence(vector<int> solution, int index);
 		vector<int> random_feasible_solution();
 		vector<int> random_solution();
 		vector<int> random_int_vector(int lenght);

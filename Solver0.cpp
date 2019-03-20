@@ -32,11 +32,16 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 	int total_cost = 0;
 	int collect_milk = 0;
 	int truck_index = 0;
+	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
+	int len_sol = (int)solution.size();
+	bool temp_ot = true;
+
 	vector<int> milks_trucks = truck_capacities;
 	vector<int> satisfied_cuotes = plant_cuotes;
-	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
+	pivots = {};
+	quality_by_route = {};
+	onetype = {};
 
-	int len_sol = (int)solution.size();
 	for (int i = 1; i < len_sol; ++i) {
 		vector<int> current_farm = farms_locates[solution[i]];
 		route_cost += cost_matrix[solution[i]][solution[i-1]];
@@ -46,6 +51,9 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 			total_cost += route_cost;
 			milks_trucks[truck_index] -= collect_milk;
 			satisfied_cuotes[local_quality] -= collect_milk;
+			pivots.push_back(i);
+			quality_by_route.push_back(local_quality);
+			onetype.push_back(temp_ot);
 
 			//Exceso en la capacidad de los camiones
 			if (milks_trucks[truck_index] < 0) {
@@ -57,6 +65,7 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 				collect_milk = 0;
 				truck_index++;
 				local_quality = farms_locates[solution[i+1]][2];
+				temp_ot = true;
 			}
 		}
 		else {
@@ -64,6 +73,7 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 
 			if(milk_values[local_quality] > milk_values[current_farm[2]]) {
 				local_quality = current_farm[2];
+				temp_ot = false;
 			}
 		}
 	}
@@ -173,9 +183,13 @@ vector<int> Solver::hill_climbing(int end_time) {
 		while(!local) {
 			local = true;
 
-			index = random_index(solution);
-			neighbour = neighbour_move_index(solution, index);
-			neighbour_size = (int)neighbour.size();
+			do
+			{
+				index = random_index(solution);
+				neighbour = neighbour_move_intelligence(solution, index);
+				neighbour_size = (int)neighbour.size();
+			} while (neighbour_size == 0);
+
 			for (int i = 0; i < neighbour_size; ++i)
 			{
 				new_neighbour = move_extra_routes(solution, index, neighbour[i]);
@@ -193,72 +207,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 			}
 		}
 
-		local = false;
-		while(!local) {
-			local = true;
-
-			index = random_index(solution);
-			neighbour = neighbour_2opt_index(solution, index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
-				if(neighbour_quality > quality) {
-					solution = two_opt(solution, index, neighbour[i]);
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
-		local = false;
-		while(!local) {
-			local = true;
-
-			index = random_index(solution);
-			neighbour = neighbour_2opt_index(solution, index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
-				if(neighbour_quality > quality) {
-					solution = two_opt(solution, index, neighbour[i]);
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
-		local = false;
-		while(!local) {
-			local = true;
-
-			index = random_index(solution);
-			neighbour = neighbour_2opt_index(solution, index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
-				if(neighbour_quality > quality) {
-					solution = two_opt(solution, index, neighbour[i]);
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
+		//Busqueda Local Intra Rutas
 		local = false;
 		while(!local) {
 			local = true;
@@ -386,7 +335,7 @@ vector<int> Solver::neighbour_move_index(vector<int> solution, int index) {
 				route2 = i;
 			}
 
-			if (i < index){
+			if (i < index) {
 				route1 = i;
 			}
 		}
@@ -406,6 +355,39 @@ vector<int> Solver::neighbour_move_index(vector<int> solution, int index) {
 
 	return indexes;
 }
+
+vector<int> Solver::neighbour_move_intelligence(vector<int> solution, int index) {
+	vector<int> indexes;
+	int len_pivots = (int)pivots.size();
+	int number_route = 0;
+
+	//Busca el numero de la ruta del index
+	for (int i = 0; i < len_pivots - 1; ++i) {
+		if (pivots[i] < index && index < pivots[i+1]){
+			number_route = i + 1;
+			break;
+		}
+	}
+
+	for (int i = 0; i < len_pivots; ++i) {
+		if (quality_by_route[number_route] < quality_by_route[i]) 
+		{
+			if (i == 0) {
+				for (int j = 1; j < pivots[i]; ++j) {
+					indexes.push_back(j);
+				}
+			}
+			else {
+				for (int j = pivots[i-1]+1; j < pivots[i]; ++j) {
+					indexes.push_back(j);
+				}
+			}
+		}
+	}
+
+	return indexes;
+}
+
 
 vector<int> Solver::random_feasible_solution() {
 	//Desordenando camiones

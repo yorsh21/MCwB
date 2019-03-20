@@ -90,10 +90,10 @@ int main(int argc, char *argv[])
 		vector<thread> threads;
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(runInstances, inputs[i], times[i]*4*7));
+			threads.push_back(thread(runInstances, inputs[i], times[i]*4));
 		}
 
-		this_thread::sleep_for(chrono::seconds(5000));
+		this_thread::sleep_for(chrono::seconds(6000));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			if(threads[i].joinable()){
 				cout << "::::::::::::::::::: Join Thread " << i << " :::::::::::::::::::" << endl;
@@ -133,6 +133,14 @@ int main(int argc, char *argv[])
 
 		//Creando estructura de las soluciones
 		Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, input);
+
+		vector<int> eil = {0,11,8,2,5,20,17,14,0,16,19,13,4,1,7,10,0,3,6,9,12,15,18,21,0};
+		sol.evaluate(eil);
+		sol.print_int_vector(eil);
+		vector<int> vec = sol.neighbour_move_intelligence(eil, 15);
+		sol.print_int_vector(vec);
+
+		return 0;
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
