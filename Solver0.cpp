@@ -183,28 +183,41 @@ vector<int> Solver::hill_climbing(int end_time) {
 		while(!local) {
 			local = true;
 
-			do
+			/*do
 			{
 				index = random_index(solution);
 				neighbour = neighbour_move_intelligence(solution, index);
 				neighbour_size = (int)neighbour.size();
-			} while (neighbour_size == 0);
+			} while (neighbour_size == 0);*/
 
-			for (int i = 0; i < neighbour_size; ++i)
+			for (int g = 0; g < trucks_lenght; ++g)
 			{
-				new_neighbour = move_extra_routes(solution, index, neighbour[i]);
-				neighbour_quality = evaluate(new_neighbour);
+				vector<int> subroute = get_node_from_route(solution, g);
+				int subroute_size = (int)subroute.size();
+				for (int h = 0; h < subroute_size; ++h)
+				{
+					neighbour = neighbour_move_intelligence(solution, subroute[h]);
+					neighbour_size = (int)neighbour.size();
+					for (int i = 0; i < neighbour_size; ++i)
+					{
+						new_neighbour = move_extra_routes(solution, subroute[h], neighbour[i]);
+						neighbour_quality = evaluate(new_neighbour);
 
-				if(neighbour_quality > quality) {
-					solution = new_neighbour;
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
+						if(neighbour_quality > quality) {
+							solution = new_neighbour;
+							quality = neighbour_quality;
+							if(quality > quality_best) {
+								global_trucks_position = truck_capacities;
+								local = false;
+							}
+							break;
+						}
 					}
-					break;
 				}
 			}
+
+
+			
 		}
 
 		//Busqueda Local Intra Rutas
@@ -420,6 +433,18 @@ vector<int> Solver::random_feasible_solution() {
 	}
 
 	return solution;
+}
+
+vector<int> Solver::get_node_from_route(vector<int> solution, int number) {
+	vector<int> nodes = {};
+
+	int init = (number == 0) ? 0 : pivots[number];
+	for (int i = init; i < pivots[number]; ++i)
+	{
+		nodes.push_back(solution[i]);
+	}
+
+	return nodes;
 }
 
 

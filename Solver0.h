@@ -39,6 +39,7 @@ class Solver {
 		vector<int> neighbour_move_intelligence(vector<int> solution, int index);
 		vector<int> random_feasible_solution();
 		vector<int> random_solution();
+		vector<int> get_node_from_route(vector<int> solution, int number);
 		vector<int> random_int_vector(int lenght);
 		vector<int> random_assignment(vector<int> array);
 
