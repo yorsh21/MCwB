@@ -56,6 +56,7 @@ void runInstances(string file_name, int time_running)
 	
 	//Ejecutando algoritmo de búsqueda local
 	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253, 1539344818, 1539344696, 1539344634, 1539344526, 1539344434, 1539344472, 1539343457, 1539342487, 1539342076, 1539340235};
+	//seeds = {time(NULL)};
 	int loop = (int)seeds.size();
 	int local_time = (int)(time_running/loop + 0.5);
 	for (int i = 0; i < loop; ++i)
@@ -90,10 +91,10 @@ int main(int argc, char *argv[])
 		vector<thread> threads;
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(runInstances, inputs[i], times[i]*4));
+			threads.push_back(thread(runInstances, inputs[i], times[i]*4/4));
 		}
 
-		this_thread::sleep_for(chrono::seconds(6000));
+		this_thread::sleep_for(chrono::seconds(6000/4));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			if(threads[i].joinable()){
 				cout << "::::::::::::::::::: Join Thread " << i << " :::::::::::::::::::" << endl;
@@ -134,13 +135,13 @@ int main(int argc, char *argv[])
 		//Creando estructura de las soluciones
 		Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, input);
 
-		vector<int> eil = {0,11,8,2,5,20,17,14,0,16,19,13,4,1,7,10,0,3,6,9,12,15,18,21,0};
-		sol.evaluate(eil);
-		sol.print_int_vector(eil);
-		vector<int> vec = sol.neighbour_move_intelligence(eil, 15);
-		sol.print_int_vector(vec);
-
-		return 0;
+		/*vector<int> list = {0,14,2,5,26,35,23,29,17,32,11,20,0,1,13,22,31,19,4,34,28,25,16,7,10,0,15,8,27,18,30,12,3,9,21,24,33,6,0};
+		sol.evaluate(list);
+		sol.print_int_vector(list);
+		vector<vector<int>> vec = sol.intelligence_split_route(list, 1);
+		sol.print_int_vector(vec[0]);
+		sol.print_int_vector(vec[1]);
+		return 0;*/
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
@@ -190,10 +191,14 @@ int main(int argc, char *argv[])
 		}
 		
 		cout << endl;
+		int maximo = 0;
 		for (int i = 0; i < (int)solvers.size(); ++i){
 			cout << solvers[i].global_quality << "\t";
 			solvers[i].print_int_vector(solvers[i].global_solution);
+			maximo = max(maximo, solvers[i].global_quality);
 		}
+
+		cout << "Maximo encontrado: " << maximo << endl;
 	}
 	else {
 		cout << "Excess of parameters" << endl;
