@@ -91,10 +91,10 @@ int main(int argc, char *argv[])
 		vector<thread> threads;
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(runInstances, inputs[i], times[i]*4/4));
+			threads.push_back(thread(runInstances, inputs[i], times[i]*6));
 		}
 
-		this_thread::sleep_for(chrono::seconds(6000/4));
+		this_thread::sleep_for(chrono::seconds(1500*6));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			if(threads[i].joinable()){
 				cout << "::::::::::::::::::: Join Thread " << i << " :::::::::::::::::::" << endl;

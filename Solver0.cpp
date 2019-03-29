@@ -150,17 +150,17 @@ vector<int> Solver::hill_climbing(int end_time) {
 	vector<int> new_neighbour;
 	vector<int> best_solution = random_feasible_solution();
 	int quality_best = evaluate(best_solution);
-	int index = 0;
+	//int index = 0;
 
 	//Loop restarts
 	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
 		vector<int> solution = random_feasible_solution();
 		int quality = evaluate(solution);
 		int neighbour_quality = 0;
-		int neighbour_size = 0;
+		//int neighbour_size = 0;
 
 		//Busqueda Local Intra Rutas
-		bool local = false;
+		/*bool local = false;
 		while(!local) {
 			local = true;
 
@@ -181,7 +181,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 					break;
 				}
 			}
-		}
+		}*/
 
 		//Busqueda Local Entre Rutas
 		bool local = false;
