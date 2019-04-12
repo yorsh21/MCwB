@@ -56,7 +56,7 @@ void runInstances(string file_name, int time_running)
 	
 	//Ejecutando algoritmo de búsqueda local
 	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253, 1539344818, 1539344696, 1539344634, 1539344526, 1539344434, 1539344472, 1539343457, 1539342487, 1539342076, 1539340235};
-	//seeds = {time(NULL)};
+	seeds = {time(NULL)};
 	int loop = (int)seeds.size();
 	int local_time = (int)(time_running/loop + 0.5);
 	for (int i = 0; i < loop; ++i)
@@ -86,15 +86,16 @@ int main(int argc, char *argv[])
 	cout << "==========================================" << endl;
 	vector<string> inputs = {"a36", "a62", "a64", "a65", "eil22", "eil51", "eil76", "tai75A"};
 	vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 4806};
+	auto max_times = max_element(begin(times), end(times));
 
 	if(argc == 1) {
 		vector<thread> threads;
 
 		for (int i = 0; i < (int)inputs.size(); ++i){
-			threads.push_back(thread(runInstances, inputs[i], times[i]*6));
+			threads.push_back(thread(runInstances, inputs[i], times[i]));
 		}
-
-		this_thread::sleep_for(chrono::seconds(1500*6));
+		
+		this_thread::sleep_for(chrono::seconds(*max_times));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			if(threads[i].joinable()){
 				cout << "::::::::::::::::::: Join Thread " << i << " :::::::::::::::::::" << endl;
@@ -135,14 +136,6 @@ int main(int argc, char *argv[])
 		//Creando estructura de las soluciones
 		Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, input);
 
-		/*vector<int> list = {0,14,2,5,26,35,23,29,17,32,11,20,0,1,13,22,31,19,4,34,28,25,16,7,10,0,15,8,27,18,30,12,3,9,21,24,33,6,0};
-		sol.evaluate(list);
-		sol.print_int_vector(list);
-		vector<vector<int>> vec = sol.intelligence_split_route(list, 1);
-		sol.print_int_vector(vec[0]);
-		sol.print_int_vector(vec[1]);
-		return 0;*/
-
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
 		sol.evaluate(solution, true);
@@ -175,7 +168,7 @@ int main(int argc, char *argv[])
 		
 		vector<thread> threads;
 		for (int i = 0; i < loops; ++i){
-			threads.push_back(thread(runSeeds, instances, input, time*4));
+			threads.push_back(thread(runSeeds, instances, input, time));
 		}
 
 		this_thread::sleep_for(chrono::seconds(time));

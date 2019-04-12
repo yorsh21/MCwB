@@ -68,6 +68,7 @@ class Solver {
 		void print_farms_locates();
 		void print_cost_matrix();
 		string int_vector_to_string(vector<int> array);
+		string time();
 
 		//Exports
 		void export_result(vector<int> solution);

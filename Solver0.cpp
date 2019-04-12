@@ -144,29 +144,32 @@ int Solver::random_index(vector<int> solution) {
 /************************************************************/
 
 vector<int> Solver::hill_climbing(int end_time) {
-	clock_t begin = clock();
+	auto start = chrono::system_clock::now();
 
 	vector<int> neighbour;
 	vector<int> new_neighbour;
 	vector<int> best_solution = random_feasible_solution();
 	int quality_best = evaluate(best_solution);
-	//int index = 0;
+	bool local;
+
+	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - start;
 
 	//Loop restarts
-	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
+	while (elapsed_seconds.count() < end_time) 
+	{
 		vector<int> solution = random_feasible_solution();
 		int quality = evaluate(solution);
 		int neighbour_quality = 0;
-		//int neighbour_size = 0;
 
 		//Busqueda Local Intra Rutas
-		/*bool local = false;
+		/*
+		bool local = false;
 		while(!local) {
 			local = true;
 
-			index = random_index(solution);
+			int index = random_index(solution);
 			neighbour = neighbour_2opt_index(solution, index);
-			neighbour_size = (int)neighbour.size();
+			int neighbour_size = (int)neighbour.size();
 			for (int i = 0; i < neighbour_size; ++i)
 			{
 				neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
@@ -176,15 +179,18 @@ vector<int> Solver::hill_climbing(int end_time) {
 
 					if(quality > quality_best) {
 						global_trucks_position = truck_capacities;
-						local = false;
 					}
+					
+					local = false;
 					break;
 				}
 			}
-		}*/
+		}
+		*/
+
 
 		//Busqueda Local Entre Rutas
-		bool local = false;
+		local = false;
 		while(!local) {
 			local = true;
 
@@ -211,10 +217,63 @@ vector<int> Solver::hill_climbing(int end_time) {
 
 								if(quality > quality_best) {
 									global_trucks_position = truck_capacities;
-									local = false;
 								}
+								
+								local = false;
 								break;
 							}
+						}
+					}
+					int index = random_index(solution);
+					neighbour = neighbour_2opt_index(solution, index);
+					int neighbour_size = (int)neighbour.size();
+					for (int i = 0; i < neighbour_size; ++i)
+					{
+						neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
+						if(neighbour_quality > quality) {
+							solution = two_opt(solution, index, neighbour[i]);
+							quality = neighbour_quality;
+
+							if(quality > quality_best) {
+								global_trucks_position = truck_capacities;
+							}
+							
+							local = false;
+							break;
+						}
+					}
+					//if(!local) break;
+				}
+				//if(!local) break;
+			}
+		}
+
+
+		//Busqueda Completa Intra Rutas
+		local = false;
+		while(!local) {
+			local = true;
+
+			vector<vector<int>> vector_routes = split_routes(solution);
+			int len_routes = (int)vector_routes.size();
+			for (int g = 0; g < len_routes; ++g)
+			{
+				int len_route = (int)vector_routes[g].size();
+				for (int i = 0; i < len_route; ++i)
+				{
+					for (int j = 0; j < len_route; ++j)
+					{
+						neighbour_quality = fast_evaluate(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+						if(neighbour_quality > quality) {
+							solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
+							quality = neighbour_quality;
+
+							if(quality > quality_best) {
+								global_trucks_position = truck_capacities;
+							}
+
+							local = false;
+							break;
 						}
 					}
 					if(!local) break;
@@ -223,41 +282,19 @@ vector<int> Solver::hill_climbing(int end_time) {
 			}
 		}
 
-		//Busqueda Completa Intra Rutas
-		vector<vector<int>> vector_routes = split_routes(solution);
-		int len_routes = (int)vector_routes.size();
-		for (int g = 0; g < len_routes; ++g)
-		{
-			int len_route = (int)vector_routes[g].size();
-			for (int i = 0; i < len_route; ++i)
-			{
-				for (int j = 0; j < len_route; ++j)
-				{
-					neighbour_quality = fast_evaluate(solution, quality, vector_routes[g][i], vector_routes[g][j]);
-					if(neighbour_quality > quality) {
-						solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
-						quality = neighbour_quality;
-
-						if(quality > quality_best) {
-							global_trucks_position = truck_capacities;
-						}
-					}
-				}
-			}
-		}
-
-
-
 
 		if ((int)global_trucks_position.size() == trucks_lenght) {
 			truck_capacities = global_trucks_position;
 		}
 
+		auto end = chrono::system_clock::now();
+		elapsed_seconds = end - start;
+
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
 
-			//cout << (int)(float(clock() - begin) / CLOCKS_PER_SEC) << " -> " << quality_best << endl;
+			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
 			//print_int_vector(solution);
 		}
 	}
@@ -267,9 +304,8 @@ vector<int> Solver::hill_climbing(int end_time) {
 		global_solution = best_solution;
 	}
 
-	clock_t end = clock();
-	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
-	result_qualities.push_back(quality_best);
+	//result_times.push_back((int)elapsed_seconds.count());
+	//result_qualities.push_back(quality_best);
 
 	return best_solution;
 }
@@ -633,6 +669,15 @@ string Solver::int_vector_to_string(vector<int> array) {
 
 		return output;
 	}
+}
+
+
+string Solver::time() {
+	auto end = chrono::system_clock::now();
+
+	time_t end_time = chrono::system_clock::to_time_t(end);
+
+	return (string)ctime(&end_time);
 }
 
 
