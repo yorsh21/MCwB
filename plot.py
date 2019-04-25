@@ -145,7 +145,14 @@ def analysis_instances(route):
 				temp_types.append(cumulative_milk)
 			
 			real_types.append(milk_type)
-			
+
+
+	#Mezcla de Leche en la Planta
+	for i in reversed(range(1, num_milks)):
+		print(milk_request[i], collected_milk[i])
+		if int(milk_request[i]) > collected_milk[i]:
+			collected_milk[i-1] -= int(milk_request[i]) - collected_milk[i];
+			collected_milk[i] = int(milk_request[i]);
 
 	total_income = 0
 	total_cost = int(sum(route_cost))

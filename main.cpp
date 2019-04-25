@@ -17,7 +17,7 @@
 
 #include "Instances.cpp"
 #include "Solution.cpp"
-#include "Solver0.cpp"
+#include "Solver.cpp"
 
 using namespace std;
 namespace fs = std::experimental::filesystem;
@@ -56,7 +56,7 @@ void runInstances(string file_name, int time_running)
 	
 	//Ejecutando algoritmo de búsqueda local
 	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253, 1539344818, 1539344696, 1539344634, 1539344526, 1539344434, 1539344472, 1539343457, 1539342487, 1539342076, 1539340235};
-	seeds = {time(NULL)};
+	//seeds = {time(NULL)};
 	int loop = (int)seeds.size();
 	int local_time = (int)(time_running/loop + 0.5);
 	for (int i = 0; i < loop; ++i)

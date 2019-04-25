@@ -17,7 +17,7 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 		vector<int> row(farms_lenght, 0);
 		for (int j = 0; j < farms_lenght; ++j)
 		{
-			row[j] = (int)sqrt(
+			row[j] = sqrt(
 				pow(farms_locates[i][0] - farms_locates[j][0], 2) + 
 				pow(farms_locates[i][1] - farms_locates[j][1], 2)
 			) + 0.5;
@@ -27,21 +27,22 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 	//print_cost_matrix();
 }
 
-int Solver::evaluate_old(vector<int> solution, bool show = false) {
+
+int Solver::evaluate(vector<int> solution, bool show = false) {
 	int route_cost = 0;
 	int total_cost = 0;
 	int collect_milk = 0;
 	int truck_index = 0;
+	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
+	int len_sol = (int)solution.size();
+	bool temp_ot = true;
 
-	milks_trucks = truck_capacities;
+	//Global variables
+	remaining_capacity = truck_capacities;
 	satisfied_cuotes = plant_cuotes;
 	pivots = {};
 	quality_by_route = {};
 	onetype = {};
-
-	int local_quality = farms_locates[solution[1]][2]; //Tipo de leche de la primera granja
-	int len_sol = (int)solution.size();
-	bool temp_ot = true;
 
 	for (int i = 1; i < len_sol; ++i) {
 		vector<int> current_farm = farms_locates[solution[i]];
@@ -50,15 +51,15 @@ int Solver::evaluate_old(vector<int> solution, bool show = false) {
 		//El nodo actual es la planta
 		if(solution[i] == 0) {
 			total_cost += route_cost;
-			milks_trucks[truck_index] -= collect_milk;
+			remaining_capacity[truck_index] -= collect_milk;
 			satisfied_cuotes[local_quality] -= collect_milk;
 			pivots.push_back(i);
 			quality_by_route.push_back(local_quality);
 			onetype.push_back(temp_ot);
 
 			//Exceso en la capacidad de los camiones
-			if (milks_trucks[truck_index] < 0) {
-				total_cost -= milks_trucks[truck_index]*100;
+			if (remaining_capacity[truck_index] < 0) {
+				total_cost -= remaining_capacity[truck_index]*100;
 			}
 
 			if(i+1 < len_sol) {
@@ -79,15 +80,24 @@ int Solver::evaluate_old(vector<int> solution, bool show = false) {
 		}
 	}
 
-	milk_income = 0;
+	//Mezcla de Leche en la Planta
+	for (int i = milks_lenght - 1; i > 0 ; --i) {
+		if(satisfied_cuotes[i] > 0) {
+			satisfied_cuotes[i-1] += satisfied_cuotes[i];
+			satisfied_cuotes[i] = 0;
+		}
+	}
+
+	int milk_income = 0;
 	for (int i = 0; i < milks_lenght; ++i) {
 		milk_income += (plant_cuotes[i] - satisfied_cuotes[i])*milk_values[i] + 0.5;
 		
 		//Penalización por cuota faltante
-		if(satisfied_cuotes[i] >= 0) {
+		if(satisfied_cuotes[i] > 0) {
 			milk_income -= satisfied_cuotes[i]*milk_values[i]*100;
 		}
 	}
+
 
 	if (show) {
 		cout << endl << "Total: " << milk_income << " - " << total_cost << " = " << milk_income - total_cost << endl << endl;
@@ -95,7 +105,7 @@ int Solver::evaluate_old(vector<int> solution, bool show = false) {
 		cout << "Capacidad Camiones: ";
 		print_int_vector(truck_capacities);
 		cout << "Capacidad Restante: ";
-		print_int_vector(milks_trucks);
+		print_int_vector(remaining_capacity);
 
 		cout << endl;
 		
@@ -105,91 +115,14 @@ int Solver::evaluate_old(vector<int> solution, bool show = false) {
 		print_int_vector(satisfied_cuotes);
 
 		cout << endl;
-		//draw_graph(solution, milk_income - total_cost);
+		draw_graph(solution, milk_income - total_cost);
 	}
 
 	return milk_income - total_cost;
 }
 
-int Solver::evaluate(Solution *sol, bool show = false) {
-	int route_cost = 0;
-	int collect_milk = 0;
-	int truck_index = 0;
-	int local_quality = farms_locates[sol->route[1]][2]; //Tipo de leche de la primera granja
-	bool temp_ot = true;
 
-	sol->milks_trucks = truck_capacities;
-	sol->satisfied_cuotes = plant_cuotes;
-
-	for (int i = 1; i < sol->lenght; ++i) {
-		vector<int> current_farm = farms_locates[sol->route[i]];
-		route_cost += cost_matrix[sol->route[i]][sol->route[i-1]];
-
-		//El nodo actual es la planta
-		if(sol->route[i] == 0) {
-			sol->total_cost += route_cost;
-			sol->milks_trucks[truck_index] -= collect_milk;
-			sol->satisfied_cuotes[local_quality] -= collect_milk;
-			sol->pivots.push_back(i);
-			sol->quality_by_route.push_back(local_quality);
-			sol->onetype.push_back(temp_ot);
-
-			//Exceso en la capacidad de los camiones
-			if (sol->milks_trucks[truck_index] < 0) {
-				sol->total_cost -= sol->milks_trucks[truck_index]*100;
-			}
-
-			if(i+1 < sol->lenght) {
-				route_cost = 0;
-				collect_milk = 0;
-				truck_index++;
-				local_quality = farms_locates[sol->route[i+1]][2];
-				temp_ot = true;
-			}
-		}
-		else {
-			collect_milk += current_farm[3];
-
-			if(milk_values[local_quality] > milk_values[current_farm[2]]) {
-				local_quality = current_farm[2];
-				temp_ot = false;
-			}
-		}
-	}
-
-	sol->total_benefit = 0;
-	for (int i = 0; i < milks_lenght; ++i) {
-		sol->total_benefit += (plant_cuotes[i] - sol->satisfied_cuotes[i])*milk_values[i] + 0.5;
-		
-		//Penalización por cuota faltante
-		if(sol->satisfied_cuotes[i] >= 0) {
-			sol->total_benefit -= sol->satisfied_cuotes[i]*milk_values[i]*100;
-		}
-	}
-
-	if (show) {
-		cout << endl << "Total: " << sol->total_benefit << " - " << sol->total_cost << " = " << sol->total_benefit - sol->total_cost << endl << endl;
-
-		cout << "Capacidad Camiones: ";
-		print_int_vector(truck_capacities);
-		cout << "Capacidad Restante: ";
-		print_int_vector(sol->milks_trucks);
-
-		cout << endl;
-		
-		cout << "Cuotas Planta:    ";
-		print_int_vector(plant_cuotes);
-		cout << "Cuotas Faltantes: ";
-		print_int_vector(sol->satisfied_cuotes);
-
-		cout << endl;
-		//draw_graph(sol->route, sol->total_benefit - sol->total_cost);
-	}
-
-	return sol->total_benefit - sol->total_cost;
-}
-
-int Solver::intra_evaluate(vector<int> solution, int old_eval, int index1, int index2) {
+int Solver::fast_evaluate(vector<int> solution, int old_eval, int index1, int index2) {
 	int new_eval = old_eval;
 
 	int k1 = min(index1, index2);
@@ -204,94 +137,6 @@ int Solver::intra_evaluate(vector<int> solution, int old_eval, int index1, int i
 	return new_eval;
 }
 
-int Solver::extra_evaluate(Solution sol, int index1, int index2) {
-	//cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" << endl;
-	int g1 = -1;
-	int g2 = -1;
-	for (int i = 0; i < (int)sol.pivots.size(); ++i) 
-	{
-		if (g1 == -1 && index1 < sol.pivots[i]) g1 = i;
-		if (g2 == -1 && index2 < sol.pivots[i]) g2 = i;
-	}
-
-	if (index1 < index2) {
-		//Quitar Rutas
-		sol.total_cost -= cost_matrix[sol.route[index1]][sol.route[index1-1]];
-		sol.total_cost -= cost_matrix[sol.route[index1]][sol.route[index1+1]];
-		sol.total_cost -= cost_matrix[sol.route[index2]][sol.route[index2+1]];
-		
-		//Agregar Rutas
-		sol.total_cost += cost_matrix[sol.route[index1-1]][sol.route[index1+1]];
-		sol.total_cost += cost_matrix[sol.route[index1]][sol.route[index2]];
-		sol.total_cost += cost_matrix[sol.route[index1]][sol.route[index2+1]];
-	}
-	else if(index2 < index1) {
-		//Quitar Rutas
-		sol.total_cost -= cost_matrix[sol.route[index1]][sol.route[index1-1]];
-		sol.total_cost -= cost_matrix[sol.route[index1]][sol.route[index1+1]];
-		sol.total_cost -= cost_matrix[sol.route[index2]][sol.route[index2-1]];
-		
-		//Agregar Rutas
-		sol.total_cost += cost_matrix[sol.route[index1-1]][sol.route[index1+1]];
-		sol.total_cost += cost_matrix[sol.route[index1]][sol.route[index2-1]];
-		sol.total_cost += cost_matrix[sol.route[index1]][sol.route[index2]];
-	}
-
-	//Quitando exceso en la capacidad de los camiones
-	if (sol.milks_trucks[g1] < 0) {
-		sol.total_cost += sol.milks_trucks[g1]*100;
-	}
-	if (sol.milks_trucks[g2] < 0) {
-		sol.total_cost += sol.milks_trucks[g2]*100;
-	}
-
-	//Analizar al quitar nodo index1
-	if (sol.onetype[g1]){
-		sol.satisfied_cuotes[sol.quality_by_route[g1]] += farms_locates[sol.route[index1]][3];
-	}
-	else {
-		int local_milk = 0;
-		for (int i = sol.pivots[g1-1]+1; i < sol.pivots[g1]; ++i)
-		{
-			if (i != index1 && farms_locates[sol.route[index1]][2] > local_milk)
-				local_milk = farms_locates[sol.route[index1]][2];
-		}
-
-		if (sol.quality_by_route[g1] > local_milk)
-		{
-			sol.satisfied_cuotes[sol.quality_by_route[g1]] += farms_locates[sol.route[index1]][3];
-			sol.quality_by_route[g1] = local_milk;
-		}
-	}
-
-	//Analizar al agregar nodo index2
-	if (farms_locates[sol.route[index1]][2] <= sol.quality_by_route[g2]) {
-		sol.satisfied_cuotes[sol.quality_by_route[g2]] -= farms_locates[sol.route[index1]][3];
-	}
-	else {
-		sol.satisfied_cuotes[sol.quality_by_route[g1]] -= (truck_capacities[g2] - sol.milks_trucks[g2]);
-		sol.satisfied_cuotes[sol.quality_by_route[g2]] += (truck_capacities[g2] - sol.milks_trucks[g2]);
-		sol.satisfied_cuotes[sol.quality_by_route[g2]] -= farms_locates[sol.route[index1]][3];
-
-		sol.quality_by_route[g2] = farms_locates[sol.route[index1]][2];
-	}
-
-	//Recalculando Cosotos
-	sol.total_benefit = 0;
-	for (int i = 0; i < milks_lenght; ++i) {
-		sol.total_benefit += (plant_cuotes[i] - sol.satisfied_cuotes[i])*milk_values[i] + 0.5;
-		
-		//Penalización por cuota faltante
-		if(sol.satisfied_cuotes[i] >= 0) {
-			sol.total_benefit -= sol.satisfied_cuotes[i]*milk_values[i]*100;
-		}
-	}
-	
-	//cout << sol.total_benefit << " - " << sol.total_cost << " = " << sol.total_benefit - sol.total_cost << endl;
-	//cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" << endl;
-
-	return sol.total_benefit - sol.total_cost;
-}
 
 int Solver::random_index(vector<int> solution) {
 	int index = 0;
@@ -308,245 +153,131 @@ int Solver::random_index(vector<int> solution) {
 /************************************************************/
 
 vector<int> Solver::hill_climbing(int end_time) {
-	clock_t begin = clock();
-	int ciclos = 0;
-
-	Solution best_solution = Solution(random_feasible_solution());
-	int quality_best = evaluate(&best_solution);
-	int index = 0;
-
-	vector<int> neighbour;
-	Solution new_neighbour = best_solution;
-
-	//Loop restarts/time
-	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
-		Solution solution = Solution(random_feasible_solution());
-		int quality = evaluate(&solution);
-		int neighbour_quality = 0;
-		int neighbour_size = 0;
-
-		//Busqueda Local Intra Rutas
-		bool local = false;
-		while(!local) {
-			local = true;
-			index = solution.random_index();
-			neighbour = solution.neighbour_2opt_index(index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				neighbour_quality = intra_evaluate(solution.route, quality, index, neighbour[i]);
-				if(neighbour_quality > quality) {
-					solution = two_opt(solution, index, neighbour[i]);
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
-		//quality = evaluate(&solution);
-
-		//Busqueda Local Entre Rutas
-		local = false;
-		while(!local) {
-			local = true;
-
-			index = solution.random_index();
-			neighbour = solution.neighbour_move_index(index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				new_neighbour = move_extra_routes(solution, index, neighbour[i]);
-				//neighbour_quality = extra_evaluate(solution, index, neighbour[i]);
-				neighbour_quality = evaluate(&new_neighbour);
-				
-				/*int neighbour_quality2 = evaluate(&new_neighbour);
-				if(neighbour_quality != neighbour_quality2){
-					print_int_vector(solution);
-					print_int_vector(new_neighbour);
-					cout << index << " | "  << neighbour[i] << endl;
-					cout << neighbour_quality << endl;
-					cout << neighbour_quality2 << endl;
-					return solution;
-				}*/
-
-				if(neighbour_quality > quality) {
-					solution = new_neighbour;
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
-		//quality = evaluate(&solution);
-
-		//Busqueda Local Intra Rutas
-		local = false;
-		while(!local) {
-			local = true;
-			index = solution.random_index();
-			neighbour = solution.neighbour_2opt_index(index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				neighbour_quality = intra_evaluate(solution.route, quality, index, neighbour[i]);
-				if(neighbour_quality > quality) {
-					solution = two_opt(solution, index, neighbour[i]);
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
-
-		if ((int)global_trucks_position.size() == trucks_lenght) {
-			truck_capacities = global_trucks_position;
-		}
-
-		if(quality > quality_best) {
-			best_solution = solution;
-			quality_best = quality;
-
-			cout << float(clock() - begin) / CLOCKS_PER_SEC << ": " << quality_best << endl;
-			print_int_vector(solution.route);
-		}
-
-		ciclos++;
-	}
-
-	if(quality_best > global_quality) {
-		global_quality = quality_best;
-		global_solution = best_solution.route;
-	}
-
-	clock_t end = clock();
-	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
-	result_qualities.push_back(quality_best);
-
-	return best_solution.route;
-}
-
-
-vector<int> Solver::hill_climbing_old(int end_time) {
-	clock_t begin = clock();
-	int ciclos = 0;
+	auto start = chrono::system_clock::now();
 
 	vector<int> neighbour;
 	vector<int> new_neighbour;
 	vector<int> best_solution = random_feasible_solution();
-	int quality_best = evaluate_old(best_solution);
-	int index = 0;
+	int quality_best = evaluate(best_solution);
+	bool local;
 
-	//Loop restarts/time
-	while (float(clock() - begin) / CLOCKS_PER_SEC < end_time) {
+	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - start;
+
+	//Loop restarts
+	while (elapsed_seconds.count() < end_time) 
+	{
 		vector<int> solution = random_feasible_solution();
-		int quality = evaluate_old(solution);
+		int quality = evaluate(solution);
 		int neighbour_quality = 0;
-		int neighbour_size = 0;
-
-		//Busqueda Local Intra Rutas
-		bool local = false;
-		while(!local) {
-			local = true;
-
-			index = random_index(solution);
-			neighbour = neighbour_2opt_index(solution, index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
-			{
-				new_neighbour = two_opt_old(solution, index, neighbour[i]);
-				neighbour_quality = intra_evaluate(solution, quality, index, neighbour[i]);
-				//neighbour_quality = evaluate_old(new_neighbour);
-
-				if(neighbour_quality > quality) {
-					solution = new_neighbour;
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
-					}
-					break;
-				}
-			}
-		}
-
 
 		//Busqueda Local Entre Rutas
 		local = false;
 		while(!local) {
 			local = true;
 
-			index = random_index(solution);
-			neighbour = neighbour_move_index(solution, index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
+			for (int g = 0; g < trucks_lenght; ++g)
 			{
-				new_neighbour = move_extra_routes_old(solution, index, neighbour[i]);
-				neighbour_quality = evaluate_old(new_neighbour);
-				
-				if(neighbour_quality > quality) {
-					solution = new_neighbour;
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
+				vector<vector<int>> vector_routes = intelligence_split_route(solution, g);
+				vector<int> select_route = vector_routes[0];
+				vector<int> others_route = vector_routes[1];
+
+				int select_size = (int)select_route.size();
+				int others_size = (int)others_route.size();
+
+				for (int h = 0; h < select_size; ++h)
+				{
+					for (int i = 0; i < others_size; ++i)
+					{
+						if(can_move_extra_routes(solution, select_route[h], others_route[i])) {
+							new_neighbour = move_extra_routes(solution, select_route[h], others_route[i]);
+							neighbour_quality = evaluate(new_neighbour);
+							
+							if(neighbour_quality > quality) {
+								solution = new_neighbour;
+								quality = neighbour_quality;
+
+								if(quality > quality_best) {
+									global_trucks_position = truck_capacities;
+								}
+								
+								local = false;
+								break;
+							}
+						}
 					}
-					break;
+					int index = random_index(solution);
+					neighbour = neighbour_2opt_index(solution, index);
+					int neighbour_size = (int)neighbour.size();
+					for (int i = 0; i < neighbour_size; ++i)
+					{
+						neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
+						if(neighbour_quality > quality) {
+							solution = two_opt(solution, index, neighbour[i]);
+							quality = neighbour_quality;
+
+							if(quality > quality_best) {
+								global_trucks_position = truck_capacities;
+							}
+							
+							local = false;
+							break;
+						}
+					}
+					//if(!local) break;
 				}
+				//if(!local) break;
 			}
 		}
 
 
-		//Busqueda Local Intra Rutas
+		//Busqueda Completa Intra Rutas
 		local = false;
 		while(!local) {
 			local = true;
 
-			index = random_index(solution);
-			neighbour = neighbour_2opt_index(solution, index);
-			neighbour_size = (int)neighbour.size();
-			for (int i = 0; i < neighbour_size; ++i)
+			vector<vector<int>> vector_routes = split_routes(solution);
+			int len_routes = (int)vector_routes.size();
+			for (int g = 0; g < len_routes; ++g)
 			{
-				new_neighbour = two_opt_old(solution, index, neighbour[i]);
-				neighbour_quality = intra_evaluate(solution, quality, index, neighbour[i]);
-				//neighbour_quality = evaluate_old(new_neighbour);
+				int len_route = (int)vector_routes[g].size();
+				for (int i = 0; i < len_route; ++i)
+				{
+					for (int j = 0; j < len_route; ++j)
+					{
+						neighbour_quality = fast_evaluate(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+						if(neighbour_quality > quality) {
+							solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
+							quality = neighbour_quality;
 
-				if(neighbour_quality > quality) {
-					solution = new_neighbour;
-					quality = neighbour_quality;
-					if(quality > quality_best) {
-						global_trucks_position = truck_capacities;
-						local = false;
+							if(quality > quality_best) {
+								global_trucks_position = truck_capacities;
+							}
+
+							local = false;
+							break;
+						}
 					}
-					break;
+					if(!local) break;
 				}
+				if(!local) break;
 			}
 		}
+
 
 		if ((int)global_trucks_position.size() == trucks_lenght) {
 			truck_capacities = global_trucks_position;
 		}
 
+		auto end = chrono::system_clock::now();
+		elapsed_seconds = end - start;
+
 		if(quality > quality_best) {
 			best_solution = solution;
 			quality_best = quality;
 
-			cout << float(clock() - begin) / CLOCKS_PER_SEC << ": " << quality_best << endl;
+			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
 			print_int_vector(solution);
 		}
-
-		ciclos++;
 	}
 
 	if(quality_best > global_quality) {
@@ -554,14 +285,11 @@ vector<int> Solver::hill_climbing_old(int end_time) {
 		global_solution = best_solution;
 	}
 
-	clock_t end = clock();
-	result_times.push_back(float(end - begin) / CLOCKS_PER_SEC);
-	result_qualities.push_back(quality_best);
+	//result_times.push_back((int)elapsed_seconds.count());
+	//result_qualities.push_back(quality_best);
 
 	return best_solution;
 }
-
-
 
 
 vector<int> Solver::short_swap(vector<int> solution, int index) {
@@ -574,6 +302,7 @@ vector<int> Solver::short_swap(vector<int> solution, int index) {
 	return solution;
 }
 
+
 vector<int> Solver::long_swap(vector<int> solution, int index, int move) {
 	if(move > 0 && move < (int)solution.size()-2) {
 		int temp = solution[move];
@@ -584,7 +313,8 @@ vector<int> Solver::long_swap(vector<int> solution, int index, int move) {
 	return solution;
 }
 
-vector<int> Solver::two_opt_old(vector<int> solution, int index1, int index2) {
+
+vector<int> Solver::two_opt(vector<int> solution, int index1, int index2) {
 	int k1 = min(index1, index2);
 	int k2 = max(index1, index2);
 
@@ -599,60 +329,20 @@ vector<int> Solver::two_opt_old(vector<int> solution, int index1, int index2) {
 	return solution;
 }
 
-Solution Solver::two_opt(Solution solution, int index1, int index2) {
-	Solution new_solution = solution;
+
+vector<int> Solver::move_extra_routes(vector<int> solution, int index1, int index2) {
 	int k1 = min(index1, index2);
 	int k2 = max(index1, index2);
 
-	int diff = (k2 - k1)/2;
-	for (int i = 0; i <= diff; ++i)
-	{
-		int temp = new_solution.route[k1 + i];
-		new_solution.route[k1 + i] = new_solution.route[k2 - i];
-		new_solution.route[k2 - i] = temp;
+	int temp = solution[k1];
+	for (int i = k1; i < k2; ++i) {
+		solution[i] = solution[i+1];
 	}
-
-	return new_solution;
-}
-
-vector<int> Solver::move_extra_routes_old(vector<int> solution, int index1, int index2) {
-	if (index1 < index2) {
-		int temp = solution[index1];
-		for (int i = index1; i < index2; ++i) {
-			solution[i] = solution[i+1];
-		}
-		solution[index2] = temp;
-	}
-	else if(index2 < index1) {
-		int temp = solution[index1];
-		for (int i = index1; i > index2; --i) {
-			solution[i] = solution[i-1];
-		}
-		solution[index2] = temp;
-	}
+	solution[k2] = temp;
 
 	return solution;
 }
 
-Solution Solver::move_extra_routes(Solution solution, int index1, int index2) {
-	Solution new_solution = solution;
-	if (index1 < index2) {
-		int temp = new_solution.route[index1];
-		for (int i = index1; i < index2; ++i) {
-			new_solution.route[i] = new_solution.route[i+1];
-		}
-		new_solution.route[index2] = temp;
-	}
-	else if(index2 < index1) {
-		int temp = new_solution.route[index1];
-		for (int i = index1; i > index2; --i) {
-			new_solution.route[i] = new_solution.route[i-1];
-		}
-		new_solution.route[index2] = temp;
-	}
-
-	return new_solution;
-}
 
 vector<int> Solver::neighbour_2opt_index(vector<int> solution, int index) {
 	vector<int> indexes;
@@ -673,6 +363,7 @@ vector<int> Solver::neighbour_2opt_index(vector<int> solution, int index) {
 	return indexes;
 }
 
+
 vector<int> Solver::neighbour_move_index(vector<int> solution, int index) {
 	vector<int> indexes;
 	int len = (int)solution.size();
@@ -685,7 +376,7 @@ vector<int> Solver::neighbour_move_index(vector<int> solution, int index) {
 				route2 = i;
 			}
 
-			if (i < index){
+			if (i < index) {
 				route1 = i;
 			}
 		}
@@ -706,10 +397,11 @@ vector<int> Solver::neighbour_move_index(vector<int> solution, int index) {
 	return indexes;
 }
 
+
 vector<int> Solver::random_feasible_solution() {
 	//Desordenando camiones
 	truck_capacities = random_assignment(truck_capacities);
-
+	
 	vector<int> milks;
 	for (int i = 0; i < milks_lenght; i++) milks.push_back(i);
 	
@@ -737,6 +429,19 @@ vector<int> Solver::random_feasible_solution() {
 	}
 
 	return solution;
+}
+
+
+vector<int> Solver::get_node_from_route(vector<int> solution, int number) {
+	vector<int> nodes = {};
+
+	int init = (number == 0) ? 0 : pivots[number];
+	for (int i = init; i < pivots[number]; ++i)
+	{
+		nodes.push_back(solution[i]);
+	}
+
+	return nodes;
 }
 
 
@@ -774,6 +479,7 @@ vector<int> Solver::random_int_vector(int lenght) {
 	return int_vector;
 }
 
+
 vector<int> Solver::random_assignment(vector<int> array) {
 	int lenght = (int)array.size();
 	vector<int> int_vector(lenght, 0);
@@ -788,6 +494,93 @@ vector<int> Solver::random_assignment(vector<int> array) {
 		}
 	}
 	return int_vector;
+}
+
+
+vector<vector<int>> Solver::split_routes(vector<int> solution) {
+	vector<vector<int>> routes;
+	int len = (int)solution.size();
+
+	vector<int> route;
+	for (int i = 0; i < len; ++i)
+	{
+		if (solution[i] == 0) {
+			routes.push_back(route);
+			route = {};
+		}
+		else {
+			route.push_back(i);
+		}
+	}
+
+	return routes;
+}
+
+
+vector<vector<int>> Solver::split_route(vector<int> solution, int number) {
+	vector<int> into_route;
+	vector<int> extra_route;
+
+	int init = (number == 0) ? 0 : pivots[number];
+	for (int i = init; i < pivots[number]; ++i)
+	{
+		if (i > init && i < pivots[number])
+			into_route.push_back(solution[i]);
+		else
+			extra_route.push_back(solution[i]);
+
+	}
+
+	return {into_route, extra_route};
+}
+
+
+vector<vector<int>> Solver::intelligence_split_route(vector<int> solution, int index) {
+	vector<int> into_route;
+	vector<int> extra_route;
+	int len_pivots = (int)pivots.size();
+
+	for (int i = 0; i < len_pivots; ++i) {
+		if (quality_by_route[index] < quality_by_route[i]) 
+		{
+			int init = (i == 0) ? 1 : pivots[i-1]+1;
+
+			for (int j = init; j < pivots[i]; ++j) {
+				extra_route.push_back(j);
+			}
+		}
+		else if (quality_by_route[index] == quality_by_route[i])
+		{
+			int init = (i == 0) ? 1 : pivots[i-1]+1;
+
+			for (int j = init; j < pivots[i]; ++j) {
+				into_route.push_back(j);
+			}
+		}
+	}
+
+	return {into_route, extra_route};
+}
+
+
+bool Solver::can_move_extra_routes(vector<int> solution, int index1, int index2) {
+	int len_pivots = (int)pivots.size();
+	int destination_route = 0;
+
+	//Busca el numero de la ruta del index
+	for (int i = 0; i < len_pivots - 1; ++i) {
+		if (pivots[i] < index2 && index2 < pivots[i+1]){
+			destination_route = i + 1;
+			break;
+		}
+	}
+
+	if (remaining_capacity[destination_route] < farms_locates[solution[index2]][3]) {
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 
@@ -809,6 +602,7 @@ void Solver::print_int_vector(vector<int> array) {
 	}
 }
 
+
 void Solver::print_float_vector(vector<float> array) {
 	cout << "[";
 	for (int i = 0; i < (int)array.size() - 1; ++i)
@@ -818,6 +612,7 @@ void Solver::print_float_vector(vector<float> array) {
 	cout << array[(int)array.size()-1] <<  "]" << endl;
 }
 
+
 void Solver::print_farms_locates() {
 	for (int i = 0; i < (int)farms_locates.size(); ++i)
 	{
@@ -825,6 +620,7 @@ void Solver::print_farms_locates() {
 	}
 	cout << "Total elementos: " << farms_locates.size() << endl << endl;
 }
+
 
 void Solver::print_cost_matrix() {
 	for (int i = 0; i < (int)cost_matrix.size(); ++i)
@@ -838,6 +634,7 @@ void Solver::print_cost_matrix() {
 	}
 	cout << endl;
 }
+
 
 string Solver::int_vector_to_string(vector<int> array) {
 	int len = (int)array.size();
@@ -853,6 +650,15 @@ string Solver::int_vector_to_string(vector<int> array) {
 
 		return output;
 	}
+}
+
+
+string Solver::time() {
+	auto end = chrono::system_clock::now();
+
+	time_t end_time = chrono::system_clock::to_time_t(end);
+
+	return (string)ctime(&end_time);
 }
 
 
@@ -948,6 +754,7 @@ void Solver::export_result(vector<int> solution) {
 	
 }
 
+
 void Solver::save_row_result() {
 	string file = "outputs/results.out";
 	ofstream myfile;
@@ -981,6 +788,7 @@ void Solver::save_row_result() {
 	cout << "Successfully wrhite instance: " << name_instance << endl;
 }
 
+
 void Solver::draw_graph(vector<int> solution, int quality) {
 	string full_output = "python3 plot.py " + name_instance + " [0";
 
@@ -997,4 +805,3 @@ void Solver::draw_graph(vector<int> solution, int quality) {
 	cout << full_output << endl;
 	system(full_output.c_str());
 }
-
