@@ -16,7 +16,6 @@
 #include <experimental/filesystem>
 
 #include "Instances.cpp"
-#include "Solution.cpp"
 #include "Solver.cpp"
 
 using namespace std;
