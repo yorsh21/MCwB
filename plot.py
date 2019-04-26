@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import math
 import sys
 import numpy as np
 from pylab import *
@@ -13,6 +14,17 @@ milk_request = []
 milk_values = []
 num_farms = 0
 farms = []
+letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+
+def convert_array(element):
+	try:
+	   return int(element)
+	except ValueError:
+		if(element in letters):
+			return letters.index(element)
+		else:
+			return -1
+
 
 def read_instances(instance):
 	file = open("inputs/" + instance + ".txt")
@@ -36,8 +48,9 @@ def read_instances(instance):
 	num_farms = int(file.readline())
 
 	for farm in range(num_farms):
-		line = file.readline()[:-1].replace("A", "0").replace("B", "1").replace("C", "2").replace("-", "-1")
-		farms.append(list(map(int, line.split("\t"))))
+		line = file.readline()[:-1]
+		array = list(map(convert_array, line.split("\t")))
+		farms.append(array)
 
 
 def plot_map(instance, route = None, output = ""):
@@ -146,19 +159,25 @@ def analysis_instances(route):
 			
 			real_types.append(milk_type)
 
+	#Solo impresión
+	for i in range(num_milks):
+		print("Requerimiento Planta: ", milk_request[i], "\tLeche recogida", collected_milk[i])
+	print()
 
+	
 	#Mezcla de Leche en la Planta
 	for i in reversed(range(1, num_milks)):
 		if int(milk_request[i]) > collected_milk[i]:
 			collected_milk[i-1] -= int(milk_request[i]) - collected_milk[i];
 			collected_milk[i] = int(milk_request[i]);
 
+
 	total_income = 0
 	total_cost = int(sum(route_cost))
 	for i in range(num_milks):
 		print("Requerimiento Planta: ", milk_request[i], "\tLeche recogida", collected_milk[i])
-
-		total_income += int(collected_milk[i]*float(milk_values[i]))
+		
+		total_income += math.ceil(collected_milk[i]*float(milk_values[i]))
 		if int(milk_request[i]) > collected_milk[i]:
 			total_income -= int((int(milk_request[i]) - collected_milk[i])*float(milk_values[i]))*100
 

@@ -205,24 +205,6 @@ vector<int> Solver::hill_climbing(int end_time) {
 							}
 						}
 					}
-					int index = random_index(solution);
-					neighbour = neighbour_2opt_index(solution, index);
-					int neighbour_size = (int)neighbour.size();
-					for (int i = 0; i < neighbour_size; ++i)
-					{
-						neighbour_quality = fast_evaluate(solution, quality, index, neighbour[i]);
-						if(neighbour_quality > quality) {
-							solution = two_opt(solution, index, neighbour[i]);
-							quality = neighbour_quality;
-
-							if(quality > quality_best) {
-								global_trucks_position = truck_capacities;
-							}
-							
-							local = false;
-							break;
-						}
-					}
 					//if(!local) break;
 				}
 				//if(!local) break;
@@ -257,9 +239,9 @@ vector<int> Solver::hill_climbing(int end_time) {
 							break;
 						}
 					}
-					if(!local) break;
+					//if(!local) break;
 				}
-				if(!local) break;
+				//if(!local) break;
 			}
 		}
 
@@ -276,7 +258,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 			quality_best = quality;
 
 			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
-			print_int_vector(solution);
+			//print_int_vector(solution);
 		}
 	}
 
