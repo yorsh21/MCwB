@@ -66,7 +66,7 @@ void runInstances(string file_name, int time_running)
 	}
 
 	put_solvers(sol);
-	print("------------ Finish " + file_name + " ------------");
+	print("------------ Thread Finish " + file_name + " ------------");
 }
 
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 		this_thread::sleep_for(chrono::seconds(*max_times));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			if(threads[i].joinable()){
-				cout << "::::::::::::::::::: Join Thread " << i << " :::::::::::::::::::" << endl;
+				cout << "::::::::::::::::::: Join Thread " << inputs[i] << " :::::::::::::::::::" << endl;
 				threads[i].join();
 			}
 			else {

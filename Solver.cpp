@@ -267,8 +267,8 @@ vector<int> Solver::hill_climbing(int end_time) {
 		global_solution = best_solution;
 	}
 
-	//result_times.push_back((int)elapsed_seconds.count());
-	//result_qualities.push_back(quality_best);
+	result_times.push_back((int)elapsed_seconds.count());
+	result_qualities.push_back(quality_best);
 
 	return best_solution;
 }
