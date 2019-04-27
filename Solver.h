@@ -35,7 +35,6 @@ class Solver {
 		vector<int> pivots;
 		vector<int> remaining_capacity;
 		vector<int> satisfied_cuotes;
-		vector<bool> onetype;
 
 
 		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
@@ -71,7 +70,6 @@ class Solver {
 		string time();
 
 		//Exports
-		void export_result(vector<int> solution);
 		void save_row_result();
 		void draw_graph(vector<int> solution, int quality);
 };

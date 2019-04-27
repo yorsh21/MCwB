@@ -138,9 +138,6 @@ int main(int argc, char *argv[])
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time);
 		sol.evaluate(solution, true);
-
-		//Exportando solución
-		//sol.export_result(solution);
 	}
 	else if(argc == 3) {
 		int seed = time(NULL);
