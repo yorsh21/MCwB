@@ -260,7 +260,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 	}
 
 
-	//Busqueda Completa Intra Rutas
+	//Busqueda Completa Intra Rutas Post-Restarts
 	int quality = quality_best;
 	int neighbour_quality = 0;
 	local = false;
@@ -594,7 +594,7 @@ bool Solver::can_move_extra_routes(vector<int> solution, int index1, int index2)
 				truck_capacities[i] - remaining_capacity[i] <= truck_capacities[destination_route] &&
 				truck_capacities[destination_route] - remaining_capacity[destination_route] + farms_locates[solution[index2]][3] <= truck_capacities[i]
 			) {
-				cout << "Swap Camiones: " << destination_route << "<->" << i << endl; 
+				//cout << "Swap Camiones: " << destination_route << "<->" << i << endl; 
 				int temp_remaining = remaining_capacity[destination_route];
 				int temp_truck = truck_capacities[destination_route];
 
