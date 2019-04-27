@@ -3,7 +3,6 @@
 
 import sys
 from pylab import *
-import itertools
 
 num_trucks = 0
 trucks_capacities = []
@@ -12,8 +11,18 @@ milk_request = []
 milk_values = []
 num_farms = 0
 farms = []
+letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
-global_cost = 99999999
+
+def convert_array(element):
+	try:
+	   return int(element)
+	except ValueError:
+		if(element in letters):
+			return letters.index(element)
+		else:
+			return -1
+
 
 def read_instances(instance):
 	file = open("inputs/" + instance + ".txt")
@@ -37,8 +46,9 @@ def read_instances(instance):
 	num_farms = int(file.readline())
 
 	for farm in range(num_farms):
-		line = file.readline()[:-1].replace("A", "0").replace("B", "1").replace("C", "2").replace("-", "-1")
-		farms.append(list(map(int, line.split("\t"))))
+		line = file.readline()[:-1]
+		array = list(map(convert_array, line.split("\t")))
+		farms.append(array)
 
 
 def total_cost(route):
@@ -82,35 +92,6 @@ def local_cost(route):
 
 	return route_cost
 
-
-def local_cost_zero(route):
-	route_cost = 0
-
-	route_cost += int(
-		sqrt(
-			(farms[0][1] - farms[route[1]][1])**2 + 
-			(farms[0][2] - farms[route[1]][2])**2
-		) + 0.5
-	)
-	
-	for i in range(1, len(route)):
-		route_cost += int(
-			sqrt(
-				(farms[route[i-1]][1] - farms[route[i]][1])**2 + 
-				(farms[route[i-1]][2] - farms[route[i]][2])**2
-			) + 0.5
-		)
-
-	route_cost += int(
-		sqrt(
-			(farms[route[-1]][1] - farms[0][1])**2 + 
-			(farms[route[-1]][2] - farms[0][2])**2
-		) + 0.5
-	)
-
-	return route_cost
-
-
 def swap(route, index1, index2):
 	temp = route[index2]
 	route[index2] = route[index1]
@@ -119,11 +100,9 @@ def swap(route, index1, index2):
 
 
 def find_better(route):
-	global global_cost
-
+	global_cost = total_cost(route)
 	routes = []
 	index = 0
-	tupla = (0,)
 
 	for i in range(1, len(route)):
 		if(route[i] == 0):
@@ -131,18 +110,25 @@ def find_better(route):
 			index = i
 
 	
-	r = routes[0][1:-1]
-	global_cost = local_cost(r)
+	for route in routes:
+		droute = route
+		route_cost = local_cost(route)
+		print("Route: ", route_cost, route, "\n")
 
-	options = itertools.permutations(routes[0], len(routes[0]))
-	for o in options:
-	    #if local_cost_zero(o) != local_cost(tupla + o + tupla):
-	    #	print(str(local_cost_zero(o)) + " - " + str(local_cost(tupla + o + tupla)))
-	    #if local_cost(tupla + o + tupla) < global_cost:
-	    #	global_cost = local_cost(tupla + o + tupla)
-	    #	print(global_cost)
-	    #	print(o)
-	    print(o)
+		for g in range(1, len(route)-1):
+			for h in range(1, len(route)-1):
+				droute = route
+
+				for i in range(1, len(droute)-1):
+					for j in range(1, len(droute)-1):
+						temp = swap(droute, i, j)
+						temp_cost = local_cost(temp)
+
+						if(temp_cost < route_cost):
+							route_cost = temp_cost
+							print(temp_cost, " -> ", temp)
+
+	
 
 	print("Finish")
 
@@ -156,6 +142,12 @@ else:
 
 	route = list(map(int, sys.argv[2][1:-1].split(",")))
 
+	print()
+
 	find_better(route)
 
-#python3 better.py a36 [0,10,7,34,28,4,19,31,13,22,25,1,16,0,11,32,17,29,14,23,2,35,20,5,26,0,27,24,21,18,30,33,12,3,6,9,8,15,0]
+'''
+python3 better.py a64 [0,41,56,32,20,23,62,53,14,17,11,38,29,0,25,22,43,28,1,7,40,49,55,31,37,19,34,4,58,46,16,61,13,52,10,0,6,33,48,45,15,57,30,3,51,9,42,24,60,8,47,63,2,54,5,59,50,36,39,44,21,26,35,27,12,18,0]
+
+python3 better.py a64 [0,41,20,56,32,23,62,53,14,17,11,38,29,0,25,22,43,28,1,7,40,49,55,31,37,19,34,4,58,46,16,61,13,52,10,0,6,33,48,45,15,57,30,3,51,9,42,24,60,8,47,63,2,54,5,59,50,36,39,44,21,26,35,27,12,18,0]
+'''

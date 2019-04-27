@@ -259,6 +259,39 @@ vector<int> Solver::hill_climbing(int end_time) {
 		}
 	}
 
+
+	//Busqueda Completa Intra Rutas
+	int quality = quality_best;
+	int neighbour_quality = 0;
+	local = false;
+	while(!local) {
+		local = true;
+
+		vector<vector<int>> vector_routes = split_routes(best_solution);
+		int len_routes = (int)vector_routes.size();
+		for (int g = 0; g < len_routes; ++g)
+		{
+			int len_route = (int)vector_routes[g].size();
+			for (int i = 0; i < len_route; ++i)
+			{
+				for (int j = 0; j < len_route; ++j)
+				{
+					neighbour_quality = fast_evaluate(best_solution, quality, vector_routes[g][i], vector_routes[g][j]);
+					if(neighbour_quality > quality) {
+						best_solution = two_opt(best_solution, vector_routes[g][i], vector_routes[g][j]);
+						quality = neighbour_quality;
+
+						if(quality > quality_best) {
+							global_trucks_position = truck_capacities;
+						}
+
+						local = false;
+					}
+				}
+			}
+		}
+	}
+
 	if(quality_best > global_quality) {
 		global_quality = quality_best;
 		global_solution = best_solution;
