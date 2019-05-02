@@ -54,15 +54,17 @@ void runInstances(string file_name, int time_running)
 	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, file_name);
 	
 	//Ejecutando algoritmo de búsqueda local
-	vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};//, 1539344818, 1539344696, 1539344634, 1539344526, 1539344434, 1539344472, 1539343457, 1539342487, 1539342076, 1539340235};
-	//seeds = {(int)time(NULL)};
+	//vector<int> seeds = {1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427, 1539353575, 1539352478, 1539352067, 1539350253};
+	//vector<int> seeds = {1539344818, 1539344696, 1539344634, 1539344526, 1539344434, 1539344472, 1539343457, 1539342487, 1539342076, 1539340235};
+	vector<int> seeds = {(int)time(NULL)};
 	int loop = (int)seeds.size();
 	int local_time = (int)(time_running/loop + 0.5);
-	for (int i = 0; i < loop; ++i)
-	{
+
+	for (int i = 0; i < loop; ++i) {
+		cout << "Seed: " << seeds[i] << endl;
 		srand (seeds[i]);
 		sol.hill_climbing(local_time);
-		print(to_string(i) + ": " + file_name + "  \t-> " + to_string(sol.global_quality));
+		//print(to_string(i) + ": " + file_name + "  \t-> " + to_string(sol.global_quality));
 	}
 
 	put_solvers(sol);
@@ -84,8 +86,9 @@ int main(int argc, char *argv[])
 {
 	cout << "==========================================" << endl;
 	vector<string> inputs = {"a36", "a62", "a64", "a65", "eil22", "eil51", "eil76", "tai75A"};
-	vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 4806};
-	auto max_times = max_element(begin(times), end(times));
+	vector<int> times = {29233, 22917, 24100, 28046, 15947, 50128, 91461, 65477}; // maximos globales
+	//vector<int> times = {110, 1022, 5395, 478, 12, 154, 1700, 4806};
+	//auto max_times = max_element(begin(times), end(times));
 
 	if(argc == 1) {
 		vector<thread> threads;
@@ -94,10 +97,9 @@ int main(int argc, char *argv[])
 			threads.push_back(thread(runInstances, inputs[i], times[i]));
 		}
 		
-		this_thread::sleep_for(chrono::seconds(*max_times));
+		//this_thread::sleep_for(chrono::seconds(*max_times));
 		for (int i = 0; i < (int)inputs.size(); ++i){
 			if(threads[i].joinable()){
-				cout << "::::::::::::::::::: Join Thread " << inputs[i] << " :::::::::::::::::::" << endl;
 				threads[i].join();
 			}
 			else {
