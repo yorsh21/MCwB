@@ -137,24 +137,29 @@ int Solver::fast_evaluate_2opt(vector<int> solution, int old_eval, int index1, i
 }
 
 int Solver::fast_evaluate_swap(vector<int> solution, int old_eval, int index1, int index2) {
-	int new_eval = old_eval;
+	if(abs(index1 - index2) == 1) {
+		return fast_evaluate_2opt(solution, old_eval, index1, index2);
+	}
+	else {
+		int new_eval = old_eval;
 
-	int k1 = min(index1, index2);
-	int k2 = max(index1, index2);
+		int k1 = min(index1, index2);
+		int k2 = max(index1, index2);
 
-	//Quitar Costos
-	new_eval += cost_matrix[solution[k1]][solution[k1-1]];
-	new_eval += cost_matrix[solution[k1]][solution[k1+1]];
-	new_eval += cost_matrix[solution[k2]][solution[k2-1]];
-	new_eval += cost_matrix[solution[k2]][solution[k2+1]];
-	
-	//Agregar Costos
-	new_eval -= cost_matrix[solution[k2]][solution[k1-1]];
-	new_eval -= cost_matrix[solution[k2]][solution[k1+1]];
-	new_eval -= cost_matrix[solution[k1]][solution[k2-1]];
-	new_eval -= cost_matrix[solution[k1]][solution[k2+1]];
+		//Quitar Costos
+		new_eval += cost_matrix[solution[k1]][solution[k1-1]];
+		new_eval += cost_matrix[solution[k1]][solution[k1+1]];
+		new_eval += cost_matrix[solution[k2]][solution[k2-1]];
+		new_eval += cost_matrix[solution[k2]][solution[k2+1]];
+		
+		//Agregar Costos
+		new_eval -= cost_matrix[solution[k2]][solution[k1-1]];
+		new_eval -= cost_matrix[solution[k2]][solution[k1+1]];
+		new_eval -= cost_matrix[solution[k1]][solution[k2-1]];
+		new_eval -= cost_matrix[solution[k1]][solution[k2+1]];
 
-	return new_eval;
+		return new_eval;
+	}
 }
 
 
@@ -221,7 +226,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 								}
 								
 								local = false;
-								break;
+								//break;
 							}
 						}
 					}
@@ -232,7 +237,41 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 		}
 
 
-		//Busqueda Completa Intra Rutas
+		//Busqueda Completa Intra Rutas Swap
+		local = false;
+		while(!local) {
+			local = true;
+
+			vector<vector<int>> vector_routes = split_routes(solution);
+			int len_routes = (int)vector_routes.size();
+			for (int g = 0; g < len_routes; ++g)
+			{
+				int len_route = (int)vector_routes[g].size();
+				for (int i = 0; i < len_route; ++i)
+				{
+					for (int j = 0; j < len_route; ++j)
+					{
+						neighbour_quality = fast_evaluate_swap(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+						if(neighbour_quality > quality) {
+							solution = long_swap(solution, vector_routes[g][i], vector_routes[g][j]);
+							quality = neighbour_quality;
+
+							if(quality > quality_best) {
+								global_trucks_position = truck_capacities;
+							}
+
+							local = false;
+							//break;
+						}
+					}
+					//if(!local) break;
+				}
+				//if(!local) break;
+			}
+		}
+
+
+		//Busqueda Completa Intra Rutas 2opt
 		local = false;
 		while(!local) {
 			local = true;
@@ -256,7 +295,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 							}
 
 							local = false;
-							break;
+							//break;
 						}
 					}
 					//if(!local) break;
@@ -294,23 +333,11 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 }
 
 
-vector<int> Solver::short_swap(vector<int> solution, int index) {
-	if(index > 0 && index < (int)solution.size()-2) {
-		int temp = solution[index];
-		solution[index] = solution[index+1];
-		solution[index+1] = temp;
-	}
+vector<int> Solver::long_swap(vector<int> solution, int index1, int index2) {
+	int temp = solution[index1];
 
-	return solution;
-}
-
-
-vector<int> Solver::long_swap(vector<int> solution, int index, int move) {
-	if(move > 0 && move < (int)solution.size()-2) {
-		int temp = solution[move];
-		solution[move] = solution[index];
-		solution[index] = temp;
-	}
+	solution[index1] = solution[index2];
+	solution[index2] = temp;
 
 	return solution;
 }
@@ -608,6 +635,14 @@ bool Solver::can_move_extra_routes(vector<int> solution, int index1, int index2)
 /************************************************************/
 /************************ Utilities *************************/
 /************************************************************/
+
+void Solver::print(int element) {
+	cout << element << endl;
+}
+
+void Solver::print(string element) {
+	cout << element << endl;
+}
 
 void Solver::print_int_vector(vector<int> array) {
 	cout << "[";

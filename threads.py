@@ -17,8 +17,9 @@ if len(sys.argv) == 1:
 	for i in range(len(inputs)):
 		for seed in seeds:
 			subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])])
+		time.sleep(times[i])
 
-if len(sys.argv) == 2:
+elif len(sys.argv) == 2:
 	i = inputs.index(sys.argv[1])
 
 	os.system("make")
@@ -26,8 +27,16 @@ if len(sys.argv) == 2:
 	for seed in seeds:
 		subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])])
 
+elif len(sys.argv) == 3:
+	i = inputs.index(sys.argv[1])
+	seed = sys.argv[2];
+
+	os.system("make")
+
+	os.system('./main' + " " + inputs[i] + " " + str(seed) + " " + str(times[i]) + " " + str(qualities[i]))
+
 else:
-	print("Only allow number of threads as parameter")
+	print("Excess of parameters")
 
 
 
