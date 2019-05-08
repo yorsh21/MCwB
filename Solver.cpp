@@ -119,16 +119,39 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 }
 
 
-int Solver::fast_evaluate(vector<int> solution, int old_eval, int index1, int index2) {
+int Solver::fast_evaluate_2opt(vector<int> solution, int old_eval, int index1, int index2) {
 	int new_eval = old_eval;
 
 	int k1 = min(index1, index2);
 	int k2 = max(index1, index2);
 
+	//Quitar Costos
 	new_eval += cost_matrix[solution[k1]][solution[k1-1]];
 	new_eval += cost_matrix[solution[k2]][solution[k2+1]];
 	
+	//Agregar Costos
 	new_eval -= cost_matrix[solution[k2]][solution[k1-1]];
+	new_eval -= cost_matrix[solution[k1]][solution[k2+1]];
+
+	return new_eval;
+}
+
+int Solver::fast_evaluate_swap(vector<int> solution, int old_eval, int index1, int index2) {
+	int new_eval = old_eval;
+
+	int k1 = min(index1, index2);
+	int k2 = max(index1, index2);
+
+	//Quitar Costos
+	new_eval += cost_matrix[solution[k1]][solution[k1-1]];
+	new_eval += cost_matrix[solution[k1]][solution[k1+1]];
+	new_eval += cost_matrix[solution[k2]][solution[k2-1]];
+	new_eval += cost_matrix[solution[k2]][solution[k2+1]];
+	
+	//Agregar Costos
+	new_eval -= cost_matrix[solution[k2]][solution[k1-1]];
+	new_eval -= cost_matrix[solution[k2]][solution[k1+1]];
+	new_eval -= cost_matrix[solution[k1]][solution[k2-1]];
 	new_eval -= cost_matrix[solution[k1]][solution[k2+1]];
 
 	return new_eval;
@@ -202,9 +225,9 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 							}
 						}
 					}
-					if(!local) break;
+					//if(!local) break;
 				}
-				if(!local) break;
+				//if(!local) break;
 			}
 		}
 
@@ -223,7 +246,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 				{
 					for (int j = 0; j < len_route; ++j)
 					{
-						neighbour_quality = fast_evaluate(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+						neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][j]);
 						if(neighbour_quality > quality) {
 							solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
 							quality = neighbour_quality;
@@ -236,9 +259,9 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 							break;
 						}
 					}
-					if(!local) break;
+					//if(!local) break;
 				}
-				if(!local) break;
+				//if(!local) break;
 			}
 		}
 

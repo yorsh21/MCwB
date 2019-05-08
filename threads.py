@@ -26,8 +26,6 @@ if len(sys.argv) == 2:
 	for seed in seeds:
 		subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])])
 
-	print("Finish")
-
 else:
 	print("Only allow number of threads as parameter")
 
