@@ -44,7 +44,7 @@ class Solver {
 
 
 		//Búsqueda Local
-		vector<int> hill_climbing(int end_time);
+		vector<int> hill_climbing(int end_time, int max_quality);
 		vector<int> short_swap(vector<int> solution, int identity);
 		vector<int> long_swap(vector<int> solution, int index, int move);
 		vector<int> move_extra_routes(vector<int> solution, int index1, int index2);

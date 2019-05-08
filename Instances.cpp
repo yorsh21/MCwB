@@ -62,7 +62,7 @@ void Instances::read_instances(string filename) {
 			vector<int> coordenates = {stoi(locate[1]), stoi(locate[2]), type, stoi(locate[4])};
 			farms_locates.push_back(coordenates);
 		}
-		cout << "Successfully read file: " << file << endl;
+		//cout << "Successfully read file: " << file << endl;
 	}
 	else {
 		cout << "Error when reading the file:" << file << endl;

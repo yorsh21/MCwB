@@ -149,7 +149,7 @@ int Solver::random_index(vector<int> solution) {
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-vector<int> Solver::hill_climbing(int end_time) {
+vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 	auto start = chrono::system_clock::now();
 
 	vector<int> neighbour;
@@ -161,7 +161,7 @@ vector<int> Solver::hill_climbing(int end_time) {
 	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - start;
 
 	//Loop restarts
-	while (quality_best != end_time)//elapsed_seconds.count() < end_time) 
+	while (elapsed_seconds.count() < end_time && quality_best != max_quality) 
 	{
 		vector<int> solution = random_feasible_solution();
 		int quality = evaluate(solution);
