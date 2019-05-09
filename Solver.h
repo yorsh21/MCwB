@@ -21,7 +21,6 @@ class Solver {
 		int milks_lenght;
 		int farms_lenght;
 		int global_quality;
-		vector<int> global_trucks_position;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
 		vector<float> milk_values;

@@ -220,10 +220,6 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 							if(neighbour_quality > quality) {
 								solution = new_neighbour;
 								quality = neighbour_quality;
-
-								if(quality > quality_best) {
-									global_trucks_position = truck_capacities;
-								}
 								
 								local = false;
 								//break;
@@ -241,6 +237,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 		local = false;
 		while(!local) {
 			local = true;
+			quality = evaluate(solution);
 
 			vector<vector<int>> vector_routes = split_routes(solution);
 			int len_routes = (int)vector_routes.size();
@@ -255,10 +252,6 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 						if(neighbour_quality > quality) {
 							solution = long_swap(solution, vector_routes[g][i], vector_routes[g][j]);
 							quality = neighbour_quality;
-
-							if(quality > quality_best) {
-								global_trucks_position = truck_capacities;
-							}
 
 							local = false;
 							//break;
@@ -275,6 +268,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 		local = false;
 		while(!local) {
 			local = true;
+			quality = evaluate(solution);
 
 			vector<vector<int>> vector_routes = split_routes(solution);
 			int len_routes = (int)vector_routes.size();
@@ -290,10 +284,6 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 							solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
 							quality = neighbour_quality;
 
-							if(quality > quality_best) {
-								global_trucks_position = truck_capacities;
-							}
-
 							local = false;
 							//break;
 						}
@@ -302,11 +292,6 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 				}
 				//if(!local) break;
 			}
-		}
-
-
-		if ((int)global_trucks_position.size() == trucks_lenght) {
-			truck_capacities = global_trucks_position;
 		}
 
 		auto end = chrono::system_clock::now();
