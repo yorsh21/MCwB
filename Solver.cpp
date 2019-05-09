@@ -222,44 +222,13 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 								quality = neighbour_quality;
 								
 								local = false;
-								//break;
+								break;
 							}
 						}
 					}
-					//if(!local) break;
+					if(!local) break;
 				}
-				//if(!local) break;
-			}
-		}
-
-
-		//Busqueda Completa Intra Rutas Swap
-		local = false;
-		while(!local) {
-			local = true;
-			quality = evaluate(solution);
-
-			vector<vector<int>> vector_routes = split_routes(solution);
-			int len_routes = (int)vector_routes.size();
-			for (int g = 0; g < len_routes; ++g)
-			{
-				int len_route = (int)vector_routes[g].size();
-				for (int i = 0; i < len_route; ++i)
-				{
-					for (int j = 0; j < len_route; ++j)
-					{
-						neighbour_quality = fast_evaluate_swap(solution, quality, vector_routes[g][i], vector_routes[g][j]);
-						if(neighbour_quality > quality) {
-							solution = long_swap(solution, vector_routes[g][i], vector_routes[g][j]);
-							quality = neighbour_quality;
-
-							local = false;
-							//break;
-						}
-					}
-					//if(!local) break;
-				}
-				//if(!local) break;
+				if(!local) break;
 			}
 		}
 
@@ -285,12 +254,12 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 							quality = neighbour_quality;
 
 							local = false;
-							//break;
+							break;
 						}
 					}
-					//if(!local) break;
+					if(!local) break;
 				}
-				//if(!local) break;
+				if(!local) break;
 			}
 		}
 
@@ -306,14 +275,16 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 		}
 	}
 
-	if(quality_best > global_quality) {
+
+	/*if(quality_best > global_quality) {
 		global_quality = quality_best;
 		global_solution = best_solution;
 	}
 
 	result_times.push_back((int)elapsed_seconds.count());
-	result_qualities.push_back(quality_best);
+	result_qualities.push_back(quality_best);*/
 
+	cout << "::::::::::::::::::: END " << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
 	return best_solution;
 }
 

@@ -9,29 +9,38 @@ seeds = [1539354881, 1539354669, 1539354643, 1539354562, 1539354443, 1539354427,
 times = [110, 1022, 5395, 478, 12, 154, 1700, 4806]
 qualities = [29233, 22917, 24100, 28046, 15947, 50128, 91461, 65477]
 
-
+os.system("make")
+process = []
 
 if len(sys.argv) == 1:
-	os.system("make")
-
 	for i in range(len(inputs)):
 		for seed in seeds:
-			subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])])
+			process.append(subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])]))
+
 		time.sleep(times[i])
+
+		for p in process:
+			p.terminate()
+
+		process = []
 
 elif len(sys.argv) == 2:
 	i = inputs.index(sys.argv[1])
 
-	os.system("make")
-
 	for seed in seeds:
-		subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])])
+		process.append(subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])]))
+
+	time.sleep(times[i])
+
+	for p in process:
+		p.terminate()
+
+	process = []
+
 
 elif len(sys.argv) == 3:
 	i = inputs.index(sys.argv[1])
 	seed = sys.argv[2];
-
-	os.system("make")
 
 	os.system('./main' + " " + inputs[i] + " " + str(seed) + " " + str(times[i]) + " " + str(qualities[i]))
 

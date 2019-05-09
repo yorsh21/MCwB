@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<int> solution = sol.hill_climbing(time, quality);
-		int eval = sol.evaluate(solution);
+		//int eval = sol.evaluate(solution);
 
-		cout << "::::::::::::::::::: END: " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
+		//cout << "::::::::::::::::::: END: " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
 		return 0;
 	}
 	else {
