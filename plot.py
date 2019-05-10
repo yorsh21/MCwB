@@ -209,7 +209,7 @@ elif len(sys.argv) == 4:
 
 elif len(sys.argv) == 5:
 	read_instances(sys.argv[1])
-	plot_map(sys.argv[1], sys.argv[2], "-" + sys.argv[3])
+	#plot_map(sys.argv[1], sys.argv[2], "-" + sys.argv[3])
 
 	trucks_capacities = list(map(int, sys.argv[4][1:-1].split(",")))
 	

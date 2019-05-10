@@ -26,6 +26,7 @@ class Solver {
 		vector<float> milk_values;
 		vector<vector<int>> farms_locates;
 		vector<vector<int>> cost_matrix;
+		vector<vector<int>> farms_by_milk;
 
 		vector<float> result_times;
 		vector<float> result_qualities;
@@ -51,6 +52,7 @@ class Solver {
 		vector<int> neighbour_2opt_index(vector<int> solution, int index);
 		vector<int> neighbour_move_index(vector<int> solution, int index);
 		vector<int> random_feasible_solution();
+		vector<int> random_feasible_solution2();
 		vector<int> random_solution();
 		vector<int> get_node_from_route(vector<int> solution, int number);
 		vector<int> random_int_vector(int lenght);

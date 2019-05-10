@@ -17,7 +17,7 @@ if len(sys.argv) == 1:
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])]))
 
-		time.sleep(times[i])
+		time.sleep(times[i]+60)
 
 		for p in process:
 			p.terminate()
@@ -30,13 +30,10 @@ elif len(sys.argv) == 2:
 	for seed in seeds:
 		process.append(subprocess.Popen(['./main', inputs[i], str(seed), str(times[i]), str(qualities[i])]))
 
-	time.sleep(times[i])
+	time.sleep(times[i]+60)
 
 	for p in process:
 		p.terminate()
-
-	process = []
-
 
 elif len(sys.argv) == 3:
 	i = inputs.index(sys.argv[1])

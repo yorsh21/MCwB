@@ -21,6 +21,22 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
+void pruebas() {
+	Instances instance = Instances();
+	instance.read_instances("a36.txt");
+
+	srand ((int)time(NULL));
+
+	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, "a36");
+
+	for (int i = 0; i < 100000; ++i)
+	{
+		vector<int> solution = sol.random_feasible_solution();
+		sol.print_int_vector(solution);
+		sol.print(sol.evaluate(solution));
+	}
+}
+
 
 int main(int argc, char *argv[]) 
 {
@@ -48,6 +64,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	else {
+		//pruebas();
 		return 0;
 	}
 }

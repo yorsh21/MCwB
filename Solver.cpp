@@ -12,6 +12,9 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 	name_instance = instance;
 	global_quality = -9999999;
 
+	for (int i = 0; i < milks_lenght; ++i)
+		farms_by_milk.push_back({});
+
 	for (int i = 0; i < farms_lenght; ++i)
 	{
 		vector<int> row(farms_lenght, 0);
@@ -23,7 +26,9 @@ Solver::Solver(vector<int> capacities, vector<float> values, vector<vector<int>>
 			) + 0.5;
 		}
 		cost_matrix.push_back(row);
+		farms_by_milk[farms_locates[i][2]].push_back(i);
 	}
+
 	//print_cost_matrix();
 }
 
@@ -185,6 +190,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 	vector<int> best_solution = random_feasible_solution();
 	int quality_best = evaluate(best_solution);
 	bool local;
+	bool supreme_local;
 
 	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - start;
 
@@ -195,76 +201,89 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 		int quality = evaluate(solution);
 		int neighbour_quality = 0;
 
-		//Busqueda Local Entre Rutas
-		local = false;
-		while(!local) {
-			local = true;
+		supreme_local = false;
+		while(!supreme_local) {
+			supreme_local = true;
 
-			for (int g = 0; g < trucks_lenght; ++g)
-			{
-				vector<vector<int>> vector_routes = intelligence_split_route(solution, g);
-				vector<int> select_route = vector_routes[0];
-				vector<int> others_route = vector_routes[1];
+			//Busqueda Local Entre Rutas
+			local = false;
+			while(!local) {
+				local = true;
 
-				int select_size = (int)select_route.size();
-				int others_size = (int)others_route.size();
-
-				for (int h = 0; h < select_size; ++h)
+				for (int g = 0; g < trucks_lenght; ++g)
 				{
-					for (int i = 0; i < others_size; ++i)
+					vector<vector<int>> vector_routes = intelligence_split_route(solution, g);
+					vector<int> select_route = vector_routes[0];
+					vector<int> others_route = vector_routes[1];
+
+					int select_size = (int)select_route.size();
+					int others_size = (int)others_route.size();
+
+					for (int h = 0; h < select_size; ++h)
 					{
-						if(can_move_extra_routes(solution, select_route[h], others_route[i])) {
-							new_neighbour = move_extra_routes(solution, select_route[h], others_route[i]);
-							neighbour_quality = evaluate(new_neighbour);
-							
-							if(neighbour_quality > quality) {
-								solution = new_neighbour;
-								quality = neighbour_quality;
+						for (int i = 0; i < others_size; ++i)
+						{
+							if(can_move_extra_routes(solution, select_route[h], others_route[i])) {
+								new_neighbour = move_extra_routes(solution, select_route[h], others_route[i]);
+								neighbour_quality = evaluate(new_neighbour);
 								
-								local = false;
-								break;
+								if(neighbour_quality > quality) {
+									solution = new_neighbour;
+									quality = neighbour_quality;
+									
+									local = false;
+									supreme_local = false;
+									//break;
+								}
 							}
 						}
+						//if(!local) break;
 					}
-					if(!local) break;
+					//if(!local) break;
 				}
-				if(!local) break;
 			}
-		}
 
 
-		//Busqueda Completa Intra Rutas 2opt
-		local = false;
-		while(!local) {
-			local = true;
-			quality = evaluate(solution);
+			//Busqueda Completa Intra Rutas 2opt
+			local = false;
+			while(!local) {
+				local = true;
+				quality = evaluate(solution);
 
-			vector<vector<int>> vector_routes = split_routes(solution);
-			int len_routes = (int)vector_routes.size();
-			for (int g = 0; g < len_routes; ++g)
-			{
-				int len_route = (int)vector_routes[g].size();
-				for (int i = 0; i < len_route; ++i)
+				vector<vector<int>> vector_routes = split_routes(solution);
+				int len_routes = (int)vector_routes.size();
+				for (int g = 0; g < len_routes; ++g)
 				{
-					for (int j = 0; j < len_route; ++j)
+					int len_route = (int)vector_routes[g].size();
+					for (int i = 0; i < len_route; ++i)
 					{
-						neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][j]);
-						if(neighbour_quality > quality) {
-							solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
-							quality = neighbour_quality;
+						for (int j = 0; j < len_route; ++j)
+						{
+							neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+							if(neighbour_quality > quality) {
+								solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
+								quality = neighbour_quality;
 
-							local = false;
-							break;
+								local = false;
+								supreme_local = false;
+								//break;
+							}
 						}
+						//if(!local) break;
 					}
-					if(!local) break;
+					//if(!local) break;
 				}
-				if(!local) break;
 			}
+
+			if(quality < 0)
+				break;
+
 		}
+
 
 		auto end = chrono::system_clock::now();
 		elapsed_seconds = end - start;
+		//cout << "Restart: " << (int)elapsed_seconds.count() << endl;
 
 		if(quality > quality_best) {
 			best_solution = solution;
@@ -411,6 +430,34 @@ vector<int> Solver::random_feasible_solution() {
 			}
 		}
 		itetator += counter + 1;
+	}
+
+	return solution;
+}
+
+
+vector<int> Solver::random_feasible_solution2() {
+	int first_truck = rand() % milks_lenght;
+	int index_truck = 0;
+	vector<int> solution = {0};
+
+	while(index_truck < milks_lenght) {
+		int i = (first_truck + index_truck) % milks_lenght;
+
+		vector<int> temp_farm_milk = farms_by_milk[i];
+
+		do
+		{
+			int j = rand() % temp_farm_milk.size();
+			solution.push_back(temp_farm_milk[j]);
+			temp_farm_milk.erase(temp_farm_milk.begin() + j);
+
+		} 
+		while (temp_farm_milk.size() > 0);
+
+		solution.push_back(0);
+
+		index_truck++;
 	}
 
 	return solution;
