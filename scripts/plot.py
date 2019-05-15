@@ -27,7 +27,7 @@ def convert_array(element):
 
 
 def read_instances(instance):
-	file = open("inputs/" + instance + ".txt")
+	file = open("../inputs/" + instance + ".txt")
 
 	global num_trucks
 	global trucks_capacities
@@ -90,7 +90,7 @@ def plot_map(instance, route = None, output = ""):
 				routex = [farms[route_list[i]][1]]
 				routey = [farms[route_list[i]][2]]
 
-	plt.savefig("outputs/" + instance + output + ".png")
+	plt.savefig("../outputs/" + instance + output + ".png")
 
 
 def analysis_instances(route):

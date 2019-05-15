@@ -25,7 +25,7 @@ def convert_array(element):
 
 
 def read_instances(instance):
-	file = open("inputs/" + instance + ".txt")
+	file = open("../inputs/" + instance + ".txt")
 
 	global num_trucks
 	global trucks_capacities
