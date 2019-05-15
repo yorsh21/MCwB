@@ -69,7 +69,9 @@ def plot_map(instance, route = None, output = ""):
 	    elif f[3] == 2:
 	        scatter(f[1],f[2], s=10 ,marker='o', c='b')
 	    plt.text(f[1], f[2], f[0]-1, fontsize=5)
-	        
+	
+	plt.legend(('Planta', 'Granja con Leche A', 'Granja con Leche B', 'Granja con Leche C'))
+
 	if route is not None:
 		plt.title('Route: ' + route + ' ' + output)
 		route_list = list(map(int, route[1:-1].split(",")))

@@ -308,6 +308,39 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 }
 
 
+vector<int> Solver::improve_solution(vector<int> solution) {
+	bool local = false;
+	int quality = 0;
+	int neighbour_quality = 0;
+
+	while(!local) {
+		local = true;
+		quality = evaluate(solution);
+
+		vector<vector<int>> vector_routes = split_routes(solution);
+		int len_routes = (int)vector_routes.size();
+		for (int g = 0; g < len_routes; ++g)
+		{
+			int len_route = (int)vector_routes[g].size() - 1;
+			for (int i = 0; i < (int)len_route/2-1; ++i)
+			{
+				neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][len_route-i]);
+				if(neighbour_quality > quality) {
+					solution = two_opt(solution, vector_routes[g][i], vector_routes[g][len_route-i]);
+					quality = neighbour_quality;
+
+					local = false;
+				}
+			}
+		}
+	}
+
+	print(quality);
+
+	return solution;
+}
+
+
 vector<int> Solver::long_swap(vector<int> solution, int index1, int index2) {
 	int temp = solution[index1];
 
