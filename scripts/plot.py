@@ -6,6 +6,7 @@ import sys
 import numpy as np
 from pylab import *
 import matplotlib.pyplot as plt
+import os.path
 
 num_trucks = 0
 trucks_capacities = []
@@ -27,7 +28,7 @@ def convert_array(element):
 
 
 def read_instances(instance):
-	file = open("../inputs/" + instance + ".txt")
+	file = open(os.path.dirname(__file__) + "/../inputs/" + instance + ".txt")
 
 	global num_trucks
 	global trucks_capacities

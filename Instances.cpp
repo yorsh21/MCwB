@@ -1,6 +1,6 @@
 #include "Instances.h"
 
-void Instances::read_instances(string filename) {
+bool Instances::read_instances(string filename) {
 	string file = "inputs/" + filename;
 	//cout << "Reading instances for: " << file << endl;
 	
@@ -63,11 +63,14 @@ void Instances::read_instances(string filename) {
 			farms_locates.push_back(coordenates);
 		}
 		//cout << "Successfully read file: " << file << endl;
+		
+		myfile.close();
+		return true;
 	}
 	else {
 		cout << "Error when reading the file:" << file << endl;
+		return false;
 	}
-	myfile.close();
 }
 
 

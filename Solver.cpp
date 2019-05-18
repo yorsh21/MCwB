@@ -304,6 +304,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 	result_qualities.push_back(quality_best);*/
 
 	cout << "::::::::::::::::::: END " << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
+	print_int_vector(best_solution);
 	return best_solution;
 }
 

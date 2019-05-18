@@ -64,7 +64,8 @@ int main(int argc, char *argv[])
 		
 		//Leyendo instancias
 		Instances instance = Instances();
-		instance.read_instances(input + ".txt");
+		if(!instance.read_instances(input + ".txt"))
+			return 0;
 
 		//Creando estructura de las soluciones
 		Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, input);

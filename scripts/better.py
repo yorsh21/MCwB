@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import sys
+import os.path
 from pylab import *
 
 num_trucks = 0
@@ -25,7 +26,7 @@ def convert_array(element):
 
 
 def read_instances(instance):
-	file = open("../inputs/" + instance + ".txt")
+	file = open(os.path.dirname(__file__) + "/../inputs/" + instance + ".txt")
 
 	global num_trucks
 	global trucks_capacities

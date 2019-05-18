@@ -1,4 +1,6 @@
-with open("../instances/lecture.txt", "r") as f:
+import os.path
+
+with open(os.path.dirname(__file__) + "/../instances/lecture.txt", "r") as f:
     output = f.read()
 f.closed
     
@@ -7,7 +9,7 @@ for lecture in lectures:
 	lecarray = lecture.split("\t")
 	leninstance = int(lecarray[2])
 
-	file = open("../inputs/" + lecarray[0], "w")
+	file = open(os.path.dirname(__file__) + "/../inputs/" + lecarray[0], "w")
 	file.write("3\n")
 	file.write(lecarray[3] + "\t" + lecarray[4] + "\t" + lecarray[5] + "\n")
 	file.write("\n")
@@ -17,7 +19,7 @@ for lecture in lectures:
 	file.write("\n")
 	file.write(lecarray[2] + "\n")
 
-	filename = "../instances/data/" + lecarray[1]
+	filename = os.path.dirname(__file__) + "/../instances/data/" + lecarray[1]
 
 	print("Read " + filename)
 	with open(filename, "r") as f:

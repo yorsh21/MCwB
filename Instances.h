@@ -10,7 +10,7 @@ class Instances {
 		vector<float> milk_values;
 		vector<vector<int>> farms_locates;
 
-		void read_instances(string filename);
+		bool read_instances(string filename);
 		void print_plant_cuotes();
 		void print_truck_capacities();
 		void print_milk_values();
