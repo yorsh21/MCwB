@@ -21,13 +21,13 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
-void pruebas() {
+void pruebas(string filename) {
 	Instances instance = Instances();
-	instance.read_instances("a36.txt");
+	instance.read_instances(filename + ".txt");
 
 	srand ((int)time(NULL));
 
-	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, "a36");
+	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, filename);
 
 	for (int i = 0; i < 100000; ++i)
 	{
@@ -37,17 +37,18 @@ void pruebas() {
 	}
 }
 
-void mejoramiento() {
+void mejoramiento(string filename) {
 	Instances instance = Instances();
-	instance.read_instances("a64.txt");
+	instance.read_instances(filename + ".txt");
 
 	srand ((int)time(NULL));
 
-	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, "a64");
+	Solver sol = Solver(instance.truck_capacities, instance.milk_values, instance.farms_locates, instance.plant_cuotes, filename);
 
-	vector<int> solution = {0,29,11,17,14,59,5,23,62,20,32,56,41,0,6,15,45,33,48,42,51,9,24,60,8,47,63,2,54,50,36,39,44,21,26,35,27,30,3,53,57,12,18,38,0,10,52,13,61,16,46,58,4,34,19,37,31,55,49,40,7,1,28,43,22,25,0};
+	vector<int> solution = {0,13,46,19,7,43,37,1,22,16,40,28,25,4,34,10,31,0,14,23,11,32,35,29,26,17,20,38,41,2,5,47,0,44,24,21,12,15,45,42,36,6,27,18,30,8,9,39,3,33,0};
+	vector<int> trucks_order = {40000,50000,45000};
 
-	sol.improve_solution(solution);
+	sol.improve_solution(solution, trucks_order);
 }
 
 
@@ -78,7 +79,8 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	else {
-		//mejoramiento();
+		string filename = "att48";
+		mejoramiento(filename);
 		return 0;
 	}
 }

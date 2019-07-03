@@ -128,7 +128,6 @@ def find_better(route):
 						if(temp_cost < route_cost):
 							route_cost = temp_cost
 							print(temp_cost, " -> ", temp)
-
 	
 
 	print("Finish")

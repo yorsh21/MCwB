@@ -60,6 +60,8 @@ int Solver::evaluate(vector<int> solution, bool show = false) {
 			pivots.push_back(i);
 			quality_by_route.push_back(local_quality);
 
+			if (show) cout << "Costo Ruta: " << route_cost << endl;
+			
 			//Exceso en la capacidad de los camiones
 			if (remaining_capacity[truck_index] < 0) {
 				total_cost -= remaining_capacity[truck_index]*100;
@@ -188,6 +190,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 	vector<int> neighbour;
 	vector<int> new_neighbour;
 	vector<int> best_solution = random_feasible_solution();
+	vector<int> best_trucks = truck_capacities;
 	int quality_best = evaluate(best_solution);
 	bool local;
 	bool supreme_local;
@@ -233,7 +236,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 									
 									local = false;
 									supreme_local = false;
-									//break;
+									break;
 								}
 							}
 						}
@@ -283,16 +286,17 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 
 		auto end = chrono::system_clock::now();
 		elapsed_seconds = end - start;
-		//cout << "Restart: " << (int)elapsed_seconds.count() << endl;
 
 		if(quality > quality_best) {
-			best_solution = solution;
 			quality_best = quality;
+			best_solution = solution;
+			best_trucks = truck_capacities;
 
 			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
-			//print_int_vector(solution);
 		}
 	}
+
+	//evaluate(best_solution, true);
 
 
 	/*if(quality_best > global_quality) {
@@ -303,16 +307,22 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 	result_times.push_back((int)elapsed_seconds.count());
 	result_qualities.push_back(quality_best);*/
 
-	cout << "::::::::::::::::::: END " << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
-	print_int_vector(best_solution);
+	string text_result = name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s -> " + to_string(quality_best) + " " +  int_vector_to_string(best_solution) + " " +  int_vector_to_string(best_trucks);
+
+	cout << "::::::::::::::::::: END " << text_result << endl;
+
+	save_thread_result(text_result);
+
 	return best_solution;
 }
 
 
-vector<int> Solver::improve_solution(vector<int> solution) {
+vector<int> Solver::improve_solution(vector<int> solution, vector<int> trucks_order) {
 	bool local = false;
 	int quality = 0;
 	int neighbour_quality = 0;
+
+	truck_capacities = trucks_order;
 
 	while(!local) {
 		local = true;
@@ -682,16 +692,18 @@ void Solver::print(string element) {
 }
 
 void Solver::print_int_vector(vector<int> array) {
-	cout << "[";
-	for (int i = 0; i < (int)array.size() - 1; ++i)
-	{
-		cout << array[i] << ",";
-	}
-	if ((int)array.size() > 0) {
-		cout << array[(int)array.size()-1] <<  "]" << endl;
+	int len = (int)array.size();
+
+	if (len == 0) {
+		cout << "[]" << endl;
 	}
 	else {
-		cout << "]" << endl;
+		cout << "[";
+		for (int i = 0; i < len - 1; ++i) {
+			cout << array[i] << ",";
+		}
+
+		cout << array[len - 1] <<  "]" << endl;
 	}
 }
 
@@ -731,15 +743,16 @@ void Solver::print_cost_matrix() {
 
 string Solver::int_vector_to_string(vector<int> array) {
 	int len = (int)array.size();
+	
 	if (len == 0) {
 		return "[]";
 	} 
 	else {
 		string output = "[";
-		for (int i = 0; i < len-1; ++i) {
+		for (int i = 0; i < len - 1; ++i) {
 			output += to_string(array[i]) + ",";
 		}
-		output += to_string(array[len]) + "]";
+		output += to_string(array[len - 1]) + "]";
 
 		return output;
 	}
@@ -793,13 +806,30 @@ void Solver::save_row_result() {
 }
 
 
+void Solver::save_thread_result(string text) {
+	string file = "outputs/results_threads.out";
+	ofstream myfile;
+	myfile.open (file, std::fstream::app);
+
+	while(!myfile.is_open()) {
+		this_thread::sleep_for(chrono::milliseconds(500));
+		cout << "Waiting for open file instance " << name_instance << endl;
+	}
+
+	myfile << text << endl;
+	
+	myfile.close();
+	cout << "Successfully wrhite instance: " << name_instance << endl;
+}
+
+
 void Solver::draw_graph(vector<int> solution, int quality) {
-	string full_output = "python3 plot.py " + name_instance + " [0";
+	string full_output = "python3 scripts/plot.py " + name_instance + " [0";
 
 	for (int i = 1; i < (int)solution.size(); ++i) {
 		full_output += "," + to_string(solution[i]);
 	}
-	full_output += "] " + to_string(quality) + " [" + to_string(truck_capacities[0]);
+	full_output += "] [" + to_string(truck_capacities[0]);
 
 	for (int i = 1; i < (int)truck_capacities.size(); ++i) {
 		full_output += "," + to_string(truck_capacities[i]);

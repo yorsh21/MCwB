@@ -19,7 +19,7 @@ letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
 def convert_array(element):
 	try:
-	   return int(element)
+	   return float(element)
 	except ValueError:
 		if(element in letters):
 			return letters.index(element)
@@ -38,12 +38,12 @@ def read_instances(instance):
 	global num_farms
 
 	num_trucks = int(file.readline())
-	trucks_capacities = file.readline()[:-1].split("   ")
+	trucks_capacities = file.readline()[:-1].split("\t")
 	file.readline()
 
 	num_milks = int(file.readline())
-	milk_request = file.readline()[:-1].split("    ")
-	milk_values = file.readline()[:-1].split("     ")
+	milk_request = file.readline()[:-1].split("\t")
+	milk_values = file.readline()[:-1].split("\t")
 	file.readline()
 
 	num_farms = int(file.readline())
@@ -56,20 +56,20 @@ def read_instances(instance):
 
 def plot_map(instance, route = None, output = ""):
 	colors = ['c', 'm', 'y']
-	plt.figure(num=None, figsize=(25, 25), dpi=200, facecolor='w', edgecolor='k')
+	plt.figure(num=None, figsize=(25, 25), dpi=200*0.4, facecolor='w', edgecolor='k')
 	plt.xlabel('x')
 	plt.ylabel('y')
 	
 	for f in farms:
 	    if f[3] == -1:
-	        scatter(f[1], f[2], s=50 ,marker='s', c='k')
+	        scatter(f[1], f[2], s=60 ,marker='s', c='k')
 	    elif f[3] == 0:
-	        scatter(f[1], f[2], s=10 ,marker='o', c='r')
+	        scatter(f[1], f[2], s=20 ,marker='o', c='r')
 	    elif f[3] == 1:
-	        scatter(f[1], f[2], s=10 ,marker='o', c='g')
+	        scatter(f[1], f[2], s=20 ,marker='o', c='g')
 	    elif f[3] == 2:
-	        scatter(f[1],f[2], s=10 ,marker='o', c='b')
-	    plt.text(f[1], f[2], f[0]-1, fontsize=5)
+	        scatter(f[1],f[2], s=20 ,marker='o', c='b')
+	    plt.text(f[1], f[2], f[0]-1, fontsize=10)
 	
 	plt.legend(('Planta', 'Granja con Leche A', 'Granja con Leche B', 'Granja con Leche C'))
 
@@ -91,7 +91,7 @@ def plot_map(instance, route = None, output = ""):
 				routex = [farms[route_list[i]][1]]
 				routey = [farms[route_list[i]][2]]
 
-	plt.savefig("../outputs/" + instance + output + ".png")
+	plt.savefig(os.path.dirname(__file__) + "/../outputs/" + instance + "-" + output + ".png")
 
 
 def analysis_instances(route):
@@ -111,7 +111,8 @@ def analysis_instances(route):
 	for i in range(1, len(route_list)):
 		if route_list[i] == 0:
 			temp_route.append(route_list[i])
-			collected_milk[temp_types[-1]] += temp_milk
+			if len(temp_types) != 0:
+				collected_milk[temp_types[-1]] += temp_milk
 			
 			temp_cost += int(
 				sqrt(
@@ -186,6 +187,7 @@ def analysis_instances(route):
 
 	print("\nIngresos Total: ", total_income, "\tCosto Total: ", total_cost, "\tBeneficio: ", total_income - total_cost)
 
+	return total_income - total_cost
 
 
 #Read Args
@@ -200,22 +202,15 @@ elif len(sys.argv) == 3:
 	read_instances(sys.argv[1])
 	print()
 	analysis_instances(sys.argv[2])
-	print()
 
 elif len(sys.argv) == 4:
 	read_instances(sys.argv[1])
-	plot_map(sys.argv[1], sys.argv[2], "-" + sys.argv[3])
-	
-	print()
-	analysis_instances(sys.argv[2])
-	print()
+	trucks_capacities = list(map(int, sys.argv[3][1:-1].split(",")))
 
-elif len(sys.argv) == 5:
-	read_instances(sys.argv[1])
-	#plot_map(sys.argv[1], sys.argv[2], "-" + sys.argv[3])
+	print()
+	quality = analysis_instances(sys.argv[2])
 
-	trucks_capacities = list(map(int, sys.argv[4][1:-1].split(",")))
-	
-	print()
-	analysis_instances(sys.argv[2])
-	print()
+	plot_map(sys.argv[1], sys.argv[2], str(quality))
+
+
+print()

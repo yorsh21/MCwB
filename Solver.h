@@ -46,7 +46,7 @@ class Solver {
 
 		//Búsqueda Local
 		vector<int> hill_climbing(int end_time, int max_quality);
-		vector<int> improve_solution(vector<int> solution);
+		vector<int> improve_solution(vector<int> solution, vector<int> trucks_order);
 		vector<int> long_swap(vector<int> solution, int index1, int index2);
 		vector<int> move_extra_routes(vector<int> solution, int index1, int index2);
 		vector<int> two_opt(vector<int> solution, int index1, int index2);
@@ -75,5 +75,6 @@ class Solver {
 
 		//Exports
 		void save_row_result();
+		void save_thread_result(string text);
 		void draw_graph(vector<int> solution, int quality);
 };
