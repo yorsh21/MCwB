@@ -235,6 +235,36 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality) {
 									quality = neighbour_quality;
 									
 									local = false;
+
+									while(!local) {
+										local = true;
+										quality = evaluate(solution);
+
+										vector<vector<int>> vector_routes = split_routes(solution);
+										int len_routes = (int)vector_routes.size();
+										for (int g = 0; g < len_routes; ++g)
+										{
+											int len_route = (int)vector_routes[g].size();
+											for (int i = 0; i < len_route; ++i)
+											{
+												for (int j = 0; j < len_route; ++j)
+												{
+													neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+													if(neighbour_quality > quality) {
+														solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
+														quality = neighbour_quality;
+
+														local = false;
+														supreme_local = false;
+														break;
+													}
+												}
+												if(!local) break;
+											}
+											if(!local) break;
+										}
+									}
+
 									supreme_local = false;
 									break;
 								}
