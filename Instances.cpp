@@ -1,6 +1,7 @@
 #include "Instances.h"
 
-bool Instances::read_instances(string filename) {
+bool Instances::read_instances(string filename) 
+{
 	string file = "inputs/" + filename;
 	//cout << "Reading instances for: " << file << endl;
 	
@@ -59,9 +60,12 @@ bool Instances::read_instances(string filename) {
 				}
 			}
 
-			vector<int> coordenates = {stoi(locate[1]), stoi(locate[2]), type, stoi(locate[4])};
+			vector<float> coordenates = {stof(locate[1]), stof(locate[2])};
 			farms_locates.push_back(coordenates);
+			farms_types.push_back(type);
+			farms_milk.push_back(stoi(locate[4]));
 		}
+
 		//cout << "Successfully read file: " << file << endl;
 		
 		myfile.close();
@@ -74,7 +78,8 @@ bool Instances::read_instances(string filename) {
 }
 
 
-void Instances::print_plant_cuotes() {
+void Instances::print_plant_cuotes() 
+{
 	cout << "[";
 	for (int i = 0; i < (int)plant_cuotes.size() - 1; ++i)
 	{
@@ -83,7 +88,8 @@ void Instances::print_plant_cuotes() {
 	cout << plant_cuotes[plant_cuotes.size()-1] << "]" << endl;
 }
 
-void Instances::print_truck_capacities() {
+void Instances::print_truck_capacities() 
+{
 	cout << "[";
 	for (int i = 0; i < (int)truck_capacities.size() - 1; ++i)
 	{
@@ -92,7 +98,8 @@ void Instances::print_truck_capacities() {
 	cout << truck_capacities[truck_capacities.size()-1] << "]" << endl;
 }
 
-void Instances::print_milk_values() {
+void Instances::print_milk_values() 
+{
 	cout << "[";
 	for (int i = 0; i < (int)milk_values.size() - 1; ++i)
 	{
@@ -101,7 +108,8 @@ void Instances::print_milk_values() {
 	cout << milk_values[milk_values.size()-1] << "]" << endl;
 }
 
-void Instances::print_farms_locates() {
+void Instances::print_farms_locates() 
+{
 	cout << "[";
 	for (int i = 0; i < (int)farms_locates.size() - 1; ++i)
 	{

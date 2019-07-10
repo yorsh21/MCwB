@@ -21,10 +21,12 @@ class Solver {
 		int milks_lenght;
 		int farms_lenght;
 		int global_quality;
+		vector<float> milk_values;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
-		vector<float> milk_values;
-		vector<vector<int>> farms_locates;
+		vector<int> farms_types;
+		vector<int> farms_milk;
+		vector<vector<float>> farms_locates;
 		vector<vector<int>> cost_matrix;
 		vector<vector<int>> farms_by_milk;
 
@@ -37,7 +39,8 @@ class Solver {
 		vector<int> satisfied_cuotes;
 
 
-		Solver(vector<int> capacities, vector<float> values, vector<vector<int>> locates, vector<int> cuotes, string instance);
+		Solver(Instances instance, string file_name);
+		
 		int evaluate(vector<int> solution, bool show);
 		int fast_evaluate_2opt(vector<int> solution, int old_eval, int index1, int index2);
 		int fast_evaluate_swap(vector<int> solution, int old_eval, int index1, int index2);
