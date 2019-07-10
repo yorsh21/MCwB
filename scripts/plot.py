@@ -56,7 +56,7 @@ def read_instances(instance):
 
 def plot_map(instance, route = None, output = ""):
 	colors = ['c', 'm', 'y']
-	plt.figure(num=None, figsize=(25, 25), dpi=200*0.4, facecolor='w', edgecolor='k')
+	plt.figure(num=None, figsize=(25, 25), dpi=200*0.3, facecolor='w', edgecolor='k')
 	plt.xlabel('x')
 	plt.ylabel('y')
 	
