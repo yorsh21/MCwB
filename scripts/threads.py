@@ -54,16 +54,25 @@ process = []
 
 #Run all instances with all threads
 if len(sys.argv) == 1:
+	total_entries = 0
+
 	for index in range(len(instances)):
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2])]))
 
-		time.sleep(instances[index][1]+10)
+		entries = 0
+
+		while(entries < total_entries + len(seeds)):
+			time.sleep(5)
+			entries = len(open(os.path.dirname(__file__) + "/../outputs/results_threads.out").readlines())
+			print(entries)
+		
 
 		for p in process:
 			p.terminate()
 
 		process = []
+		total_entries += len(seeds)
 
 #Run an instance with all threads
 elif len(sys.argv) == 2:
@@ -78,7 +87,7 @@ elif len(sys.argv) == 2:
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2])]))
 
-		time.sleep(instances[index][1]+10)
+		time.sleep(instances[index][1]+40)
 
 		for p in process:
 			p.terminate()

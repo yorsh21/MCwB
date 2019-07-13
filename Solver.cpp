@@ -207,7 +207,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - start;
 
 	//Loop restarts
-	while (elapsed_seconds.count() < end_time)// && quality_best < max_quality) 
+	while (elapsed_seconds.count() < end_time && quality_best < max_quality) 
 	{
 		vector<int> solution = random_feasible_solution();
 		int quality = evaluate(solution);
@@ -245,7 +245,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									
 									local = false;
 
-									while(!local) {
+									/*while(!local) {
 										local = true;
 										quality = evaluate(solution);
 
@@ -272,7 +272,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 											}
 											if(!local) break;
 										}
-									}
+									}*/
 
 									supreme_local = false;
 									break;
