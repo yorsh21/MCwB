@@ -32,7 +32,10 @@ Solver::Solver(Instances instance, string file_name)
 			) + 0.5;
 		}
 		cost_matrix.push_back(row);
-		farms_by_milk[farms_types[i]].push_back(i);
+
+		if (farms_types[i] != -1){
+			farms_by_milk[farms_types[i]].push_back(i);
+		}
 	}
 
 	//print_cost_matrix();
