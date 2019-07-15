@@ -238,6 +238,9 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 					{
 						for (int i = 0; i < others_size; ++i)
 						{
+							vector<int> rollback_remaining_capacity = remaining_capacity;
+							vector<int> rollback_truck_capacities = truck_capacities;
+
 							if(can_move_extra_routes(solution, select_route[h], others_route[i])) {
 								new_neighbour = move_extra_routes(solution, select_route[h], others_route[i]);
 								neighbour_quality = evaluate(new_neighbour);
@@ -278,8 +281,12 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									}*/
 
 									supreme_local = false;
-									break;
+									//break;
 								}
+							}
+							else {
+								remaining_capacity = rollback_remaining_capacity;
+								truck_capacities = rollback_truck_capacities;
 							}
 						}
 						//if(!local) break;

@@ -65,7 +65,8 @@ if len(sys.argv) == 1:
 		while(entries < total_entries + len(seeds)):
 			time.sleep(5)
 			entries = len(open(os.path.dirname(__file__) + "/../outputs/results_threads.out").readlines())
-			print(entries)
+			if(entries % 60 == 0):
+				print(entries)
 		
 
 		for p in process:
