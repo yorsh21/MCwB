@@ -283,11 +283,12 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									supreme_local = false;
 									//break;
 								}
+								else {
+									remaining_capacity = rollback_remaining_capacity;
+									truck_capacities = rollback_truck_capacities;
+								}
 							}
-							else {
-								remaining_capacity = rollback_remaining_capacity;
-								truck_capacities = rollback_truck_capacities;
-							}
+							
 						}
 						//if(!local) break;
 					}
