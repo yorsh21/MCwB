@@ -1,11 +1,14 @@
 #include "Solver.h"
 
 
-Solver::Solver(Instances instance, string file_name) 
+Solver::Solver(Instances instance, string file_name, int x_cap, int x_req) 
 {
 	trucks_lenght = instance.truck_capacities.size();
 	milks_lenght = instance.milk_values.size();
 	farms_lenght = instance.farms_locates.size();
+
+	x_capacity = x_cap;
+	x_request = x_req;
 
 	plant_cuotes = instance.plant_cuotes;
 	truck_capacities = instance.truck_capacities;
@@ -73,7 +76,7 @@ int Solver::evaluate(vector<int> solution, bool show = false)
 			
 			//Exceso en la capacidad de los camiones
 			if (remaining_capacity[truck_index] < 0) {
-				total_cost -= remaining_capacity[truck_index]*100;
+				total_cost -= remaining_capacity[truck_index]*x_capacity;
 			}
 
 			if(i+1 < len_sol) {
@@ -107,7 +110,7 @@ int Solver::evaluate(vector<int> solution, bool show = false)
 		
 		//Penalización por cuota faltante
 		if(satisfied_cuotes[i] > 0) {
-			milk_income -= satisfied_cuotes[i]*milk_values[i]*100;
+			milk_income -= satisfied_cuotes[i]*milk_values[i]*x_request;
 		}
 	}
 
@@ -251,7 +254,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									
 									local = false;
 
-									/*while(!local) {
+									while(!local) {
 										local = true;
 										quality = evaluate(solution);
 
@@ -278,7 +281,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 											}
 											if(!local) break;
 										}
-									}*/
+									}
 
 									supreme_local = false;
 									//break;

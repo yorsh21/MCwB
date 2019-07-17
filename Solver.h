@@ -21,6 +21,8 @@ class Solver {
 		int milks_lenght;
 		int farms_lenght;
 		int global_quality;
+		int x_capacity;
+		int x_request;
 		vector<float> milk_values;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
@@ -39,7 +41,7 @@ class Solver {
 		vector<int> satisfied_cuotes;
 
 
-		Solver(Instances instance, string file_name);
+		Solver(Instances instance, string file_name, int x_cap, int x_req);
 		
 		int evaluate(vector<int> solution, bool show);
 		int fast_evaluate_2opt(vector<int> solution, int old_eval, int index1, int index2);
