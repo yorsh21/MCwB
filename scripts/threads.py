@@ -50,6 +50,8 @@ instances = [
 ]
 
 os.system("make")
+
+factor = "10"
 process = []
 
 #Run all instances with all threads
@@ -58,7 +60,7 @@ if len(sys.argv) == 1:
 
 	for index in range(len(instances)):
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), "10"]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor]))
 
 		entries = 0
 
@@ -86,7 +88,7 @@ elif len(sys.argv) == 2:
 
 	if index != -1:
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), "10"]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor]))
 
 		time.sleep(instances[index][1]+30)
 
@@ -104,7 +106,7 @@ elif len(sys.argv) == 3:
 			break
 
 	if index != -1:
-		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " 10")
+		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " " + factor)
 
 else:
 	print("Excess of parameters")
