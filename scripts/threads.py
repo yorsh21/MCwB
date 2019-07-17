@@ -58,7 +58,7 @@ if len(sys.argv) == 1:
 
 	for index in range(len(instances)):
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2])]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), "10"]))
 
 		entries = 0
 
@@ -86,9 +86,9 @@ elif len(sys.argv) == 2:
 
 	if index != -1:
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2])]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), "10"]))
 
-		time.sleep(instances[index][1]+40)
+		time.sleep(instances[index][1]+30)
 
 		for p in process:
 			p.terminate()
@@ -104,7 +104,7 @@ elif len(sys.argv) == 3:
 			break
 
 	if index != -1:
-		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]))
+		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " 10")
 
 else:
 	print("Excess of parameters")

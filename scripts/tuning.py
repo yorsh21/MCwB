@@ -49,7 +49,7 @@ instances = [
 	["att48", 284, 17452]
 ]
 
-factor = 0
+factor = 10
 
 
 #Run an instance with all threads
@@ -75,7 +75,7 @@ if len(sys.argv) == 2:
 			for p in process:
 				p.terminate()
 
-			factor += 2
+			factor += 10
 
 	else:
 		print("No se encontró la instancia")

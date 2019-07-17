@@ -254,26 +254,26 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									
 									local = false;
 
+									//Fast Intra Rutas
 									while(!local) {
 										local = true;
 										quality = evaluate(solution);
 
-										vector<vector<int>> vector_routes = split_routes(solution);
-										int len_routes = (int)vector_routes.size();
+										vector<vector<int>> vector_routes_intra = split_routes(solution);
+										int len_routes = (int)vector_routes_intra.size();
 										for (int g = 0; g < len_routes; ++g)
 										{
-											int len_route = (int)vector_routes[g].size();
+											int len_route = (int)vector_routes_intra[g].size();
 											for (int i = 0; i < len_route; ++i)
 											{
 												for (int j = 0; j < len_route; ++j)
 												{
-													neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][j]);
+													neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes_intra[g][i], vector_routes_intra[g][j]);
 													if(neighbour_quality > quality) {
-														solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
+														solution = two_opt(solution, vector_routes_intra[g][i], vector_routes_intra[g][j]);
 														quality = neighbour_quality;
 
 														local = false;
-														supreme_local = false;
 														break;
 													}
 												}
@@ -284,7 +284,6 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									}
 
 									supreme_local = false;
-									//break;
 								}
 								else {
 									remaining_capacity = rollback_remaining_capacity;
@@ -293,9 +292,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 							}
 							
 						}
-						//if(!local) break;
 					}
-					//if(!local) break;
 				}
 			}
 
@@ -318,16 +315,58 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 							neighbour_quality = fast_evaluate_2opt(solution, quality, vector_routes[g][i], vector_routes[g][j]);
 							if(neighbour_quality > quality) {
 								solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
-								quality = neighbour_quality;
+								quality = evaluate(solution);//neighbour_quality;
 
 								local = false;
+
+								//Fast Extra Rutas
+								while(!local) {
+									local = true;
+
+									for (int g = 0; g < trucks_lenght; ++g)
+									{
+										vector<vector<int>> vector_routes_extra = intelligence_split_route(solution, g);
+										vector<int> select_route = vector_routes_extra[0];
+										vector<int> others_route = vector_routes_extra[1];
+
+										int select_size = (int)select_route.size();
+										int others_size = (int)others_route.size();
+
+										for (int h = 0; h < select_size; ++h)
+										{
+											for (int i = 0; i < others_size; ++i)
+											{
+												vector<int> rollback_remaining_capacity = remaining_capacity;
+												vector<int> rollback_truck_capacities = truck_capacities;
+
+												if(can_move_extra_routes(solution, select_route[h], others_route[i])) {
+													new_neighbour = move_extra_routes(solution, select_route[h], others_route[i]);
+													neighbour_quality = evaluate(new_neighbour);
+													
+													if(neighbour_quality > quality) {
+														solution = new_neighbour;
+														quality = neighbour_quality;
+
+														local = false;
+														break;
+													}
+													else {
+														remaining_capacity = rollback_remaining_capacity;
+														truck_capacities = rollback_truck_capacities;
+													}
+												}
+												
+											}
+											if(!local) break;
+										}
+										if(!local) break;
+									}
+								}
+
 								supreme_local = false;
-								//break;
 							}
 						}
-						//if(!local) break;
 					}
-					//if(!local) break;
 				}
 			}
 
