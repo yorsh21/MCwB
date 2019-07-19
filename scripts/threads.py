@@ -52,6 +52,7 @@ instances = [
 os.system("make")
 
 factor = "10"
+step = 10
 process = []
 
 #Run all instances with all threads
@@ -63,19 +64,23 @@ if len(sys.argv) == 1:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor]))
 
 		entries = 0
+		steps = 0
 
-		while(entries < total_entries + len(seeds)):
-			time.sleep(5)
+		while(entries < total_entries + len(seeds) and steps < instances[index][1]):
+			time.sleep(step)
+			steps += step
+
 			entries = len(open(os.path.dirname(__file__) + "/../outputs/results_threads.out").readlines())
 			if(entries % 60 == 0):
 				print(entries)
 		
+		time.sleep(step)
 
 		for p in process:
 			p.terminate()
 
 		process = []
-		total_entries += len(seeds)
+		total_entries = len(open(os.path.dirname(__file__) + "/../outputs/results_threads.out").readlines())
 
 #Run an instance with all threads
 elif len(sys.argv) == 2:

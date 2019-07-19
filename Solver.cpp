@@ -342,7 +342,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 												if(can_move_extra_routes(solution, select_route[h], others_route[i])) {
 													new_neighbour = move_extra_routes(solution, select_route[h], others_route[i]);
 													neighbour_quality = evaluate(new_neighbour);
-													
+
 													if(neighbour_quality > quality) {
 														solution = new_neighbour;
 														quality = neighbour_quality;
