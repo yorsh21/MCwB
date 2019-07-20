@@ -74,7 +74,7 @@ if len(sys.argv) == 1:
 			if(entries % 60 == 0):
 				print(entries)
 		
-		time.sleep(step)
+		time.sleep(40)
 
 		for p in process:
 			p.terminate()
@@ -95,7 +95,7 @@ elif len(sys.argv) == 2:
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor]))
 
-		time.sleep(instances[index][1]+30)
+		time.sleep(40)
 
 		for p in process:
 			p.terminate()
