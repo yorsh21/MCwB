@@ -320,7 +320,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 								local = false;
 
 								//Fast Extra Rutas
-								while(!local) {
+								/*while(!local) {
 									local = true;
 
 									for (int g = 0; g < trucks_lenght; ++g)
@@ -361,7 +361,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 										}
 										if(!local) break;
 									}
-								}
+								}*/
 
 								supreme_local = false;
 							}

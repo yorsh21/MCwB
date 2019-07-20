@@ -51,7 +51,8 @@ instances = [
 
 os.system("make")
 
-factor = "10"
+factor1 = "10"
+factor2 = "10"
 step = 10
 process = []
 
@@ -61,7 +62,7 @@ if len(sys.argv) == 1:
 
 	for index in range(len(instances)):
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2]))
 
 		entries = 0
 		steps = 0
@@ -74,7 +75,7 @@ if len(sys.argv) == 1:
 			if(entries % 60 == 0):
 				print(entries)
 		
-		time.sleep(30)
+		time.sleep(40)
 
 		for p in process:
 			p.terminate()
@@ -93,7 +94,7 @@ elif len(sys.argv) == 2:
 
 	if index != -1:
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2]))
 
 		time.sleep(instances[index][1]+30)
 
@@ -111,7 +112,7 @@ elif len(sys.argv) == 3:
 			break
 
 	if index != -1:
-		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " " + factor)
+		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " " + factor1 + " " + factor2)
 
 else:
 	print("Excess of parameters")
