@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 file = open("test").read().split("\n")
 
 temp = [0, 0, 0, 0, -999999, -999999, -999999]

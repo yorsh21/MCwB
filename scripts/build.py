@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os.path
 
 with open(os.path.dirname(__file__) + "/../instances/lecture.txt", "r") as f:
