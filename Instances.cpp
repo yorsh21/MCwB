@@ -1,10 +1,10 @@
 #include "Instances.h"
 
-bool Instances::read_instances(string filename) 
+bool Instances::read_instances(string filename)
 {
 	string file = "inputs/" + filename;
 	//cout << "Reading instances for: " << file << endl;
-	
+
 	ifstream myfile;
 	myfile.open (file);
 
@@ -44,6 +44,9 @@ bool Instances::read_instances(string filename)
 		vector<float> milk((istream_iterator<float>(iss_milk)), istream_iterator<float>());
 		milk_values = milk;
 
+		for (int i = 0; i < milk_lenght; ++i)
+			farms_by_milk.push_back({});
+
 		for (int i = 0; i < nodes_lenght; ++i)
 		{
 			getline (myfile, string_farms_locates);
@@ -54,20 +57,41 @@ bool Instances::read_instances(string filename)
 			int type = -1;
 			for (int i = 0; i < (int)letters.size(); ++i)
 			{
-				if(letters[i].compare(locate[3]) == 0) {
+				if(letters[i].compare(locate[1]) == 0) {
 					type = i;
 					break;
 				}
 			}
 
-			vector<float> coordenates = {stof(locate[1]), stof(locate[2])};
-			farms_locates.push_back(coordenates);
+			if (type != -1){
+				farms_by_milk[type].push_back(i);
+			}
+
 			farms_types.push_back(type);
-			farms_milk.push_back(stoi(locate[4]));
+			farms_milk.push_back(stoi(locate[2]));
 		}
 
-		//cout << "Successfully read file: " << file << endl;
-		
+		getline (myfile, string_blank);
+
+		for (int i = 0; i < nodes_lenght; ++i)
+		{
+			getline (myfile, string_farms_locates);
+
+			istringstream iss_locate(string_farms_locates);
+			vector<float> locate((istream_iterator<float>(iss_locate)), istream_iterator<float>());
+
+			int size_locate = (int)locate.size();
+			vector<int> row(size_locate, 0);
+			for (int j = 0; j < size_locate; ++j)
+			{
+				row[j] = locate[j] + 0.5;
+			}
+
+			cost_matrix.push_back(row);
+		}
+
+		cout << "Successfully read file: " << file << endl;
+
 		myfile.close();
 		return true;
 	}
@@ -78,7 +102,7 @@ bool Instances::read_instances(string filename)
 }
 
 
-void Instances::print_plant_cuotes() 
+void Instances::print_plant_cuotes()
 {
 	cout << "[";
 	for (int i = 0; i < (int)plant_cuotes.size() - 1; ++i)
@@ -88,7 +112,8 @@ void Instances::print_plant_cuotes()
 	cout << plant_cuotes[plant_cuotes.size()-1] << "]" << endl;
 }
 
-void Instances::print_truck_capacities() 
+
+void Instances::print_truck_capacities()
 {
 	cout << "[";
 	for (int i = 0; i < (int)truck_capacities.size() - 1; ++i)
@@ -98,7 +123,8 @@ void Instances::print_truck_capacities()
 	cout << truck_capacities[truck_capacities.size()-1] << "]" << endl;
 }
 
-void Instances::print_milk_values() 
+
+void Instances::print_milk_values()
 {
 	cout << "[";
 	for (int i = 0; i < (int)milk_values.size() - 1; ++i)
@@ -108,7 +134,8 @@ void Instances::print_milk_values()
 	cout << milk_values[milk_values.size()-1] << "]" << endl;
 }
 
-void Instances::print_farms_locates() 
+
+void Instances::print_farms_locates()
 {
 	cout << "[";
 	for (int i = 0; i < (int)farms_locates.size() - 1; ++i)
@@ -116,4 +143,58 @@ void Instances::print_farms_locates()
 		cout << "(" << farms_locates[i][0] << ", " <<  farms_locates[i][1] << ", "  <<  farms_locates[i][2] << ", " <<  farms_locates[i][3]  <<  "), ";
 	}
 	cout << "(" << farms_locates[(int)farms_locates.size()-1][0] << ", " <<  farms_locates[(int)farms_locates.size()-1][1] << ", " <<  farms_locates[(int)farms_locates.size()-1][2] << ", " <<  farms_locates[(int)farms_locates.size()-1][3] <<  ")" << "]" << endl;
+}
+
+
+void Instances::print_vector(vector<int> array)
+{
+	int len = (int)array.size();
+
+	if (len == 0) {
+		cout << "[]" << endl;
+	}
+	else {
+		cout << "[";
+		for (int i = 0; i < len - 1; ++i) {
+			cout << array[i] << ",";
+		}
+
+		cout << array[len - 1] <<  "]" << endl;
+	}
+}
+
+
+void Instances::print_vector(vector<float> array)
+{
+	int len = (int)array.size();
+
+	if (len == 0) {
+		cout << "[]" << endl;
+	}
+	else {
+		cout << "[";
+		for (int i = 0; i < len - 1; ++i) {
+			cout << array[i] << ",";
+		}
+
+		cout << array[len - 1] <<  "]" << endl;
+	}
+}
+
+
+void Instances::print_vector(vector<string> array)
+{
+	int len = (int)array.size();
+
+	if (len == 0) {
+		cout << "[]" << endl;
+	}
+	else {
+		cout << "[";
+		for (int i = 0; i < len - 1; ++i) {
+			cout << array[i] << ",";
+		}
+
+		cout << array[len - 1] <<  "]" << endl;
+	}
 }

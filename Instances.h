@@ -11,10 +11,17 @@ class Instances {
 		vector<int> farms_types;
 		vector<int> farms_milk;
 		vector<vector<float>> farms_locates;
+		vector<vector<int>> farms_by_milk;
+		vector<vector<int>> cost_matrix;
 
 		bool read_instances(string filename);
+
 		void print_plant_cuotes();
 		void print_truck_capacities();
 		void print_milk_values();
 		void print_farms_locates();
+
+		void print_vector(vector<int> array);
+		void print_vector(vector<float> array);
+		void print_vector(vector<string> array);
 };

@@ -3,17 +3,17 @@ using namespace std;
 /**
  * Resuelve el problema de la leche con mezcla utilizando algoritmos de busqueda local
  *
- * En este proyecto aborda el problema del enrutamiento de camiones para la recolección 
- * de leche considerando la posibilidad de mezcla que recogen leche desde un conjunto 
- * de granjas productoras y la llevan a una planta para su posterior tratamiento, teniendo 
- * en cuenta que en cada granja se produce leche de distinto precio y calidad, y esta puede 
+ * En este proyecto aborda el problema del enrutamiento de camiones para la recolección
+ * de leche considerando la posibilidad de mezcla que recogen leche desde un conjunto
+ * de granjas productoras y la llevan a una planta para su posterior tratamiento, teniendo
+ * en cuenta que en cada granja se produce leche de distinto precio y calidad, y esta puede
  * ser mezclada tanto en la ruta como en la planta.
  *
  * @copyright  2017 Insive SpA
  * @version    Release: 1.0.37
  * @link       https://github.com/yorsh21/Proyecto-IA
  * @since      20 Julio del 2018
- */ 
+ */
 class Solver {
 	public:
 		string name_instance;
@@ -42,7 +42,7 @@ class Solver {
 
 
 		Solver(Instances instance, string file_name, int x_cap, int x_req);
-		
+
 		int evaluate(vector<int> solution, bool show);
 		int fast_evaluate_2opt(vector<int> solution, int old_eval, int index1, int index2);
 		int fast_evaluate_swap(vector<int> solution, int old_eval, int index1, int index2);
@@ -50,7 +50,8 @@ class Solver {
 
 
 		//Búsqueda Local
-		vector<int> hill_climbing(int end_time, int max_quality);
+		vector<int> hill_climbing();
+		//vector<int> hill_climbing(int end_time, int max_quality);
 		vector<int> improve_solution(vector<int> solution, vector<int> trucks_order);
 		vector<int> long_swap(vector<int> solution, int index1, int index2);
 		vector<int> move_extra_routes(vector<int> solution, int index1, int index2);
@@ -70,9 +71,13 @@ class Solver {
 
 		//Utilities
 		void print(int element);
+		void print(float element);
 		void print(string element);
-		void print_int_vector(vector<int> array);
-		void print_float_vector(vector<float> array);
+
+		void print_vector(vector<int> array);
+		void print_vector(vector<float> array);
+		void print_vector(vector<string> array);
+
 		void print_farms_locates();
 		void print_cost_matrix();
 		string int_vector_to_string(vector<int> array);
