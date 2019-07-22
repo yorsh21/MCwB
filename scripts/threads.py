@@ -66,8 +66,11 @@ if len(sys.argv) == 1:
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2]))
 
-		entries = 0
 		steps = 0
+		if(os.path.isfile(os.path.dirname(__file__) + "/../outputs/results_threads.out")):
+			entries = len(open(os.path.dirname(__file__) + "/../outputs/results_threads.out").readlines())
+		else:
+			entries = 0
 
 		while(entries < total_entries + len(seeds) and steps < instances[index][1]):
 			time.sleep(step)

@@ -255,7 +255,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 									local = false;
 
 									//Fast Intra Rutas
-									while(!local) {
+									/*while(!local) {
 										local = true;
 										quality = evaluate(solution);
 
@@ -281,7 +281,7 @@ vector<int> Solver::hill_climbing(int end_time, int max_quality)
 											}
 											if(!local) break;
 										}
-									}
+									}*/
 
 									supreme_local = false;
 								}
