@@ -10,21 +10,32 @@ Solver::Solver(Instances instance, string file_name, int x_cap, int x_req)
 	milks_lenght = instance.milk_lenght;
 	farms_lenght = instance.nodes_lenght;
 
+	//print(trucks_lenght);
+	//print(milks_lenght);
+	//print(farms_lenght);
+
 	plant_cuotes = instance.plant_cuotes;
 	truck_capacities = instance.truck_capacities;
 	milk_values = instance.milk_values;
 
+	//print_vector(plant_cuotes);
+	//print_vector(truck_capacities);
+	//print_vector(milk_values);
+
 	farms_types = instance.farms_types;
 	farms_milk = instance.farms_milk;
-	farms_locates = instance.farms_locates;
 	farms_by_milk = instance.farms_by_milk;
+
+	//print_vector(farms_types);
+	//print_vector(farms_milk);
+	//print_matrix(farms_by_milk);
 
 	name_instance = file_name;
 	global_quality = -999999999;
 
 	cost_matrix = instance.cost_matrix;
 
-	//print_cost_matrix();
+	//print_matrix(cost_matrix);
 }
 
 
@@ -187,7 +198,7 @@ vector<int> Solver::hill_climbing()
 
 	vector<int> neighbour;
 	vector<int> new_neighbour;
-	vector<int> best_solution = random_feasible_solution2();
+	vector<int> best_solution = random_feasible_solution3();
 	vector<int> best_trucks = truck_capacities;
 	int quality_best = evaluate(best_solution);
 	bool local;
@@ -196,9 +207,12 @@ vector<int> Solver::hill_climbing()
 	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - start;
 
 	//Loop restarts
-	while (true)
+	bool restarts = true;
+	while (restarts)
 	{
-		vector<int> solution = random_feasible_solution2();
+		restarts = false;
+
+		vector<int> solution = random_feasible_solution3();
 		int quality = evaluate(solution);
 		int neighbour_quality = 0;
 
@@ -237,7 +251,7 @@ vector<int> Solver::hill_climbing()
 								if(neighbour_quality > quality) {
 									solution = new_neighbour;
 									quality = neighbour_quality;
-									print("extra");
+									cout << "extra " << quality << endl;
 
 									local = false;
 									supreme_local = false;
@@ -256,6 +270,7 @@ vector<int> Solver::hill_climbing()
 			print_vector(solution);
 
 			print("::::::::::::::::::::: INTRA");
+			break;
 
 
 			//Busqueda Completa Intra Rutas 2opt
@@ -277,6 +292,7 @@ vector<int> Solver::hill_climbing()
 							if(neighbour_quality > quality) {
 								solution = two_opt(solution, vector_routes[g][i], vector_routes[g][j]);
 								quality = evaluate(solution);//neighbour_quality;
+								cout << "extra " << quality << endl;
 
 								local = false;
 								supreme_local = false;
@@ -535,6 +551,57 @@ vector<int> Solver::random_feasible_solution2()
 }
 
 
+vector<int> Solver::random_feasible_solution3()
+{
+	int first_truck = rand() % milks_lenght;
+	int index_truck = 0;
+	int index_solution = 0;
+	int farm_by_truck = farms_lenght/trucks_lenght;
+
+	vector<int> solution = {0};
+
+	//Loop tipos de leche: 3 veces
+	while(index_truck < milks_lenght) {
+		int i = (first_truck + index_truck) % milks_lenght;
+
+		vector<int> temp_farm_milk = farms_by_milk[i];
+
+		while (temp_farm_milk.size() > 0)
+		{
+			//Loop granjas por camión
+			int count = index_solution;
+			bool bk = false;
+			while(count < farm_by_truck)
+			{
+				if(temp_farm_milk.size() > 0) {
+					int k = rand() % temp_farm_milk.size();
+					solution.push_back(temp_farm_milk[k]);
+					temp_farm_milk.erase(temp_farm_milk.begin() + k);
+				}
+				else {
+					bk = true;
+					break;
+				}
+
+				count++;
+			}
+
+			if(bk) {
+				index_solution = count;
+			}
+			else {
+				index_solution = 0;
+				solution.push_back(0);
+			}
+		}
+
+		index_truck++;
+	}
+
+	return solution;
+}
+
+
 vector<int> Solver::get_node_from_route(vector<int> solution, int number)
 {
 	vector<int> nodes = {};
@@ -565,6 +632,7 @@ vector<int> Solver::random_solution()
 			continue;
 		}
 	}
+
 	return solution;
 }
 
@@ -582,6 +650,7 @@ vector<int> Solver::random_int_vector(int lenght)
 			index++;
 		}
 	}
+
 	return int_vector;
 }
 
@@ -600,6 +669,23 @@ vector<int> Solver::random_assignment(vector<int> array)
 			index++;
 		}
 	}
+
+	return int_vector;
+}
+
+
+vector<int> Solver::clutter_vector(vector<int> array)
+{
+	vector<int> int_vector;
+
+	while((int)array.size() > 0) {
+		int i = rand() % (int)array.size();
+
+		int_vector.push_back(array[i]);
+		array.erase(array.begin() + i);
+	}
+	print_vector(int_vector);
+
 	return int_vector;
 }
 
@@ -789,24 +875,44 @@ void Solver::print_vector(vector<string> array)
 }
 
 
-void Solver::print_farms_locates()
+void Solver::print_matrix(vector<vector<int>> matrix)
 {
-	for (int i = 0; i < (int)farms_locates.size(); ++i)
+	for (int i = 0; i < (int)matrix.size(); ++i)
 	{
-		cout << farms_locates[i][0] << " - " <<  farms_locates[i][1] << " - "  <<  farms_types[i] << " - " <<  farms_milk[i]  <<  endl;
+		string row = " ";
+		for (int j = 0; j < (int)matrix[i].size(); ++j)
+		{
+			row += to_string(matrix[i][j]) + " ";
+		}
+		cout << row <<  endl;
 	}
-	cout << "Total elementos: " << farms_locates.size() << endl << endl;
+	cout << endl;
 }
 
 
-void Solver::print_cost_matrix()
+void Solver::print_matrix(vector<vector<float>> matrix)
 {
-	for (int i = 0; i < (int)cost_matrix.size(); ++i)
+	for (int i = 0; i < (int)matrix.size(); ++i)
 	{
 		string row = " ";
-		for (int j = 0; j < (int)cost_matrix.size(); ++j)
+		for (int j = 0; j < (int)matrix[i].size(); ++j)
 		{
-			row += to_string((int)cost_matrix[i][j])  + " ";
+			row += to_string(matrix[i][j]) + " ";
+		}
+		cout << row <<  endl;
+	}
+	cout << endl;
+}
+
+
+void Solver::print_matrix(vector<vector<string>> matrix)
+{
+	for (int i = 0; i < (int)matrix.size(); ++i)
+	{
+		string row = " ";
+		for (int j = 0; j < (int)matrix[i].size(); ++j)
+		{
+			row += matrix[i][j] + " ";
 		}
 		cout << row <<  endl;
 	}

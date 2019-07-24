@@ -58,12 +58,16 @@ class Solver {
 		vector<int> two_opt(vector<int> solution, int index1, int index2);
 		vector<int> neighbour_2opt_index(vector<int> solution, int index);
 		vector<int> neighbour_move_index(vector<int> solution, int index);
+
 		vector<int> random_feasible_solution();
 		vector<int> random_feasible_solution2();
+		vector<int> random_feasible_solution3();
 		vector<int> random_solution();
+
 		vector<int> get_node_from_route(vector<int> solution, int number);
 		vector<int> random_int_vector(int lenght);
 		vector<int> random_assignment(vector<int> array);
+		vector<int> clutter_vector(vector<int> array);
 		vector<vector<int>> split_routes(vector<int> solution);
 		vector<vector<int>> split_route(vector<int> solution, int number);
 		vector<vector<int>> intelligence_split_route(vector<int> solution, int index);
@@ -78,8 +82,10 @@ class Solver {
 		void print_vector(vector<float> array);
 		void print_vector(vector<string> array);
 
-		void print_farms_locates();
-		void print_cost_matrix();
+		void print_matrix(vector<vector<int>> matrix);
+		void print_matrix(vector<vector<float>> matrix);
+		void print_matrix(vector<vector<string>> matrix);
+
 		string int_vector_to_string(vector<int> array);
 		string time();
 

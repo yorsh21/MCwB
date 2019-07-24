@@ -6,7 +6,7 @@ bool Instances::read_instances(string filename)
 	//cout << "Reading instances for: " << file << endl;
 
 	ifstream myfile;
-	myfile.open (file);
+	myfile.open(file);
 
 	if (myfile.is_open()) {
 		string string_truck_lenght;
@@ -19,14 +19,14 @@ bool Instances::read_instances(string filename)
 		string string_nodes_lenght;
 		vector<string> letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
 
-		getline (myfile, string_truck_lenght);
-		getline (myfile, string_truck_capacities);
-		getline (myfile, string_blank);
-		getline (myfile, string_milk_lenght);
-		getline (myfile, string_plant_cuotes);
-		getline (myfile, string_milk_value);
-		getline (myfile, string_blank);
-		getline (myfile, string_nodes_lenght);
+		getline(myfile, string_truck_lenght);
+		getline(myfile, string_truck_capacities);
+		getline(myfile, string_blank);
+		getline(myfile, string_milk_lenght);
+		getline(myfile, string_plant_cuotes);
+		getline(myfile, string_milk_value);
+		getline(myfile, string_blank);
+		getline(myfile, string_nodes_lenght);
 
 		truck_lenght = stoi(string_truck_lenght);
 		milk_lenght = stoi(string_milk_lenght);
@@ -49,46 +49,94 @@ bool Instances::read_instances(string filename)
 
 		for (int i = 0; i < nodes_lenght; ++i)
 		{
-			getline (myfile, string_farms_locates);
+			getline(myfile, string_farms_locates);
 
 			istringstream iss_locate(string_farms_locates);
 			vector<string> locate((istream_iterator<string>(iss_locate)), istream_iterator<string>());
 
-			int type = -1;
-			for (int i = 0; i < (int)letters.size(); ++i)
+			if(locate.size() == 3) 
 			{
-				if(letters[i].compare(locate[1]) == 0) {
-					type = i;
-					break;
+				int type = -1;
+				for (int i = 0; i < (int)letters.size(); ++i)
+				{
+					if(letters[i].compare(locate[1]) == 0) {
+						type = i;
+						break;
+					}
 				}
+
+				if (type != -1){
+					farms_by_milk[type].push_back(i);
+				}
+
+				farms_types.push_back(type);
+				farms_milk.push_back(stoi(locate[2]));
 			}
-
-			if (type != -1){
-				farms_by_milk[type].push_back(i);
-			}
-
-			farms_types.push_back(type);
-			farms_milk.push_back(stoi(locate[2]));
-		}
-
-		getline (myfile, string_blank);
-
-		for (int i = 0; i < nodes_lenght; ++i)
-		{
-			getline (myfile, string_farms_locates);
-
-			istringstream iss_locate(string_farms_locates);
-			vector<float> locate((istream_iterator<float>(iss_locate)), istream_iterator<float>());
-
-			int size_locate = (int)locate.size();
-			vector<int> row(size_locate, 0);
-			for (int j = 0; j < size_locate; ++j)
+			else if(locate.size() == 5) 
 			{
-				row[j] = locate[j] + 0.5;
-			}
+				int type = -1;
+				for (int i = 0; i < (int)letters.size(); ++i)
+				{
+					if(letters[i].compare(locate[3]) == 0) {
+						type = i;
+						break;
+					}
+				}
 
-			cost_matrix.push_back(row);
+				if (type != -1){
+					farms_by_milk[type].push_back(i);
+				}
+
+				vector<float> coordenates = {stof(locate[1]), stof(locate[2])};
+				farms_locates.push_back(coordenates);
+				farms_types.push_back(type);
+				farms_milk.push_back(stoi(locate[4]));
+			}
+			else {
+				cout << "Error when reading the file:" << file << endl;
+				cout << "Bad Farms Structure" << endl;
+				return false;
+			}
 		}
+
+		getline(myfile, string_blank);
+
+		if(myfile.eof()) 
+		{
+			for (int i = 0; i < nodes_lenght; ++i)
+			{
+				vector<int> row(nodes_lenght, 0);
+				for (int j = 0; j < nodes_lenght; ++j)
+				{
+					row[j] = sqrt(
+						pow(farms_locates[i][0] - farms_locates[j][0], 2) + 
+						pow(farms_locates[i][1] - farms_locates[j][1], 2)
+					) + 0.5;
+				}
+				cost_matrix.push_back(row);
+			}
+		}
+		else 
+		{
+			for (int i = 0; i < nodes_lenght; ++i)
+			{
+				getline(myfile, string_farms_locates);
+
+				istringstream iss_locate(string_farms_locates);
+				vector<float> locate((istream_iterator<float>(iss_locate)), istream_iterator<float>());
+
+				int size_locate = (int)locate.size();
+				vector<int> row(size_locate, 0);
+				for (int j = 0; j < size_locate; ++j)
+				{
+					row[j] = locate[j] + 0.5;
+				}
+
+				cost_matrix.push_back(row);
+			}
+		}
+
+		
 
 		cout << "Successfully read file: " << file << endl;
 
