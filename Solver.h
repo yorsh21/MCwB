@@ -43,35 +43,23 @@ class Solver {
 
 		Solver(Instances instance, string file_name, int x_cap, int x_req);
 
-		int evaluate(vector<int> solution, bool show);
-		int fast_evaluate_2opt(vector<int> solution, int old_eval, int index1, int index2);
-		int fast_evaluate_swap(vector<int> solution, int old_eval, int index1, int index2);
-		int random_index(vector<int> solution);
+		//Evaluate
+		int evaluate(vector<vector<int>> solution, bool show);
+		int fast_evaluate(vector<vector<int>> solution, int node, int old_eval, int index1, int index2);
 
 
-		//Búsqueda Local
-		vector<int> hill_climbing();
-		//vector<int> hill_climbing(int end_time, int max_quality);
-		vector<int> improve_solution(vector<int> solution, vector<int> trucks_order);
-		vector<int> long_swap(vector<int> solution, int index1, int index2);
-		vector<int> move_extra_routes(vector<int> solution, int index1, int index2);
-		vector<int> two_opt(vector<int> solution, int index1, int index2);
-		vector<int> neighbour_2opt_index(vector<int> solution, int index);
-		vector<int> neighbour_move_index(vector<int> solution, int index);
+		//Local Search
+		vector<vector<int>> hill_climbing(int restarts);
+		vector<vector<int>> move_extra_routes(vector<vector<int>> solution, int index1, int index2, int node);
+		vector<vector<int>> move_intra_routes(vector<vector<int>> solution, int row, int node1, int node2);
+		vector<vector<int>> random_feasible_solution();
 
-		vector<int> random_feasible_solution();
-		vector<int> random_feasible_solution2();
-		vector<int> random_feasible_solution3();
-		vector<int> random_solution();
-
-		vector<int> get_node_from_route(vector<int> solution, int number);
 		vector<int> random_int_vector(int lenght);
-		vector<int> random_assignment(vector<int> array);
 		vector<int> clutter_vector(vector<int> array);
-		vector<vector<int>> split_routes(vector<int> solution);
-		vector<vector<int>> split_route(vector<int> solution, int number);
-		vector<vector<int>> intelligence_split_route(vector<int> solution, int index);
-		bool can_move_extra_routes(vector<int> solution, int index1, int index2);
+
+		bool feasible_movement(vector<vector<int>> solution, int index1, int index2, int node);
+		void map_milk_types(vector<vector<int>> solution);
+
 
 		//Utilities
 		void print(int element);
@@ -88,6 +76,7 @@ class Solver {
 
 		string int_vector_to_string(vector<int> array);
 		string time();
+
 
 		//Exports
 		void save_row_result();

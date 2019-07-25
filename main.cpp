@@ -39,8 +39,15 @@ int main(int argc, char *argv[])
 	//Creando estructura de las soluciones
 	Solver sol = Solver(instance, input, factor1, factor2);
 
+	//vector<vector<int>> solution = sol.random_feasible_solution();
+	//vector<vector<int>> solution2 = sol.move_extra_routes(solution, 0, 12, 0);
+
+	//sol.print_matrix(solution);
+	//sol.print_matrix(solution2);
+	//sol.evaluate(solution, true);
+
 	//Ejecutando algoritmo de búsqueda local
-	vector<int> solution = sol.hill_climbing();
+	vector<vector<int>> solution = sol.hill_climbing(1);
 
 	return 0;
 
