@@ -45,7 +45,7 @@ class Solver {
 
 		//Evaluate
 		int evaluate(vector<vector<int>> solution, bool show);
-		int fast_evaluate(vector<vector<int>> solution, int node, int old_eval, int index1, int index2);
+		int fast_evaluate(vector<int> row, int eval, int index1, int index2);
 
 
 		//Local Search
@@ -74,12 +74,12 @@ class Solver {
 		void print_matrix(vector<vector<float>> matrix);
 		void print_matrix(vector<vector<string>> matrix);
 
-		string int_vector_to_string(vector<int> array);
+		string matrix_to_string(vector<vector<int>> array);
+		string vector_to_string(vector<int> array);
 		string time();
 
 
 		//Exports
-		void save_row_result();
 		void save_thread_result(string text);
-		void draw_graph(vector<int> solution, int quality);
+		void export_solution(vector<vector<int>> solution);
 };

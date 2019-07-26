@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	string input = "_real";
 	int factor1 = 10;
 	int factor2 = 10;
-	int seed = 1437356881;
+	int seed = 1437356562;
 
 	srand (seed);
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	//sol.evaluate(solution, true);
 
 	//Ejecutando algoritmo de búsqueda local
-	vector<vector<int>> solution = sol.hill_climbing(1);
+	vector<vector<int>> solution = sol.hill_climbing(100000);
 
 	return 0;
 

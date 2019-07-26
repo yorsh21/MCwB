@@ -59,11 +59,13 @@ int Solver::evaluate(vector<vector<int>> solution, bool show = false)
 		
 		if(row_len > 0) 
 		{
-			collect_milk = farms_milk[row[row_len - 1]];
+			row.push_back(0); //No se almacena el aumento en el largo en row_len
+
+			collect_milk = 0; //La última granja siempre es la planta: sin leche
 			route_cost = cost_matrix[0][row[0]];
 			local_quality = farms_types[row[0]];
 
-			for (int j = 0; j < row_len - 1; ++j)
+			for (int j = 0; j < row_len; ++j)
 			{
 				collect_milk += farms_milk[row[j]];
 				route_cost += cost_matrix[row[j]][row[j+1]];
@@ -74,7 +76,7 @@ int Solver::evaluate(vector<vector<int>> solution, bool show = false)
 				}
 			}
 
-			total_cost += route_cost + cost_matrix[row[row_len - 1]][0];
+			total_cost += route_cost;
 			remaining_capacity[i] -= collect_milk;
 			satisfied_cuotes[local_quality] -= collect_milk;
 
@@ -83,21 +85,12 @@ int Solver::evaluate(vector<vector<int>> solution, bool show = false)
 			//Exceso en la capacidad de los camiones
 			if (remaining_capacity[i] < 0) {
 				total_cost -= remaining_capacity[i]*x_capacity;
-				if (show) print(remaining_capacity[i]*x_capacity);
 			}
 		}
 		else
 		{
 			quality_by_route.push_back(milks_lenght - 1);
 		}
-	}
-
-	if (show) {
-		cout << endl;
-		cout << "Cuotas Planta:    ";
-		print_vector(plant_cuotes);
-		cout << "Cuotas Faltantes: ";
-		print_vector(satisfied_cuotes);
 	}
 
 	//Mezcla de Leche en la Planta
@@ -116,7 +109,6 @@ int Solver::evaluate(vector<vector<int>> solution, bool show = false)
 		//Penalización por cuota faltante
 		if(satisfied_cuotes[i] > 0) {
 			milk_income -= satisfied_cuotes[i]*milk_values[i]*x_request;
-			if (show) print(satisfied_cuotes[i]*milk_values[i]*x_request);
 		}
 	}
 
@@ -124,44 +116,47 @@ int Solver::evaluate(vector<vector<int>> solution, bool show = false)
 	if (show) {
 		cout << endl << "Total: " << milk_income << " - " << total_cost << " = " << milk_income - total_cost << endl << endl;
 
-		cout << "Cuotas Planta:    ";
+		cout << "Cuotas Planta: " << endl;
 		print_vector(plant_cuotes);
-		cout << "Cuotas Faltantes: ";
 		print_vector(satisfied_cuotes);
-		cout << endl;
 
-		cout << "Capacidad Camiones: ";
+		cout << endl << "Capacidad Camiones: ";
 		print_vector(truck_capacities);
-		cout << "Capacidad Restante: ";
 		print_vector(remaining_capacity);
-		cout << endl;
 
-		//draw_graph(solution, milk_income - total_cost);
+		//export_solution(solution);
 	}
 
 	return milk_income - total_cost;
 }
 
 
-int Solver::fast_evaluate(vector<vector<int>> solution, int node, int old_eval, int index1, int index2)
+int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 {
-	vector<int> row = solution[node];
 	row.insert(row.begin(), 0);
 	row.push_back(0);
 
-	int new_eval = old_eval;
 	int k1 = min(index1, index2) + 1;
 	int k2 = max(index1, index2) + 1;
 
+	/*if(cost_matrix[row[k1]][row[k1-1]] != cost_matrix[row[k1-1]][row[k1]])
+		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");
+	if(cost_matrix[row[k2]][row[k2+1]] != cost_matrix[row[k2+1]][row[k2]])
+		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");
+	if(cost_matrix[row[k2]][row[k1-1]] != cost_matrix[row[k1-1]][row[k2]])
+		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");
+	if(cost_matrix[row[k1]][row[k2+1]] != cost_matrix[row[k2+1]][row[k1]])
+		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");*/
+
 	//Quitar Costos
-	new_eval += cost_matrix[row[k1]][row[k1-1]];
-	new_eval += cost_matrix[row[k2]][row[k2+1]];
+	eval += cost_matrix[row[k1]][row[k1-1]];
+	eval += cost_matrix[row[k2]][row[k2+1]];
 
 	//Agregar Costos
-	new_eval -= cost_matrix[row[k2]][row[k1-1]];
-	new_eval -= cost_matrix[row[k1]][row[k2+1]];
+	eval -= cost_matrix[row[k2]][row[k1-1]];
+	eval -= cost_matrix[row[k1]][row[k2+1]];
 
-	return new_eval;
+	return eval;
 }
 
 
@@ -217,7 +212,7 @@ vector<vector<int>> Solver::hill_climbing(int restarts)
 									if(neighbour_quality > quality) {
 										solution = neighbour;
 										quality = neighbour_quality;
-										cout << "extra " << quality << endl;
+										//cout << "extra " << quality << endl;
 
 										local = false;
 										supreme_local = false;
@@ -248,13 +243,13 @@ vector<vector<int>> Solver::hill_climbing(int restarts)
 							if(h != i) {
 								neighbour = move_intra_routes(solution, g, h, i);
 								neighbour_quality = evaluate(neighbour);
-								//neighbour_quality = fast_evaluate(solution, g, quality, h, i);
+								//neighbour_quality = fast_evaluate(solution[g], quality, h, i);
 
 								if(neighbour_quality > quality) {
 									//solution = move_intra_routes(solution, g, h, i);
 									solution = neighbour;
 									quality = neighbour_quality;
-									cout << "intra " << quality << endl;
+									//cout << "intra " << quality << endl;
 
 									local = false;
 									supreme_local = false;
@@ -268,8 +263,8 @@ vector<vector<int>> Solver::hill_climbing(int restarts)
 					//if(!local) break;
 				}
 			}
-
 		}
+
 
 		auto end = chrono::system_clock::now();
 		elapsed_seconds = end - start;
@@ -285,8 +280,8 @@ vector<vector<int>> Solver::hill_climbing(int restarts)
 		restarts--;
 	}
 
-	//print_matrix(solution);
-	//map_milk_types(solution);
+	//print_matrix(best_solution);
+	//map_milk_types(best_solution);
 	evaluate(best_solution, true);
 
 	return best_solution;
@@ -322,17 +317,15 @@ vector<vector<int>> Solver::move_extra_routes(vector<vector<int>> solution, int 
 
 vector<vector<int>> Solver::move_intra_routes(vector<vector<int>> solution, int node, int index1, int index2) 
 {
-	vector<int> row = solution[node];
-
 	int k1 = min(index1, index2);
 	int k2 = max(index1, index2);
 
 	int diff = (k2 - k1)/2;
 	for (int i = 0; i <= diff; ++i)
 	{
-		int temp = row[k1 + i];
-		row[k1 + i] = row[k2 - i];
-		row[k2 - i] = temp;
+		int temp = solution[node][k1 + i];
+		solution[node][k1 + i] = solution[node][k2 - i];
+		solution[node][k2 - i] = temp;
 	}
 
 	return solution;
@@ -341,7 +334,7 @@ vector<vector<int>> Solver::move_intra_routes(vector<vector<int>> solution, int 
 
 vector<vector<int>> Solver::random_feasible_solution()
 {
-	//truck_capacities = clutter_vector(truck_capacities);
+	truck_capacities = clutter_vector(truck_capacities);
 	vector<int> milk_by_truck = truck_capacities;
 	vector<int> farms;
 	vector<vector<int>> solution;
@@ -562,7 +555,37 @@ void Solver::print_matrix(vector<vector<string>> matrix)
 }
 
 
-string Solver::int_vector_to_string(vector<int> array)
+string Solver::matrix_to_string(vector<vector<int>> array)
+{
+	int len = (int)array.size();
+
+	if (len == 0) {
+		return "[]";
+	}
+	else {
+		string output = "[0";
+		for (int i = 0; i < len; ++i) 
+		{
+			if((int)array[i].size() > 0) {
+				for (int j = 0; j < (int)array[i].size(); ++j) {
+					output += "," + to_string(array[i][j]);
+				}
+				output += ",0";
+			}
+			else {
+				output += "0";
+
+			}
+			
+		}
+		output += "]";
+
+		return output;
+	}
+}
+
+
+string Solver::vector_to_string(vector<int> array)
 {
 	int len = (int)array.size();
 
@@ -595,40 +618,6 @@ string Solver::time()
 /************************** Exports *************************/
 /************************************************************/
 
-void Solver::save_row_result()
-{
-	string file = "outputs/results.out";
-	ofstream myfile;
-	myfile.open (file, std::fstream::app);
-
-	int best = -9999999;
-	int sum = 0;
-	int times = 0;
-	int len = (int)result_qualities.size();
-	for (int i = 0; i < len; ++i)
-	{
-		sum += result_qualities[i];
-		times += result_times[i];
-		if(result_qualities[i] > best)
-			best = result_qualities[i];
-	}
-
-	if (myfile.is_open()) {
-		string output = name_instance + "\t" +
-			to_string((int)sum/len) + "\t" +
-			to_string((int)best) + "\t" +
-			to_string((int)times) + "\t" +
-			int_vector_to_string(global_solution);
-		myfile << output << endl;
-	}
-	else {
-		cout << "Error when writing the file:" << file << endl;
-	}
-
-	myfile.close();
-	//cout << "Successfully wrhite instance: " << name_instance << endl;
-}
-
 
 void Solver::save_thread_result(string text)
 {
@@ -648,20 +637,10 @@ void Solver::save_thread_result(string text)
 }
 
 
-void Solver::draw_graph(vector<int> solution, int quality)
+void Solver::export_solution(vector<vector<int>> solution)
 {
-	string full_output = "python3 scripts/plot.py " + name_instance + " [0";
+	string output = "python3 scripts/plot.py " + name_instance + " " + matrix_to_string(solution) + " " + vector_to_string(truck_capacities);
 
-	for (int i = 1; i < (int)solution.size(); ++i) {
-		full_output += "," + to_string(solution[i]);
-	}
-	full_output += "] [" + to_string(truck_capacities[0]);
-
-	for (int i = 1; i < (int)truck_capacities.size(); ++i) {
-		full_output += "," + to_string(truck_capacities[i]);
-	}
-	full_output += "]";
-
-	cout << full_output << endl;
-	system(full_output.c_str());
+	cout << endl << output << endl;
+	system(output.c_str());
 }

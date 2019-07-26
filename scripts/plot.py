@@ -165,7 +165,7 @@ def analysis_instances(route):
 
 	#Solo impresión
 	for i in range(num_milks):
-		print("Requerimiento Planta: ", milk_request[i], "\tLeche recogida", collected_milk[i])
+		print("Requerimiento Planta: ", int(milk_request[i]), "\tLeche recogida", int(collected_milk[i]))
 	print()
 
 	
@@ -179,7 +179,7 @@ def analysis_instances(route):
 	total_income = 0
 	total_cost = int(sum(route_cost))
 	for i in range(num_milks):
-		print("Requerimiento Planta: ", milk_request[i], "\tLeche recogida", collected_milk[i])
+		print("Requerimiento Planta: ", int(milk_request[i]), "\tLeche recogida", int(collected_milk[i]))
 		
 		total_income += math.ceil(collected_milk[i]*float(milk_values[i]))
 		if int(milk_request[i]) > collected_milk[i]:
@@ -194,15 +194,21 @@ def analysis_instances(route):
 if len(sys.argv) == 1:
 	print("It is need pass the instance name")
 
+
+#Grafica las Soluciones
 elif len(sys.argv) == 2:
 	read_instances(sys.argv[1])
 	plot_map(sys.argv[1])
 
+
+#Analiza las Soluciones
 elif len(sys.argv) == 3:
 	read_instances(sys.argv[1])
 	print()
 	analysis_instances(sys.argv[2])
 
+
+#Analiza las Soluciones y setea orden en los camiones
 elif len(sys.argv) == 4:
 	read_instances(sys.argv[1])
 	trucks_capacities = list(map(int, sys.argv[3][1:-1].split(",")))
@@ -212,5 +218,3 @@ elif len(sys.argv) == 4:
 
 	plot_map(sys.argv[1], sys.argv[2], str(quality))
 
-
-print()
