@@ -48,7 +48,8 @@ instances = [
 	["eil33", 58, 20409],
 	["eil51", 154, 50128],
 	["eil76", 1700, 91461],
-	["att48", 284, 17452]
+	["att48", 284, 17452],
+	["_real", 5959, 13173]
 ]
 
 os.system("make")
@@ -62,7 +63,8 @@ process = []
 if len(sys.argv) == 1:
 	total_entries = 0
 
-	for index in range(len(instances)):
+	#Excluye la instancia REAL
+	for index in range(len(instances) - 1):
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2]))
 

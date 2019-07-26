@@ -136,10 +136,7 @@ bool Instances::read_instances(string filename)
 			}
 		}
 
-		
-
-		cout << "Successfully read file: " << file << endl;
-
+		//cout << "Successfully read file: " << file << endl;
 		myfile.close();
 		return true;
 	}

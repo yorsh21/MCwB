@@ -49,7 +49,7 @@ class Solver {
 
 
 		//Local Search
-		vector<vector<int>> hill_climbing(int restarts);
+		vector<vector<int>> hill_climbing(int end_time, int max_quality);
 		vector<vector<int>> move_extra_routes(vector<vector<int>> solution, int index1, int index2, int node);
 		vector<vector<int>> move_intra_routes(vector<vector<int>> solution, int row, int node1, int node2);
 		vector<vector<int>> random_feasible_solution();

@@ -164,7 +164,7 @@ int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-vector<vector<int>> Solver::hill_climbing(int restarts)
+vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 {
 	auto start = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds;
@@ -183,7 +183,7 @@ vector<vector<int>> Solver::hill_climbing(int restarts)
 
 
 	//Loop restarts
-	while (restarts > 0)
+	do
 	{
 		solution = random_feasible_solution();
 		quality = evaluate(solution);
@@ -277,12 +277,11 @@ vector<vector<int>> Solver::hill_climbing(int restarts)
 			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
 		}
 
-		restarts--;
-	}
+	} while(elapsed_seconds.count() < end_time && quality_best < max_quality);
 
 	//print_matrix(best_solution);
 	//map_milk_types(best_solution);
-	evaluate(best_solution, true);
+	//evaluate(best_solution, true);
 
 	return best_solution;
 }
