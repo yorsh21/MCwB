@@ -229,9 +229,7 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 								}
 							}
 						}
-						//if(!local) break;
 					}
-					//if(!local) break;
 				}
 			}
 
@@ -265,12 +263,11 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 								}
 							}
 						}
-						//if(!local) break;
 					}
-					//if(!local) break;
 				}
 			}
-		}
+
+		} //End while restart
 
 
 		auto end = chrono::system_clock::now();

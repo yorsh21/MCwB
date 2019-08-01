@@ -1,21 +1,35 @@
-Para ejecutar el algormo se ejecuta: make instance=nombre_archivo.txt
+Los archivos de instancias se encuentran en inputs/
+Los archivos de salida se encuentran en outputs/
 
-Donde el archivo ya se encuentra en el directorio inputs/
-El archivo de salida de ubicará en el directorio outputs/ con el nombre: nombre_archivo.out
+Para compilar el proyecto ejecutar: make
+Para ejecutar una instancia específica con una semilla aleatoria: make instance=nombre_instancia
 
 Ejemplos:
 	make instance=a36
 	make instance=eil22
 
+Para ejecutar un pool de pruebas con las 30 semillas seteadas ejecutar el siguiente script de python:
 
-Para ejecutar las pruebas en todas las instancias que se encuentran en el directorio inputs/ se debe ejecutar: make
+- Todas las instancias: python3 scripts/threads.py
+- Una instancia específica: python3 scripts/threads.py nombre_instancia
+- Una instancia específica con una semilla específica: python3 scripts/threads.py nombre_instancia numero_semilla
 
-Con esto se generará un archivo con las calidades y tiempos de cada una de las instancias. El archivo se ubica en el directorio outputs/ y se llama results.out.
+
+Los resutlados de cada ejecución se almacenan en un archivo llamado results_threads.out ubicado dentro del directorio outputs/
 
 
-Dependencias:
+
+Dependencias c++:
 	sudo apt-get update
 	sudo apt install make
 	sudo apt install make-guile
 	sudo apt-get install build-essential g++
+
+Dependencias python:
+	sudo apt-get update
+	sudo apt-get install python3
+	sudo apt-get install python3-pip
+	pip install numpy
+	pip install matplotlib
+	pip install pylab
 
