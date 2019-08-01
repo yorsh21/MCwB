@@ -30,6 +30,13 @@ Solver::Solver(Instances instance, string file_name, int x_cap, int x_req)
 	//print_vector(farms_milk);
 	//print_matrix(farms_by_milk);
 
+	min_index_value = 0;
+	for (int i = 1; i < milks_lenght; ++i)
+	{
+		if(milk_values[i] < milk_values[min_index_value])
+			min_index_value = i;
+	}
+
 	name_instance = file_name;
 	global_quality = -999999999;
 
@@ -89,7 +96,7 @@ int Solver::evaluate(vector<vector<int>> solution, bool show = false)
 		}
 		else
 		{
-			quality_by_route.push_back(milks_lenght - 1);
+			quality_by_route.push_back(min_index_value);
 		}
 	}
 
@@ -185,7 +192,7 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 	//Loop restarts
 	do
 	{
-		solution = random_feasible_solution();
+		solution = random_feasible_solution2();
 		quality = evaluate(solution);
 		supreme_local = false;
 
@@ -198,14 +205,14 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 			while(!local) {
 				local = true;
 
-				for (int g = 0; g < trucks_lenght; ++g)
+				for (int g = 0; g < trucks_lenght; ++g) //Origen
 				{
-					for (int h = 0; h < trucks_lenght; ++h)
+					for (int h = 0; h < trucks_lenght; ++h) //Destino
 					{
 						if(g != h) {
-							for (int i = 0; i < (int)solution[g].size(); ++i)
+							for (int i = 0; i < (int)solution[g].size(); ++i) //Nodo origen
 							{
-								if(feasible_movement(solution, g, h, i)) {
+								if(feasible_movement(solution[g][i], h)) {
 									neighbour = move_extra_routes(solution, g, h, i);
 									neighbour_quality = evaluate(neighbour);
 
@@ -279,9 +286,13 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 
 	} while(elapsed_seconds.count() < end_time && quality_best < max_quality);
 
+
+	truck_capacities = best_trucks;
 	//print_matrix(best_solution);
-	//map_milk_types(best_solution);
+	//vector_map_milk_types(best_solution);
 	//evaluate(best_solution, true);
+
+	save_thread_result(name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
 
 	return best_solution;
 }
@@ -369,6 +380,68 @@ vector<vector<int>> Solver::random_feasible_solution()
 }
 
 
+vector<vector<int>> Solver::random_feasible_solution2()
+{
+	truck_capacities = clutter_vector(truck_capacities);
+	vector<int> milk_by_truck = truck_capacities;
+	vector<int> types_by_truck;
+	vector<int> farms;
+	vector<vector<int>> solution;
+
+	for (int i = 1; i < farms_lenght; ++i){
+		farms.push_back(i);
+	}
+	
+	int offset = rand() % milks_lenght;
+	for (int i = 0; i < trucks_lenght; ++i){
+		solution.push_back({});
+		types_by_truck.push_back((i + offset) % milks_lenght);
+	}
+
+	int TOL = 0;
+	int index_truck = 0;
+	int len_farms = (int)farms.size();
+	while((int)farms.size() > 0)
+	{
+		int index_farm = rand() % (int)farms.size();
+		for (int h = 0; h < (int)farms.size(); ++h)
+		{
+			int i = (index_farm + h) % (int)farms.size();
+			while(milk_by_truck[index_truck] - farms_milk[farms[i]] >= TOL && milk_values[types_by_truck[index_truck]] == milk_values[farms_types[farms[i]]])
+			{
+				solution[index_truck].push_back(farms[i]);
+				milk_by_truck[index_truck] -= farms_milk[farms[i]];
+				farms.erase(farms.begin() + i);
+
+				if((int)farms.size() > 0)
+					i = rand() % (int)farms.size();
+				else
+					break;
+			}
+		}
+
+		if(++index_truck >= trucks_lenght) {
+			index_truck = 0;
+
+			if(len_farms > (int)farms.size()) {
+				len_farms = (int)farms.size();
+			}
+			else {
+				for (int j = 0; j < trucks_lenght; ++j)
+				{
+					if(solution[j].size() == 0) {
+						types_by_truck[j] = rand() % milks_lenght;
+					}
+				}
+				TOL -= 10;
+			}
+		}
+	}
+
+	return solution;
+}
+
+
 vector<int> Solver::random_int_vector(int lenght)
 {
 	vector<int> int_vector(lenght, 0);
@@ -402,11 +475,11 @@ vector<int> Solver::clutter_vector(vector<int> array)
 }
 
 
-bool Solver::feasible_movement(vector<vector<int>> solution, int index1, int index2, int node)
+bool Solver::feasible_movement(int index1, int index2)
 {
-	if (remaining_capacity[index2] >= farms_milk[solution[index1][node]]) 
+	if (remaining_capacity[index2] >= farms_milk[index1]) 
 	{
-		if(quality_by_route[index2] >= farms_types[solution[index1][node]]) {
+		if(quality_by_route[index2] >= farms_types[index1]) {
 			return true;
 		}
 		else {
@@ -419,7 +492,7 @@ bool Solver::feasible_movement(vector<vector<int>> solution, int index1, int ind
 }
 
 
-void Solver::map_milk_types(vector<vector<int>> solution)
+void Solver::vector_map_milk_types(vector<vector<int>> solution)
 {
 	for (int i = 0; i < trucks_lenght; ++i)
 	{
@@ -431,6 +504,19 @@ void Solver::map_milk_types(vector<vector<int>> solution)
 
 		print_vector(row);
 	}
+}
+
+void Solver::string_map_milk_types(vector<vector<int>> solution)
+{
+	cout << "| ";
+	for (int i = 0; i < trucks_lenght; ++i)
+	{
+		for (int j = 0; j < (int)solution[i].size(); ++j) {
+			cout << farms_types[solution[i][j]] << " ";
+		}
+		cout << "| ";
+	}
+	cout << endl;
 }
 
 

@@ -23,6 +23,7 @@ class Solver {
 		int global_quality;
 		int x_capacity;
 		int x_request;
+		int min_index_value;
 		vector<float> milk_values;
 		vector<int> plant_cuotes;
 		vector<int> truck_capacities;
@@ -53,12 +54,14 @@ class Solver {
 		vector<vector<int>> move_extra_routes(vector<vector<int>> solution, int index1, int index2, int node);
 		vector<vector<int>> move_intra_routes(vector<vector<int>> solution, int row, int node1, int node2);
 		vector<vector<int>> random_feasible_solution();
+		vector<vector<int>> random_feasible_solution2();
 
 		vector<int> random_int_vector(int lenght);
 		vector<int> clutter_vector(vector<int> array);
 
-		bool feasible_movement(vector<vector<int>> solution, int index1, int index2, int node);
-		void map_milk_types(vector<vector<int>> solution);
+		bool feasible_movement(int index1, int index2);
+		void vector_map_milk_types(vector<vector<int>> solution);
+		void string_map_milk_types(vector<vector<int>> solution);
 
 
 		//Utilities
