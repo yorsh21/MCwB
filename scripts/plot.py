@@ -5,6 +5,7 @@ import math
 import sys
 import numpy as np
 from pylab import *
+from numpy.linalg import eig
 import matplotlib.pyplot as plt
 import os.path
 
@@ -18,6 +19,7 @@ coordenates = []
 cost_matrix = []
 types_farms = []
 milk_farms = []
+milk_by_route = []
 letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
 def int_convert_array(element):
@@ -34,6 +36,34 @@ def float_convert_array(element):
 			return letters.index(element)
 		else:
 			return -1
+
+def get_coordenates(cost_matrix):
+	for i in range(len(cost_matrix)):
+		for j in range(len(cost_matrix)):
+			cost_matrix[j][i] = cost_matrix[i][j]
+
+	M = []
+	for i in range(len(cost_matrix)):
+		Mi = []
+		for j in range(len(cost_matrix)):
+			Mij = sqrt(cost_matrix[0][j] + cost_matrix[i][0] - cost_matrix[i][j])
+			Mi.append(Mij/2)
+		M.append(Mi)
+
+	npM = np.array(M)
+	values, vectors = eig(npM)
+
+	coordenates = []
+	for i in range(len(values)):
+		if values[i] > 0.0001:
+			coord = sqrt(values[i])*vectors.T[i]
+			coordenates.append(coord.tolist())
+
+	list_coords = []
+	for i in range(len(coordenates[0])):
+		list_coords.append([coordenates[0][i].real, coordenates[1][i].real])
+
+	return list_coords
 
 
 def read_instances(instance):
@@ -95,11 +125,13 @@ def read_instances(instance):
 			line = file.readline()[:-1]
 			array = list(map(int_convert_array, line.split("\t")))
 			cost_matrix.append(array)
+
+		coordenates = get_coordenates(cost_matrix)
 		
 
 def plot_map(instance, route = None, output = ""):
 	colors = ['c', 'm', 'y']
-	plt.figure(num=None, figsize=(25, 25), dpi=200*0.3, facecolor='w', edgecolor='k')
+	plt.figure(num=None, figsize=(25, 25), dpi=400, facecolor='w', edgecolor='k')
 	plt.xlabel('x')
 	plt.ylabel('y')
 	
@@ -107,12 +139,12 @@ def plot_map(instance, route = None, output = ""):
 	    if types_farms[i] == -1:
 	        scatter(coordenates[i][0], coordenates[i][1], s=60 ,marker='s', c='k')
 	    elif types_farms[i] == 0:
-	        scatter(coordenates[i][0], coordenates[i][1], s=20 ,marker='o', c='r')
+	        scatter(coordenates[i][0], coordenates[i][1], s=8 ,marker='o', c='r')
 	    elif types_farms[i] == 1:
-	        scatter(coordenates[i][0], coordenates[i][1], s=20 ,marker='o', c='g')
+	        scatter(coordenates[i][0], coordenates[i][1], s=8 ,marker='o', c='g')
 	    elif types_farms[i] == 2:
-	        scatter(coordenates[i][0], coordenates[i][1], s=20 ,marker='o', c='b')
-	    plt.text(coordenates[i][0], coordenates[i][1], i, fontsize=10)
+	        scatter(coordenates[i][0], coordenates[i][1], s=8 ,marker='o', c='b')
+	    plt.text(coordenates[i][0], coordenates[i][1], i, fontsize=3)
 	
 	plt.legend(('Planta', 'Granja con Leche A', 'Granja con Leche B', 'Granja con Leche C'))
 
@@ -129,7 +161,7 @@ def plot_map(instance, route = None, output = ""):
 			routey.append(coordenates[route_list[i]][1])
 
 			if route_list[i] == 0:
-				plot(routex, routey, colors[count_route]+'-', linewidth = .5)
+				plot(routex, routey, colors[milk_by_route[count_route]]+'-', linewidth = .2)
 				count_route += 1
 				routex = [coordenates[route_list[i]][0]]
 				routey = [coordenates[route_list[i]][1]]
@@ -161,18 +193,22 @@ def analysis_instances(route):
 
 			#Capacidad de los camiones:
 			if temp_milk > int(trucks_capacities[truck_index]):
-				temp_cost += (temp_milk - int(trucks_capacities[truck_index]))*100
+				temp_cost += (temp_milk - int(trucks_capacities[truck_index]))*10
 
 			route_cost.append(temp_cost)
 
-			print(temp_route)
+			#print(temp_route)
 			#print(temp_types)
-			print(real_types)
-			print(
-				"Costo Ruta: ", int(temp_cost), 
-				"\tLeche Camion: ", temp_milk, "/", trucks_capacities[truck_index], "\n"
-			)
+			#print(real_types)
+			if temp_cost != 0 and False:
+				print(
+					"Costo Ruta: ", int(temp_cost), 
+					"\tLeche Camion: ", int(temp_milk), "/", trucks_capacities[truck_index], 
+				)
+				if trucks_capacities[truck_index] - temp_milk < 0: 
+					print("-")
 
+			milk_by_route.append(cumulative_milk)
 			temp_route = [0]
 			temp_cost = 0
 			temp_milk = 0
@@ -197,6 +233,7 @@ def analysis_instances(route):
 			real_types.append(milk_type)
 
 	#Solo impresión
+	print()
 	for i in range(num_milks):
 		print("Requerimiento Planta: ", int(milk_request[i]), "\tLeche recogida", int(collected_milk[i]))
 	print()
@@ -216,9 +253,9 @@ def analysis_instances(route):
 		
 		total_income += math.ceil(collected_milk[i]*float(milk_values[i]))
 		if int(milk_request[i]) > collected_milk[i]:
-			total_income -= int((int(milk_request[i]) - collected_milk[i])*float(milk_values[i]))*100
+			total_income -= int((int(milk_request[i]) - collected_milk[i])*float(milk_values[i]))*10
 
-	print("\nIngresos Total: ", total_income, "\tCosto Total: ", total_cost, "\tBeneficio: ", total_income - total_cost)
+	print("\nIngresos Total: ", total_income, "\tCosto Total: ", total_cost, "\tBeneficio: ", total_income - total_cost, "\n")
 
 	return total_income - total_cost
 

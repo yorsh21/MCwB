@@ -648,14 +648,15 @@ string Solver::matrix_to_string(vector<vector<int>> array)
 		string output = "[0";
 		for (int i = 0; i < len; ++i) 
 		{
-			if((int)array[i].size() > 0) {
+			int len_row = (int)array[i].size();
+			if(len_row > 0) {
 				for (int j = 0; j < (int)array[i].size(); ++j) {
 					output += "," + to_string(array[i][j]);
 				}
 				output += ",0";
 			}
 			else {
-				output += "0";
+				output += ",0";
 
 			}
 			
