@@ -54,13 +54,6 @@ def get_coordenates(cost_matrix):
 	values, vectors = eig(npM)
 
 	coordenates = []
-	max1 = 0
-	max2 = 0
-	for i in range(len(values)):
-		if values[i] > max1:
-			max2 = max1
-			max1 = values[i]
-
 	for i in range(len(values)):
 		if values[i] > 0.0001:
 			coord = sqrt(values[i])*vectors.T[i]
