@@ -38,15 +38,19 @@ def float_convert_array(element):
 			return -1
 
 def get_coordenates(cost_matrix):
-	for i in range(len(cost_matrix)):
-		for j in range(len(cost_matrix)):
-			cost_matrix[j][i] = cost_matrix[i][j]
+	cost_square = [row[:] for row in cost_matrix]
+	for i in range(len(cost_square)):
+		for j in range(len(cost_square)):
+			if i < j:
+				cost_square[i][j] = cost_square[i][j]**2
+			else:
+				cost_square[i][j] = cost_square[j][i]
 
 	M = []
-	for i in range(len(cost_matrix)):
+	for i in range(len(cost_square)):
 		Mi = []
-		for j in range(len(cost_matrix)):
-			Mij = sqrt(cost_matrix[0][j] + cost_matrix[i][0] - cost_matrix[i][j])
+		for j in range(len(cost_square)):
+			Mij = cost_square[0][j] + cost_square[i][0] - cost_square[i][j]
 			Mi.append(Mij/2)
 		M.append(Mi)
 
@@ -55,13 +59,33 @@ def get_coordenates(cost_matrix):
 
 	coordenates = []
 	for i in range(len(values)):
-		if values[i] > 0.0001:
-			coord = sqrt(values[i])*vectors.T[i]
+		if values[i].real > 0.001:
+			coord = sqrt(values[i].real)*vectors.T[i]
 			coordenates.append(coord.tolist())
 
 	list_coords = []
 	for i in range(len(coordenates[0])):
 		list_coords.append([coordenates[0][i].real, coordenates[1][i].real])
+
+
+	##################################
+	'''
+	disc_test = []
+	for i in range(len(cost_square)):
+		row_rest = []
+		for j in range(len(cost_square)):
+			dist_temp = (coordenates[0][i] - coordenates[0][j])**2 + (coordenates[1][i] - coordenates[1][j])**2
+			dist = int(dist_temp.real + 0.5)
+			row_rest.append(dist)
+		disc_test.append(row_rest)
+
+	print("\nMatriz de costos cuadrátiva\n")
+	print("Original:")
+	print(np.array(cost_square))
+	print("\nGenerada:")
+	print(np.array(disc_test))
+	'''
+	##################################
 
 	return list_coords
 
@@ -131,7 +155,7 @@ def read_instances(instance):
 
 def plot_map(instance, route = None, output = ""):
 	colors = ['c', 'm', 'y']
-	plt.figure(num=None, figsize=(25, 25), dpi=400, facecolor='w', edgecolor='k')
+	plt.figure(num=None, figsize=(25, 25), dpi=600, facecolor='w', edgecolor='k')
 	plt.xlabel('x')
 	plt.ylabel('y')
 	
@@ -139,12 +163,12 @@ def plot_map(instance, route = None, output = ""):
 	    if types_farms[i] == -1:
 	        scatter(coordenates[i][0], coordenates[i][1], s=60 ,marker='s', c='k')
 	    elif types_farms[i] == 0:
-	        scatter(coordenates[i][0], coordenates[i][1], s=8 ,marker='o', c='r')
+	        scatter(coordenates[i][0], coordenates[i][1], s=4 ,marker='o', c='r')
 	    elif types_farms[i] == 1:
-	        scatter(coordenates[i][0], coordenates[i][1], s=8 ,marker='o', c='g')
+	        scatter(coordenates[i][0], coordenates[i][1], s=4 ,marker='o', c='g')
 	    elif types_farms[i] == 2:
-	        scatter(coordenates[i][0], coordenates[i][1], s=8 ,marker='o', c='b')
-	    plt.text(coordenates[i][0], coordenates[i][1], i, fontsize=3)
+	        scatter(coordenates[i][0], coordenates[i][1], s=4 ,marker='o', c='b')
+	    plt.text(coordenates[i][0], coordenates[i][1], i, fontsize=2)
 	
 	plt.legend(('Planta', 'Granja con Leche A', 'Granja con Leche B', 'Granja con Leche C'))
 

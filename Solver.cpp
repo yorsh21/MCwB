@@ -219,7 +219,6 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 									if(neighbour_quality > quality) {
 										solution = neighbour;
 										quality = neighbour_quality;
-										//cout << "extra " << quality << endl;
 
 										local = false;
 										supreme_local = false;
@@ -254,7 +253,6 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 									//solution = move_intra_routes(solution, g, h, i);
 									solution = neighbour;
 									quality = neighbour_quality;
-									//cout << "intra " << quality << endl;
 
 									local = false;
 									supreme_local = false;

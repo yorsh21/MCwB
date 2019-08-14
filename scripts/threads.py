@@ -49,7 +49,7 @@ instances = [
 	["eil51", 154, 50128],
 	["eil76", 1700, 91461],
 	["att48", 284, 17452],
-	["_real", 5959/10, 13173]
+	["_real", 5959, 13173]
 ]
 
 os.system("make")
@@ -103,7 +103,7 @@ elif len(sys.argv) == 2:
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2]))
 
-		time.sleep(instances[index][1]+40)
+		time.sleep(instances[index][1]+300)
 
 		for p in process:
 			p.terminate()

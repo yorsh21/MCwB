@@ -6,8 +6,8 @@ from math import sqrt
 
 #Armar matriz de distancias
 coords = [
-	[0, 1, 3, 4, 2],
-	[0, -1, 1, 2, 3]
+	[0, 1, 3, 4, 2, -1, -2],
+	[0, -1, 1, 2, 3, 4, 0]
 ]
 dist_square = []
 for i in range(len(coords[0])):
@@ -19,20 +19,20 @@ for i in range(len(coords[0])):
 	dist_square.append(row_rest)
 
 ###############################################
-asdasdasd = [
-	[0, 1, 3, 4, 2],
-	[15, 0, 4, 5, 3],
-	[17, 23, 0, 2, 8],
-	[18, 54, 11, 0, 9],
-	[19, 12, 11, 64, 0]
+cost_matrix = [
+	[0, 1, 3, 4, 2, 1],
+	[15, 0, 4, 5, 3, 4],
+	[17, 23, 0, 2, 8, 9],
+	[18, 54, 11, 0, 9, 2],
+	[19, 12, 11, 64, 0, 5],
+	[41, 59, 38, 97, 73, 0]
 ]
-print(np.array(asdasdasd))
-half_matrix = asdasdasd[:]
-for i in range(len(asdasdasd)):
-	for j in range(len(asdasdasd)):
-		half_matrix[j][i] = half_matrix[i][j]
+print(np.array(cost_matrix))
+for i in range(len(cost_matrix)):
+	for j in range(len(cost_matrix)):
+		cost_matrix[j][i] = cost_matrix[i][j]
 print()
-print(np.array(half_matrix))
+print(np.array(cost_matrix))
 input("----")
 ###############################################
 
@@ -55,8 +55,8 @@ values, vectors = eig(npM)
 #Obtener vectores de coordenadas
 coordenates = []
 for i in range(len(values)):
-	if values[i] > 0.01:
-		coord = sqrt(values[i])*vectors.T[i]
+	if values[i] > 0.001:
+		coord = sqrt(values[i].real)*vectors.T[i]
 		coordenates.append(coord.tolist())
 
 print("Coordenadas:")
