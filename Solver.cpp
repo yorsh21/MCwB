@@ -223,7 +223,7 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 										local = false;
 										supreme_local = false;
 
-										break;
+										//break;
 									}
 								}
 							}
