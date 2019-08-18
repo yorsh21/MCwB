@@ -186,13 +186,13 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 	int quality_best = global_quality;
 
 	bool local;
-	bool supreme_local;
+	bool supreme_local = false;
 
 
-	//Loop restarts
+	//Loop ILS
 	do
 	{
-		solution = random_feasible_solution2();
+		solution = supreme_local ? disturbing_solution(solution): random_feasible_solution2();
 		quality = evaluate(solution);
 		supreme_local = false;
 
@@ -205,13 +205,24 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 			while(!local) {
 				local = true;
 
-				for (int g = 0; g < trucks_lenght; ++g) //Origen
+				int index_origin = rand() % trucks_lenght;
+				for (int gg = 0; gg < trucks_lenght; ++gg) //Origen
 				{
-					for (int h = 0; h < trucks_lenght; ++h) //Destino
+					int g = (index_origin + gg) % trucks_lenght;
+					int index_destination = rand() % trucks_lenght;
+
+					for (int hh = 0; hh < trucks_lenght; ++hh) //Destino
 					{
-						if(g != h) {
-							for (int i = 0; i < (int)solution[g].size(); ++i) //Nodo origen
+						int h = (index_destination + hh) % trucks_lenght;
+						int route_len = (int)solution[g].size();
+
+						if(g != h && route_len != 0) {
+							int index_nodo = rand() % route_len;
+
+							for (int ii = 0; ii < route_len; ++ii) //Nodo origen
 							{
+								int i = (index_nodo + ii) % route_len;
+
 								if(feasible_movement(solution[g][i], h)) {
 									neighbour = move_extra_routes(solution, g, h, i);
 									neighbour_quality = evaluate(neighbour);
@@ -223,7 +234,8 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 										local = false;
 										supreme_local = false;
 
-										//break;
+										//print(quality);
+										route_len = (int)solution[g].size();//break; 
 									}
 								}
 							}
@@ -237,27 +249,40 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 			while(!local) {
 				local = true;
 
-				for (int g = 0; g < trucks_lenght; ++g)
+				int index_ruta = rand() % trucks_lenght;
+				for (int gg = 0; gg < trucks_lenght; ++gg) //Ruta
 				{
+					int g = (index_ruta + gg) % trucks_lenght;
 					int row_len = (int)solution[g].size();
-					for (int h = 0; h < row_len; ++h)
-					{
-						for (int i = 0; i < row_len; ++i)
+
+					if(row_len != 0) {
+						int index_init = rand() % row_len;
+
+						for (int hh = 0; hh < row_len; ++hh) //Nodo inicio
 						{
-							if(h != i) {
-								neighbour = move_intra_routes(solution, g, h, i);
-								neighbour_quality = evaluate(neighbour);
-								//neighbour_quality = fast_evaluate(solution[g], quality, h, i);
+							int h = (index_init + hh) % row_len;
+							int index_destination = rand() % row_len;
 
-								if(neighbour_quality > quality) {
-									//solution = move_intra_routes(solution, g, h, i);
-									solution = neighbour;
-									quality = neighbour_quality;
+							for (int ii = 0; ii < row_len; ++ii) //Nodo final
+							{
+								int i = (index_destination + ii) % row_len;
 
-									local = false;
-									supreme_local = false;
+								if(h != i) {
+									neighbour = move_intra_routes(solution, g, h, i);
+									neighbour_quality = evaluate(neighbour);
+									//neighbour_quality = fast_evaluate(solution[g], quality, h, i);
 
-									//break;
+									if(neighbour_quality > quality) {
+										//solution = move_intra_routes(solution, g, h, i);
+										solution = neighbour;
+										quality = neighbour_quality;
+
+										local = false;
+										supreme_local = false;
+
+										//print(quality);
+										//break;
+									}
 								}
 							}
 						}
@@ -430,6 +455,40 @@ vector<vector<int>> Solver::random_feasible_solution2()
 				}
 				TOL -= 10;
 			}
+		}
+	}
+
+	return solution;
+}
+
+
+vector<vector<int>> Solver::disturbing_solution(vector<vector<int>> solution) {
+	int deep_disturbing = farms_lenght * 0.05;
+
+	for (int i = 0; i < deep_disturbing; ++i)
+	{
+		int route_1 = rand() % trucks_lenght;
+		int route_2 = rand() % trucks_lenght;
+		
+		int node_1 = solution[route_1].size();
+		int node_2 = solution[route_2].size();
+
+		if(node_1 != 0 && node_2 != 0) {
+			node_1 = rand() % node_1;
+			node_2 = rand() % node_2;
+
+			if(route_1 == route_2) {
+				int temp = solution[route_1][node_1];
+				solution[route_1][node_1] = solution[route_2][node_2];
+				solution[route_2][node_2] = temp;
+
+			}
+			else {
+				solution[route_2].insert(solution[route_2].begin() + node_2, solution[route_1][node_1]);
+				solution[route_1].erase(solution[route_1].begin() + node_1);
+			}
+
+			
 		}
 	}
 

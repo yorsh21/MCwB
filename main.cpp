@@ -34,7 +34,7 @@ vector<int> times = {
 
 vector<int> qualities = {
 	29417,30496,29233,24837,28596,30808,38771,40282,40696,39800,46662,22414,24694,25041,60644,22917,24447,24100,28046,
-	25822,29977,66160,46180,42992,48238,25906,43869,23705,72864,72072,15947,7207,7117,20409,50128,91461,17452,13173
+	25822,29977,66160,46180,42992,48238,25906,43869,23705,72864,72072,15947,7207,7117,20409,50128,91461,17452,14155 //13173
 };
 
 vector<string> inputs = {
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	}
 	else if(argc == 2) {
 		string input = argv[1];
-		int seed = time(NULL);//seeds[0];
+		int seed = seeds[0];//time(NULL);
 		int time = 0;
 		int quality = 0;
 		int factor1 = 10;
@@ -97,11 +97,6 @@ int main(int argc, char *argv[])
 
 		//Creando estructura de las soluciones
 		Solver sol = Solver(instance, input, factor1, factor2);
-
-
-		vector<vector<int>> rand_sol = sol.random_feasible_solution2();
-		//sol.string_map_milk_types(rand_sol);
-		//return 0;
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<vector<int>> solution = sol.hill_climbing(time, quality);

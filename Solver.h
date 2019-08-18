@@ -55,6 +55,7 @@ class Solver {
 		vector<vector<int>> move_intra_routes(vector<vector<int>> solution, int row, int node1, int node2);
 		vector<vector<int>> random_feasible_solution();
 		vector<vector<int>> random_feasible_solution2();
+		vector<vector<int>> disturbing_solution(vector<vector<int>> solution);
 
 		vector<int> random_int_vector(int lenght);
 		vector<int> clutter_vector(vector<int> array);
