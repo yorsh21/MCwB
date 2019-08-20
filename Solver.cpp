@@ -235,7 +235,8 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 										supreme_local = false;
 
 										//print(quality);
-										route_len = (int)solution[g].size();//break; 
+										break; 
+										//route_len = (int)solution[g].size();
 									}
 								}
 							}
@@ -281,7 +282,7 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 										supreme_local = false;
 
 										//print(quality);
-										//break;
+										break;
 									}
 								}
 							}

@@ -11,6 +11,8 @@ seeds = [
 	1283156388, 1283156047, 1283156327, 1283156012, 1283156343, 1283150322, 1280156375, 1283106375, 1283156364, 128315039
 ]
 
+seeds = [1437356881] #temporal
+
 instances = [
 	["a33", 62, 29417, 300],
 	["a34", 40, 30496, 300],
@@ -53,6 +55,9 @@ instances = [
 ]
 
 os.system("make")
+
+if(not os.path.isfile(os.path.dirname(__file__) + "/../outputs/results_threads.out")):
+	os.system("> ./../outputs/results_threads.out")
 
 factor1 = "10"
 factor2 = "10"
