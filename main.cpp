@@ -46,7 +46,7 @@ vector<string> inputs = {
 
 int main(int argc, char *argv[])
 {
-	if(argc == 7) 
+	if(argc == 8) 
 	{
 		string input = argv[1];
 		int seed = stoi(argv[2]);
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 		int quality = stoi(argv[4]);
 		int factor1 = stoi(argv[5]);
 		int factor2 = stoi(argv[6]);
+		float disturbing = stof(argv[7]);
 
 		srand (seed);
 		
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
 			return 0;
 
 		//Creando estructura de las soluciones
-		Solver sol = Solver(instance, input, factor1, factor2);
+		Solver sol = Solver(instance, input, factor1, factor2, disturbing);
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<vector<int>> solution = sol.hill_climbing(time, quality);
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
 		int quality = 0;
 		int factor1 = 10;
 		int factor2 = 10;
+		float disturbing = 0.05;
 
 		for (int i = 0; i < (int)inputs.size(); ++i)
 		{
@@ -96,7 +98,7 @@ int main(int argc, char *argv[])
 			return 0;
 
 		//Creando estructura de las soluciones
-		Solver sol = Solver(instance, input, factor1, factor2);
+		Solver sol = Solver(instance, input, factor1, factor2, disturbing);
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<vector<int>> solution = sol.hill_climbing(time, quality);

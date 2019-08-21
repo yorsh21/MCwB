@@ -1,10 +1,11 @@
 #include "Solver.h"
 
 
-Solver::Solver(Instances instance, string file_name, int x_cap, int x_req)
+Solver::Solver(Instances instance, string file_name, int x_cap, int x_req, float dist)
 {
 	x_capacity = x_cap;
 	x_request = x_req;
+	disturbing = dist;
 
 	trucks_lenght = instance.truck_lenght; //100
 	milks_lenght = instance.milk_lenght; //3
@@ -464,7 +465,7 @@ vector<vector<int>> Solver::random_feasible_solution2()
 
 
 vector<vector<int>> Solver::disturbing_solution(vector<vector<int>> solution) {
-	int deep_disturbing = farms_lenght * 0.05;
+	int deep_disturbing = farms_lenght * disturbing + 0.5;
 
 	for (int i = 0; i < deep_disturbing; ++i)
 	{
