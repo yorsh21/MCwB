@@ -292,7 +292,125 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 				}
 			}
 
-		} //End while restart
+		} //End suprime while
+
+
+		auto end = chrono::system_clock::now();
+		elapsed_seconds = end - start;
+
+		if(quality > quality_best) {
+			quality_best = quality;
+			best_solution = solution;
+			best_trucks = truck_capacities;
+
+			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
+		}
+
+	} while(elapsed_seconds.count() < end_time && quality_best < max_quality);
+
+
+	truck_capacities = best_trucks;
+	//print_matrix(best_solution);
+	//vector_map_milk_types(best_solution);
+	//evaluate(best_solution, true);
+
+	save_thread_result(name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
+
+	return best_solution;
+}
+
+
+vector<vector<int>> Solver::hill_climbing2(int end_time, int max_quality)
+{
+	auto start = chrono::system_clock::now();
+	chrono::duration<double> elapsed_seconds;
+
+	vector<vector<int>> neighbour;
+	vector<vector<int>> solution;
+	vector<vector<int>> best_solution;
+	vector<int> best_trucks = truck_capacities;
+
+	int quality;
+	int neighbour_quality = global_quality;
+	int quality_best = global_quality;
+
+	bool local;
+	bool supreme_local = false;
+
+
+	//Loop ILS
+	do
+	{
+		solution = supreme_local ? disturbing_solution(solution): random_feasible_solution2();
+		quality = evaluate(solution);
+		supreme_local = false;
+
+		while(!supreme_local) 
+		{
+			supreme_local = true;
+
+			//Busqueda Local Extra Rutas
+			local = false;
+			while(!local) {
+				local = true;
+
+				for (int g = 0; g < trucks_lenght; ++g) //Origen
+				{
+					for (int h = 0; h < trucks_lenght; ++h) //Destino
+					{
+						if(g != h) {
+							for (int i = 0; i < (int)solution[g].size(); ++i) //Nodo origen
+							{
+								if(feasible_movement(solution[g][i], h)) {
+									neighbour = move_extra_routes(solution, g, h, i);
+									neighbour_quality = evaluate(neighbour);
+
+									if(neighbour_quality > quality) {
+										solution = neighbour;
+										quality = neighbour_quality;
+
+										local = false;
+										supreme_local = false;
+
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			//Busqueda Local Intra Rutas
+			local = false;
+			while(!local) {
+				local = true;
+
+				for (int g = 0; g < trucks_lenght; ++g) //Ruta
+				{
+					int row_len = (int)solution[g].size();
+					for (int h = 0; h < row_len; ++h) //Nodo inicio
+					{
+						for (int i = 0; i < row_len; ++i) //Nodo final
+						{
+							if(h != i) {
+								neighbour = move_intra_routes(solution, g, h, i);
+								neighbour_quality = evaluate(neighbour);
+
+								if(neighbour_quality > quality) {
+									solution = neighbour;
+									quality = neighbour_quality;
+
+									local = false;
+									supreme_local = false;
+								}
+							}
+						}
+					}
+				}
+			}
+
+		} //End suprime while
 
 
 		auto end = chrono::system_clock::now();
