@@ -62,7 +62,7 @@ os.system("make")
 process = []
 
 #Run all instances with all threads
-if len(sys.argv) == 2;#1:
+if len(sys.argv) == 2:#1:
 	disturbing = sys.argv[2]
 
 	for index in range(len(instances)):
