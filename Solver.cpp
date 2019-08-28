@@ -147,21 +147,19 @@ int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 	int k1 = min(index1, index2) + 1;
 	int k2 = max(index1, index2) + 1;
 
-	/*if(cost_matrix[row[k1]][row[k1-1]] != cost_matrix[row[k1-1]][row[k1]])
-		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");
-	if(cost_matrix[row[k2]][row[k2+1]] != cost_matrix[row[k2+1]][row[k2]])
-		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");
-	if(cost_matrix[row[k2]][row[k1-1]] != cost_matrix[row[k1-1]][row[k2]])
-		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");
-	if(cost_matrix[row[k1]][row[k2+1]] != cost_matrix[row[k2+1]][row[k1]])
-		print("ERROR!!!!!!!!!!!!!!!!!!!!!!");*/
-
 	//Quitar Costos
-	eval += cost_matrix[row[k1]][row[k1-1]];
-	eval += cost_matrix[row[k2]][row[k2+1]];
+	for (int i = k1; i <= k2 + 1; ++i)
+	{
+		eval += cost_matrix[row[i-1]][row[i]];
+	}
 
 	//Agregar Costos
-	eval -= cost_matrix[row[k2]][row[k1-1]];
+	for (int i = k1 + 1; i <= k2; ++i)
+	{
+		eval -= cost_matrix[row[i]][row[i-1]];
+	}
+
+	eval -= cost_matrix[row[k1-1]][row[k2]];
 	eval -= cost_matrix[row[k1]][row[k2+1]];
 
 	return eval;
@@ -172,7 +170,7 @@ int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 /********************* Búsqueda Local  **********************/
 /************************************************************/
 
-vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
+vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality)
 {
 	auto start = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds;
@@ -193,7 +191,7 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 	//Loop ILS
 	do
 	{
-		solution = supreme_local ? disturbing_solution(solution): random_feasible_solution2();
+		solution = supreme_local ? disturbing_solution(solution) : random_feasible_solution2();
 		quality = evaluate(solution);
 		supreme_local = false;
 
@@ -320,7 +318,7 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 }
 
 
-vector<vector<int>> Solver::hill_climbing2(int end_time, int max_quality)
+vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 {
 	auto start = chrono::system_clock::now();
 	chrono::duration<double> elapsed_seconds;
@@ -338,10 +336,11 @@ vector<vector<int>> Solver::hill_climbing2(int end_time, int max_quality)
 	bool supreme_local = false;
 
 
-	//Loop ILS
+	//Loop ILS/HC
 	do
 	{
-		solution = supreme_local ? disturbing_solution(solution): random_feasible_solution2();
+		//solution = supreme_local ? disturbing_solution(solution) : random_feasible_solution2();
+		solution = random_feasible_solution2();
 		quality = evaluate(solution);
 		supreme_local = false;
 
@@ -394,11 +393,13 @@ vector<vector<int>> Solver::hill_climbing2(int end_time, int max_quality)
 						for (int i = 0; i < row_len; ++i) //Nodo final
 						{
 							if(h != i) {
-								neighbour = move_intra_routes(solution, g, h, i);
-								neighbour_quality = evaluate(neighbour);
+								//neighbour = move_intra_routes(solution, g, h, i);
+								//neighbour_quality = evaluate(neighbour);
+								neighbour_quality = fast_evaluate(solution[g], quality, h, i);
 
 								if(neighbour_quality > quality) {
-									solution = neighbour;
+									solution = move_intra_routes(solution, g, h, i);
+									//solution = neighbour;
 									quality = neighbour_quality;
 
 									local = false;
@@ -473,9 +474,11 @@ vector<vector<int>> Solver::move_intra_routes(vector<vector<int>> solution, int 
 	int diff = (k2 - k1)/2;
 	for (int i = 0; i <= diff; ++i)
 	{
-		int temp = solution[node][k1 + i];
-		solution[node][k1 + i] = solution[node][k2 - i];
-		solution[node][k2 - i] = temp;
+		if(k1 + i != k2 - i) {
+			int temp = solution[node][k1 + i];
+			solution[node][k1 + i] = solution[node][k2 - i];
+			solution[node][k2 - i] = temp;
+		}
 	}
 
 	return solution;
@@ -607,8 +610,6 @@ vector<vector<int>> Solver::disturbing_solution(vector<vector<int>> solution) {
 				solution[route_2].insert(solution[route_2].begin() + node_2, solution[route_1][node_1]);
 				solution[route_1].erase(solution[route_1].begin() + node_1);
 			}
-
-			
 		}
 	}
 

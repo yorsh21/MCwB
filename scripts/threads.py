@@ -75,8 +75,9 @@ if len(sys.argv) == 1:
 
 
 #Run an instance with all threads
-elif len(sys.argv) == 2:
+elif len(sys.argv) == 3:#2:
 	index = -1
+	disturbing = sys.argv[2]
 
 	for i in range(len(instances)):
 		if instances[i][0] == sys.argv[1]:
@@ -90,7 +91,7 @@ elif len(sys.argv) == 2:
 		for p in process:
 			p.communicate()
 
-
+'''
 #Run an instance with one threads
 elif len(sys.argv) == 3:
 	index = -1
@@ -103,9 +104,9 @@ elif len(sys.argv) == 3:
 
 	if index != -1:
 		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " " + factor1 + " " + factor2 + " " + disturbing)
-
 else:
 	print("Excess of parameters")
+'''
 
 
 
