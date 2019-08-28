@@ -63,7 +63,7 @@ process = []
 
 #Run all instances with all threads
 if len(sys.argv) == 2:#1:
-	disturbing = sys.argv[2]
+	disturbing = sys.argv[1]
 
 	for index in range(len(instances)):
 		for seed in seeds:
