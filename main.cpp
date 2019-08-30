@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 		int quality = 0;
 		int factor1 = 10;
 		int factor2 = 10;
-		float disturbing = 0.15;
+		float disturbing = 0.05;
 
 		for (int i = 0; i < (int)inputs.size(); ++i)
 		{
