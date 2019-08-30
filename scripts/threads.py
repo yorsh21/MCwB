@@ -53,7 +53,7 @@ instances = [
 	["eil51", 154, 50128],
 	["eil76", 1700, 91461],
 	["att48", 284, 17452],
-	["_real", 5959*2, 14155] #13173]
+	["_real", 5959, 14155] #13173]
 ]
 
 
@@ -62,19 +62,18 @@ os.system("make")
 process = []
 
 #Run all instances with all threads
-if len(sys.argv) == 2:#1:
-	disturbing = sys.argv[1]
+if len(sys.argv) == 1:
 
 	for index in range(len(instances)):
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2, disturbing]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]*0+3600*15), str(instances[index][2]), factor1, factor2, disturbing]))
 
 		for p in process:
 			p.communicate()
 
 		process = []
 
-'''
+
 #Run an instance with all threads
 elif len(sys.argv) == 2:
 	index = -1
@@ -86,7 +85,7 @@ elif len(sys.argv) == 2:
 
 	if index != -1:
 		for seed in seeds:
-			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2, disturbing]))
+			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]*0+3600*15), str(instances[index][2]), factor1, factor2, disturbing]))
 
 		for p in process:
 			p.communicate()
@@ -103,11 +102,11 @@ elif len(sys.argv) == 3:
 			break
 
 	if index != -1:
-		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]) + " " + str(instances[index][2]) + " " + factor1 + " " + factor2 + " " + disturbing)
+		os.system('./main' + " " + instances[index][0] + " " + str(seed) + " " + str(instances[index][1]*0+3600*15) + " " + str(instances[index][2]) + " " + factor1 + " " + factor2 + " " + disturbing)
 
 else:
 	print("Excess of parameters")
-'''
+
 
 
 
