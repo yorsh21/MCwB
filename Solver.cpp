@@ -308,10 +308,6 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 
 
 	truck_capacities = best_trucks;
-	//print_matrix(best_solution);
-	//vector_map_milk_types(best_solution);
-	//evaluate(best_solution, true);
-
 	save_thread_result(name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
 
 	return best_solution;
@@ -393,13 +389,10 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 						for (int i = 0; i < row_len; ++i) //Nodo final
 						{
 							if(h != i) {
-								//neighbour = move_intra_routes(solution, g, h, i);
-								//neighbour_quality = evaluate(neighbour);
 								neighbour_quality = fast_evaluate(solution[g], quality, h, i);
 
 								if(neighbour_quality > quality) {
 									solution = move_intra_routes(solution, g, h, i);
-									//solution = neighbour;
 									quality = neighbour_quality;
 
 									local = false;
@@ -431,10 +424,6 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 
 
 	truck_capacities = best_trucks;
-	//print_matrix(best_solution);
-	//vector_map_milk_types(best_solution);
-	//evaluate(best_solution, true);
-
 	save_thread_result(name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
 
 	return best_solution;
