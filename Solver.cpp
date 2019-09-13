@@ -233,9 +233,7 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 										local = false;
 										supreme_local = false;
 
-										//print(quality);
 										break; 
-										//route_len = (int)solution[g].size();
 									}
 								}
 							}
@@ -268,19 +266,15 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 								int i = (index_destination + ii) % row_len;
 
 								if(h != i) {
-									neighbour = move_intra_routes(solution, g, h, i);
-									neighbour_quality = evaluate(neighbour);
-									//neighbour_quality = fast_evaluate(solution[g], quality, h, i);
+									neighbour_quality = fast_evaluate(solution[g], quality, h, i);
 
 									if(neighbour_quality > quality) {
-										//solution = move_intra_routes(solution, g, h, i);
-										solution = neighbour;
+										solution = move_intra_routes(solution, g, h, i);
 										quality = neighbour_quality;
 
 										local = false;
 										supreme_local = false;
 
-										//print(quality);
 										break;
 									}
 								}
