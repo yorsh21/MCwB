@@ -172,8 +172,12 @@ int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 
 vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality)
 {
-	auto start = chrono::system_clock::now();
-	chrono::duration<double> elapsed_seconds;
+	//auto start = chrono::system_clock::now();
+	//chrono::duration<double> elapsed_seconds;
+	
+	clock_t t;
+	t = clock();
+	int elapsed_seconds = 0;
 
 	vector<vector<int>> neighbour;
 	vector<vector<int>> solution;
@@ -275,7 +279,7 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 										local = false;
 										supreme_local = false;
 
-										break;
+										//break;
 									}
 								}
 							}
@@ -287,22 +291,24 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 		} //End suprime while
 
 
-		auto end = chrono::system_clock::now();
-		elapsed_seconds = end - start;
+		//auto end = chrono::system_clock::now();
+		//elapsed_seconds = end - start;
+		t = clock() - t;
+		elapsed_seconds = (int)((float)t)/CLOCKS_PER_SEC;
 
 		if(quality > quality_best) {
 			quality_best = quality;
 			best_solution = solution;
 			best_trucks = truck_capacities;
 
-			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
+			cout << name_instance << ": " << elapsed_seconds << "s  ->  " << quality_best << endl;
 		}
 
-	} while(elapsed_seconds.count() < end_time && quality_best < max_quality);
+	} while(elapsed_seconds < end_time && quality_best < max_quality);
 
 
 	truck_capacities = best_trucks;
-	save_thread_result(name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
+	save_thread_result(name_instance + ": " + to_string(elapsed_seconds) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
 
 	return best_solution;
 }
