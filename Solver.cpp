@@ -1,11 +1,12 @@
 #include "Solver.h"
 
 
-Solver::Solver(Instances instance, string file_name, int x_cap, int x_req, float dist)
+Solver::Solver(Instances instance, string file_name, int x_cap, int x_req, float dist, int r_seed)
 {
 	x_capacity = x_cap;
 	x_request = x_req;
 	disturbing = dist;
+	seed = r_seed;
 
 	trucks_lenght = instance.truck_lenght; //100
 	milks_lenght = instance.milk_lenght; //3
@@ -172,12 +173,10 @@ int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 
 vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality)
 {
-	//auto start = chrono::system_clock::now();
-	//chrono::duration<double> elapsed_seconds;
-	
-	clock_t t;
-	t = clock();
+	clock_t start_time;
+	start_time = clock();
 	int elapsed_seconds = 0;
+	int loops = 0;
 
 	vector<vector<int>> neighbour;
 	vector<vector<int>> solution;
@@ -293,22 +292,26 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 
 		//auto end = chrono::system_clock::now();
 		//elapsed_seconds = end - start;
-		t = clock() - t;
-		elapsed_seconds = (int)((float)t)/CLOCKS_PER_SEC;
+		clock_t temp_time = clock() - start_time;
+		elapsed_seconds = (int)((float)temp_time)/CLOCKS_PER_SEC;
+		loops++;
 
 		if(quality > quality_best) {
 			quality_best = quality;
 			best_solution = solution;
 			best_trucks = truck_capacities;
 
-			cout << name_instance << ": " << elapsed_seconds << "s  ->  " << quality_best << endl;
+			cout << name_instance << "(" << seed << "): " << elapsed_seconds << "s  ->  " << quality_best << endl;
+		}
+		else {
+			cout << loops << endl;
 		}
 
 	} while(elapsed_seconds < end_time && quality_best < max_quality);
 
 
 	truck_capacities = best_trucks;
-	save_thread_result(name_instance + ": " + to_string(elapsed_seconds) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
+	save_thread_result(name_instance + "(" + to_string(seed) + "): " + to_string(elapsed_seconds) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
 
 	return best_solution;
 }

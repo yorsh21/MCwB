@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 			return 0;
 
 		//Creando estructura de las soluciones
-		Solver sol = Solver(instance, input, factor1, factor2, disturbing);
+		Solver sol = Solver(instance, input, factor1, factor2, disturbing, seed);
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<vector<int>> solution = sol.iteration_local_search(time, quality);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	}
 	else if(argc == 2) {
 		string input = argv[1];
-		int seed = seeds[0];//time(NULL);
+		int seed = time(NULL);//seeds[0];//
 		int time = 0;
 		int quality = 0;
 		int factor1 = 10;
@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
 		}
 
 		srand (seed);
+		cout << seed << endl;
 		
 		//Leyendo instancias
 		Instances instance = Instances();
@@ -99,7 +100,7 @@ int main(int argc, char *argv[])
 			return 0;
 
 		//Creando estructura de las soluciones
-		Solver sol = Solver(instance, input, factor1, factor2, disturbing);
+		Solver sol = Solver(instance, input, factor1, factor2, disturbing, seed);
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<vector<int>> solution = sol.iteration_local_search(time, quality);

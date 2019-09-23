@@ -24,6 +24,7 @@ class Solver {
 		int x_capacity;
 		int x_request;
 		int min_index_value;
+		int seed;
 		float disturbing;
 		
 		vector<float> milk_values;
@@ -44,7 +45,7 @@ class Solver {
 		vector<int> satisfied_cuotes;
 
 
-		Solver(Instances instance, string file_name, int x_cap, int x_req, float dist);
+		Solver(Instances instance, string file_name, int x_cap, int x_req, float dist, int r_seed);
 
 		//Evaluate
 		int evaluate(vector<vector<int>> solution, bool show);
