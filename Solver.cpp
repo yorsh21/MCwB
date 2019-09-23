@@ -180,7 +180,7 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 
 	vector<vector<int>> neighbour;
 	vector<vector<int>> solution;
-	vector<vector<int>> best_solution;
+	vector<vector<int>> best_solution = random_feasible_solution2();
 	vector<int> best_trucks = truck_capacities;
 
 	int quality;
@@ -194,7 +194,8 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 	//Loop ILS
 	do
 	{
-		solution = supreme_local ? disturbing_solution(solution) : random_feasible_solution2();
+		//solution = supreme_local ? disturbing_solution(best_solution) : random_feasible_solution2();
+		solution = disturbing_solution(best_solution);
 		quality = evaluate(solution);
 		supreme_local = false;
 
@@ -304,7 +305,7 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 			cout << name_instance << "(" << seed << "): " << elapsed_seconds << "s  ->  " << quality_best << endl;
 		}
 		else {
-			cout << loops << endl;
+			if(loops % 10 == 0) cout << loops << endl;
 		}
 
 	} while(elapsed_seconds < end_time && quality_best < max_quality);

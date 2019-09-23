@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
 		}
 
 		srand (seed);
-		cout << seed << endl;
 		
 		//Leyendo instancias
 		Instances instance = Instances();
