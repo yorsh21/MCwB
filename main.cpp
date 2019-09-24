@@ -68,10 +68,17 @@ int main(int argc, char *argv[])
 		Solver sol = Solver(instance, input, factor1, factor2, disturbing, seed);
 
 		//Ejecutando algoritmo de búsqueda local
-		vector<vector<int>> solution = sol.iteration_local_search(time, quality);
-		int eval = sol.evaluate(solution);
+		vector<vector<int>> solution;
+		if(input == "_real") {
+			solution = sol.iteration_local_search(time, quality);
+		}
+		else {
+			solution = sol.hill_climbing(time, quality);
+		}
 
-		cout << "::::::::::::::::::: END: " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
+		int eval = sol.evaluate(solution);
+		cout << "::::::::::::::::::: END " + to_string(seed) + ": " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
+
 		return 0;
 	}
 	else if(argc == 2) {
@@ -103,9 +110,10 @@ int main(int argc, char *argv[])
 
 		//Ejecutando algoritmo de búsqueda local
 		vector<vector<int>> solution = sol.iteration_local_search(time, quality);
-		int eval = sol.evaluate(solution);
 
-		cout << "::::::::::::::::::: END: " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
+		int eval = sol.evaluate(solution);
+		cout << "::::::::::::::::::: END " + to_string(seed) + ": " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
+
 		return 0;
 	}
 	else {

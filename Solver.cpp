@@ -173,8 +173,7 @@ int Solver::fast_evaluate(vector<int> row, int eval, int index1, int index2)
 
 vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality)
 {
-	clock_t start_time;
-	start_time = clock();
+	clock_t start_time = clock();
 	int elapsed_seconds = 0;
 	int loops = 0;
 
@@ -291,10 +290,8 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 		} //End suprime while
 
 
-		//auto end = chrono::system_clock::now();
-		//elapsed_seconds = end - start;
 		clock_t temp_time = clock() - start_time;
-		elapsed_seconds = (int)((float)temp_time)/CLOCKS_PER_SEC;
+		elapsed_seconds = (int)((float)temp_time/CLOCKS_PER_SEC);
 		loops++;
 
 		if(quality > quality_best) {
@@ -303,9 +300,13 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 			best_trucks = truck_capacities;
 
 			cout << name_instance << "(" << seed << "): " << elapsed_seconds << "s  ->  " << quality_best << endl;
+
+			if(quality_best >= max_quality) {
+				save_thread_result(name_instance + "(" + to_string(seed) + "): " + to_string(elapsed_seconds) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
+			}
 		}
 		else {
-			if(loops % 10 == 0) cout << loops << endl;
+			//if(loops % 10 == 0) cout << loops << endl;
 		}
 
 	} while(elapsed_seconds < end_time && quality_best < max_quality);
@@ -320,8 +321,11 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 
 vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 {
-	auto start = chrono::system_clock::now();
-	chrono::duration<double> elapsed_seconds;
+	//auto start = chrono::system_clock::now();
+	//chrono::duration<double> elapsed_seconds;
+	clock_t start_time = clock();
+	int elapsed_seconds = 0;
+	int loops = 0;
 
 	vector<vector<int>> neighbour;
 	vector<vector<int>> solution;
@@ -339,7 +343,6 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 	//Loop ILS/HC
 	do
 	{
-		//solution = supreme_local ? disturbing_solution(solution) : random_feasible_solution2();
 		solution = random_feasible_solution2();
 		quality = evaluate(solution);
 		supreme_local = false;
@@ -413,22 +416,25 @@ vector<vector<int>> Solver::hill_climbing(int end_time, int max_quality)
 		} //End suprime while
 
 
-		auto end = chrono::system_clock::now();
-		elapsed_seconds = end - start;
+		//auto end = chrono::system_clock::now();
+		//elapsed_seconds = end - start;
+		clock_t temp_time = clock() - start_time;
+		elapsed_seconds = (int)((float)temp_time/CLOCKS_PER_SEC);
+		loops++;
 
 		if(quality > quality_best) {
 			quality_best = quality;
 			best_solution = solution;
 			best_trucks = truck_capacities;
 
-			cout << name_instance << ": " << (int)elapsed_seconds.count() << "s  ->  " << quality_best << endl;
+			cout << name_instance << "(" << seed << "): " << elapsed_seconds << "s  ->  " << quality_best << endl;
 		}
 
-	} while(elapsed_seconds.count() < end_time && quality_best < max_quality);
+	} while(elapsed_seconds < end_time && quality_best < max_quality);
 
 
 	truck_capacities = best_trucks;
-	save_thread_result(name_instance + ": " + to_string((int)elapsed_seconds.count()) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
+	save_thread_result(name_instance + "(" + to_string(seed) + "): " + to_string(elapsed_seconds) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
 
 	return best_solution;
 }
