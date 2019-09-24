@@ -187,13 +187,12 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 	int quality_best = global_quality;
 
 	bool local;
-	bool supreme_local = false;
+	bool supreme_local;
 
 
 	//Loop ILS
 	do
 	{
-		//solution = supreme_local ? disturbing_solution(best_solution) : random_feasible_solution2();
 		solution = disturbing_solution(best_solution);
 		quality = evaluate(solution);
 		supreme_local = false;
@@ -291,7 +290,7 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 
 
 		clock_t temp_time = clock() - start_time;
-		elapsed_seconds = (int)((float)temp_time/CLOCKS_PER_SEC);
+		double elapsed_seconds = double(temp_time - start_time) / double(CLOCKS_PER_SEC); 
 		loops++;
 
 		if(quality > quality_best) {
@@ -301,13 +300,13 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 
 			cout << name_instance << "(" << seed << "): " << elapsed_seconds << "s  ->  " << quality_best << endl;
 
-			if(quality_best >= max_quality) {
+			/*if(quality_best >= max_quality) {
 				save_thread_result(name_instance + "(" + to_string(seed) + "): " + to_string(elapsed_seconds) + "s  ->  " + to_string(quality_best) + " " + matrix_to_string(best_solution) + " " + vector_to_string(best_trucks));
-			}
+			}*/
 		}
-		else {
-			//if(loops % 10 == 0) cout << loops << endl;
-		}
+		/*else {
+			if(loops % 10 == 0) cout << loops << endl;
+		}*/
 
 	} while(elapsed_seconds < end_time && quality_best < max_quality);
 
