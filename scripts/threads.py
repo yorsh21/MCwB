@@ -4,10 +4,11 @@ import os
 import sys
 import time
 import subprocess
+import psutil
 
 factor1 = "10"
 factor2 = "10"
-disturbing = "0.05"
+disturbing = "0.2"
 
 seeds = [
 	1437356881, 1437356667, 1437356643, 1437356562, 1437356443, 1437356427, 1437356575, 1437356478, 1437356067, 143735625,
@@ -54,10 +55,25 @@ instances = [
 	["eil51", 154, 50128],
 	["eil76", 1700, 91461],
 	["att48", 284, 17452],
+	["_real", 5959, 14155]
 	#["_real", 57962, 14155]
-	#["_real", 5959, 14155]
 ]
 
+def len_process(name):
+	counter = 0
+	for proc in psutil.process_iter():
+	    try:
+	    	if proc.name() == name:
+	    		counter += 1
+	    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+	        pass
+	return counter
+
+def if_process(name):
+	result = subprocess.run(['ps', '-e'], stdout=subprocess.PIPE)
+	output = result.stdout.decode('utf-8')
+	bolean = name in output
+	return name in output
 
 os.system("make")
 
@@ -70,8 +86,18 @@ if len(sys.argv) == 1:
 		for seed in seeds:
 			process.append(subprocess.Popen(['./main', instances[index][0], str(seed), str(instances[index][1]), str(instances[index][2]), factor1, factor2, disturbing]))
 
+		while not if_process("main <defunct>"):
+			time.sleep(5)
+
 		for p in process:
+			p.terminate()
 			p.communicate()
+
+		while if_process("main"):
+			time.sleep(5)
+
+		#for p in process:
+		#	p.communicate()
 
 		process = []
 
