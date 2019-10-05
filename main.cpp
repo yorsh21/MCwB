@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 		Solver sol = Solver(instance, input, factor1, factor2, disturbing, seed);
 
 		//Ejecutando algoritmo de búsqueda local
-		vector<vector<int>> solution = sol.iteration_local_search(time, quality);
+		vector<vector<int>> solution = sol.hill_climbing(time, quality);
 
 		int eval = sol.evaluate(solution);
 		cout << "::::::::::::::::::: END " + to_string(seed) + ": " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
