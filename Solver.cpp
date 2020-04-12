@@ -278,7 +278,7 @@ vector<vector<int>> Solver::iteration_local_search(int end_time, int max_quality
 										local = false;
 										supreme_local = false;
 
-										//break;
+										break;
 									}
 								}
 							}
