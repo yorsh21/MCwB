@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 		vector<vector<int>> solution = sol.hill_climbing(time, quality);
 
 		int eval = sol.evaluate(solution);
-		cout << "::::::::::::::::::: END " + to_string(seed) + ": " + input + " -> " + to_string(eval) + " :::::::::::::::::::" << endl;
+		cout << "::::::::::::::::::: END " + to_string(seed) + ": " + input + " -> " + to_string(eval) << endl;
 
 		return 0;
 	}
